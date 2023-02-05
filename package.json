@@ -1,5 +1,23 @@
 {
   "dependencies": {
     "three": "^0.149.0"
-  }
+  },
+  "name": "threejsnote",
+  "description": "",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/singrum/threejsnote.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/singrum/threejsnote/issues"
+  },
+  "homepage": "https://github.com/singrum/threejsnote#readme"
 }
