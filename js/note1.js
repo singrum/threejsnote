@@ -46,10 +46,10 @@ class App {
 	}
 
 	_setupModel() {
-		const geometry = new THREE.CylinderGeometry(0.6,1,1);
+		const geometry = new THREE.TorusGeometry( 0.6, 0.3, 16,30 );
 		const material = new THREE.MeshPhongMaterial({ color: 0x44a88 });
 		const cube = new THREE.Mesh(geometry, material);
-
+		console.log(geometry)
 		const lineMaterial = new THREE.LineBasicMaterial({color : 0xffff00});
 		const line = new THREE.LineSegments(
 			new THREE.WireframeGeometry(geometry), lineMaterial)
