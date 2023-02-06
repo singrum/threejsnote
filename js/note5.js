@@ -47,29 +47,36 @@ class App {
 	}
 
 	_setupModel() {
-		const vertices = [];
-		for(let i = 0; i<10000; i++){
-			const x = THREE.MathUtils.randFloatSpread(5);
-			const y = THREE.MathUtils.randFloatSpread(5);
-			const z = THREE.MathUtils.randFloatSpread(5);
-			vertices.push(x,y,z);
-		}
-
-		const geometry = new THREE.BufferGeometry();
-		geometry.setAttribute(
-			"position",
-			new THREE.Float32BufferAttribute(vertices, 3)
-		);
-
-		const material = new THREE.PointsMaterial({
-			color:0xff0000,
-			size: 5,
-			sizeAttenuation : false
+		const material1 = new THREE.MeshBasicMaterial({
+			visible: true,
+			transparent: true,
+			opacity:0.5,
+			depthTest:true,
+			depthWrite:true,
+			side: THREE.FrontSide,
+			color:0xffff00,
+			wireframe:false
 		})
-		const points = new THREE.Points(geometry, material);
-		this._scene.add(points)
-		
+
+
+		const material2 = new THREE.MeshLambertMaterial({
+			transparent: true,
+			opacity:0.5,
+			side: THREE.DoubleSide,
+			color:0xffff00,
+			emissive: 0xff0000,
+			wireframe:false
+		})
+
+		const box = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), material2);
+		box.position.set(-1,0,0);
+		this._scene.add(box);
+
+		const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32,32), material2);
+		sphere.position.set(1,0,0);
+		this._scene.add(sphere);
 	}
+
 
 	resize() {
 		const width = this._divContainer.clientWidth;

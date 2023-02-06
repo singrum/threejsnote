@@ -47,29 +47,24 @@ class App {
 	}
 
 	_setupModel() {
-		const vertices = [];
-		for(let i = 0; i<10000; i++){
-			const x = THREE.MathUtils.randFloatSpread(5);
-			const y = THREE.MathUtils.randFloatSpread(5);
-			const z = THREE.MathUtils.randFloatSpread(5);
-			vertices.push(x,y,z);
-		}
-
+		const vertices = [
+			-1, 1, 0,
+			1, 1, 0,
+			-1, -1, 0,
+			1, -1, 0,
+		];
 		const geometry = new THREE.BufferGeometry();
-		geometry.setAttribute(
-			"position",
-			new THREE.Float32BufferAttribute(vertices, 3)
-		);
+		geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+		const material = new THREE.LineBasicMaterial({
+			color: 0xff0000
+		});
 
-		const material = new THREE.PointsMaterial({
-			color:0xff0000,
-			size: 5,
-			sizeAttenuation : false
-		})
-		const points = new THREE.Points(geometry, material);
-		this._scene.add(points)
-		
+		// const line = new THREE.Line(geometry, material);
+		// const line= new THREE.LineSegments(geometry, material);
+		const line= new THREE.LineLoop(geometry, material);
+		this._scene.add(line)
 	}
+
 
 	resize() {
 		const width = this._divContainer.clientWidth;
