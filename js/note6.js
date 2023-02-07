@@ -1,3 +1,4 @@
+
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 
@@ -46,62 +47,31 @@ class App {
 	}
 
 	_setupModel() {
-		const material1 = new THREE.MeshBasicMaterial({
-			visible: true,
-			transparent: true,
-			opacity:0.5,
-			depthTest:true,
-			depthWrite:true,
-			side: THREE.FrontSide,
-			color:0xffff00,
-			wireframe:false
+		const textureLoader = new THREE.TextureLoader();
+		const map = textureLoader.load(
+			"../img/uv_grid.jpg", texture => {
+				texture.repeat.x = 1;
+				texture.repeat.y = 1;
+				texture.wrapS = THREE.ClampToEdgeWrapping;
+				texture.wrapT = THREE.ClampToEdgeWrapping;
+				texture.offset.x = 0;
+				texture.offset.y = 0;
+				texture.rotation = THREE.MathUtils.degToRad(0)
+				texture.center.x = 0.5;
+				texture.center.y = 0.5;
+				texture.magFilter = THREE.NearestFilter;
+				texture.minFilter = THREE.NearestMipMapLinearFilter;
+			}
+		)
+		const material = new THREE.MeshStandardMaterial({
+			map : map
 		})
 
-
-		const material2 = new THREE.MeshLambertMaterial({
-			transparent: true,
-			opacity:0.5,
-			side: THREE.DoubleSide,
-			color:0xffff00,
-			emissive: 0xff0000,
-			wireframe:false
-		})
-
-		const material3 = new THREE.MeshPhongMaterial({
-			color : 0xff0000,
-			emissive : 0x0000,
-			specular:0x0000ff,//반사되는 색
-			shininess:10,
-			flatShading: true,
-			wireframe: false
-		})
-
-		const material4 = new THREE.MeshStandardMaterial({
-			color: 0xff0000,
-			emissive: 0x000000,
-			roughness: 0.1,
-			metalness: 0.1,
-			wireframe: false,
-			flatShading: false,
-		})
-
-		const material5 = new THREE.MeshPhysicalMaterial({
-			color: 0xff0000,
-			emissive: 0x000000,
-			roughness: 1,
-			metalness: 0,
-			wireframe: false,
-			flatShading: false,
-			clearcoat:1,
-			clearcoatRoughness:0
-		})
-
-
-		const box = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), material5);
+		const box = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), material);
 		box.position.set(-1,0,0);
 		this._scene.add(box);
 
-		const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32,32), material5);
+		const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32,32), material);
 		sphere.position.set(1,0,0);
 		this._scene.add(sphere);
 	}
