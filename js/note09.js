@@ -1,5 +1,9 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
+import {RectAreaLightUniformsLib} from '../node_modules/three/examples/jsm/lights/RectAreaLightUniformsLib.js'
+import { RectAreaLightHelper } from '../node_modules/three/examples/jsm/helpers/RectAreaLightHelper.js';
+
+
 
 class App {
 	constructor() {
@@ -33,16 +37,70 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
-		camera.position.z = 2;
+		camera.position.set(7,7,0);
+		camera.lookAt(0,0,0)
 		this._camera = camera;
 	}
 
 	_setupLight() {
-		const color = 0xffffff;
-		const intensity = 1;
-		const light = new THREE.DirectionalLight(color, intensity);
-		light.position.set(-1, 2, 4);
+		const light1 = new THREE.AmbientLight(0xff0000, 4)
+		const light2 = new THREE.HemisphereLight("#b0d8f5", "#bb7a1c", 1)
+
+		// DirectionalLight & helper
+		// const light3 = new THREE.DirectionalLight(0xffffff, 1);
+		// light3.position.set(0,5,0);
+		// light3.target.position.set(0,0,0);
+		// this._scene.add(light3.target);
+
+
+		// this._scene.add(light3);
+		// this._light = light3
+
+		// const helper = new THREE.DirectionalLightHelper(light3);
+		// this._scene.add(helper);
+		// this._lightHelper = helper
+
+	
+		// PointLight
+		// const light4 = new THREE.PointLight(0xffffff, 2);
+		// light4.position.set(0,5,0);
+		// this._scene.add(light4);
+		// this._light = light4;
+
+		// light4.distance = 100;
+
+		// const helper = new THREE.PointLightHelper(light4);
+		// this._scene.add(helper);
+
+
+		//SpotLigth & helper
+		// const light = new THREE.SpotLight(0xffffff, 1);
+		// light.position.set(0,5,0);
+		// light.target.position.set(0,0,0);
+		// light.angle = THREE.MathUtils.degToRad(40);
+		// light.penumbra = 0.5; //감쇠율
+		// this._scene.add(light.target);
+		// this._scene.add(light);
+		// this._light = light
+
+		// const helper = new THREE.SpotLightHelper(light);
+		// this._scene.add(helper);
+		// this._lightHelper = helper;
+		// this._scene.add(light);
+		// this._light = light
+		
+		// RectAreaLight
+		RectAreaLightUniformsLib.init();
+		const light = new THREE.RectAreaLight(0xffffff, 5, 4, 4);
+		light.position.set(0,5,0);
+		light.rotation.x = THREE.MathUtils.degToRad(-90);
+
+		const helper = new RectAreaLightHelper(light);
+		light.add(helper);
+
 		this._scene.add(light);
+		this._light = light
+
 	}
 
 	_setupModel() {
@@ -78,7 +136,8 @@ class App {
 			const torus = new THREE.Mesh(torusGeometry, torusMaterial);
 			torusPivot.rotation.y = THREE.MathUtils.degToRad(45*i);
 			torus.position.set(3,0.5,0);
-			this._scene.add(torusPivot)
+			torusPivot.add(torus);
+			this._scene.add(torusPivot);
 		}
 
 
@@ -106,17 +165,28 @@ class App {
 		this._renderer.setSize(width, height);
 	}
 
+	update(time) {
+		time *= 0.001;
+
+		const smallSpherePivot = this._scene.getObjectByName("smallSpherePivot");
+		if(smallSpherePivot){
+			smallSpherePivot.rotation.y = THREE.MathUtils.degToRad(time * 50);
+
+			// if(this._light){
+			// 	const smallSphere = smallSpherePivot.children[0];
+			// 	smallSphere.getWorldPosition(this._light.position);
+			// 	if(this._lightHelper) this._lightHelper.update();
+			// }
+		}
+	}
+
 	render(time) {
 		this._renderer.render(this._scene, this._camera);
 		this.update(time);
 		requestAnimationFrame(this.render.bind(this));
 	}
 
-	update(time) {
-		time *= 0.001;
-		// this._cube.rotation.x = time;
-		// this._cube.rotation.y = time;
-	}
+
 }
 
 window.onload = function () {

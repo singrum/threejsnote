@@ -1,6 +1,6 @@
-import * as THREE from '../node_modules/three/build/three.module.js';
-import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
-import {VertexNormalsHelper} from '../node_modules/three/examples/jsm/helpers/VertexNormalsHelper.js'
+import * as THREE from 'three/build/three.module.js';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import {VertexNormalsHelper} from 'three/examples/jsm/helpers/VertexNormalsHelper.js'
 class App {
 	constructor() {
 		const divContainer = document.querySelector("#webgl_container");
