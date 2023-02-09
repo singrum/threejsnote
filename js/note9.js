@@ -54,7 +54,7 @@ class App {
 			side: THREE.DoubleSide,
 		});
 		const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-		ground.setRotationFromAxisAngle.x = THREE.MathUtils.degToRad(-90);
+		ground.rotation.x = THREE.MathUtils.degToRad(-90);
 		this._scene.add(ground);
 
 		const bigSphereGeometry = new THREE.SphereGeometry(1.5, 64,64,0,Math.PI);
@@ -64,7 +64,7 @@ class App {
 			metalness:0.2,
 		});
 		const bigSphere = new THREE.Mesh(bigSphereGeometry,bigSphereMaterial);
-		bigSphere.rotation.x = THREE.Math.degToRad(-90);
+		bigSphere.rotation.x = THREE.MathUtils.degToRad(-90);
 		this._scene.add(bigSphere);
 
 		const torusGeometry = new THREE.TorusGeometry(0.4, 0.1, 32,32);
@@ -76,7 +76,7 @@ class App {
 		for(let i=0; i<8; i++){
 			const torusPivot = new THREE.Object3D();
 			const torus = new THREE.Mesh(torusGeometry, torusMaterial);
-			torusPivot.rotation.y = THREE.Math.degToRad(45*i);
+			torusPivot.rotation.y = THREE.MathUtils.degToRad(45*i);
 			torus.position.set(3,0.5,0);
 			this._scene.add(torusPivot)
 		}
