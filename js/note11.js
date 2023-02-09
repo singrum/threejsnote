@@ -1,7 +1,9 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
-import {RectAreaLightUniformsLib} from '../node_modules/three/examples/jsm/lights/RectAreaLightUniformsLib.js'
-import { RectAreaLightHelper } from '../node_modules/three/examples/jsm/helpers/RectAreaLightHelper.js';
+
+// 렌더러, 광원, 모델에 그림자 설정
+
+
 
 class App {
 	constructor() {
@@ -9,7 +11,8 @@ class App {
 		this._divContainer = divContainer;
 
 		const renderer = new THREE.WebGLRenderer({ antialias: true });
-		
+		renderer.shadowMap.enabled = true;
+
 		divContainer.appendChild(renderer.domElement);
 		this._renderer = renderer;
 		renderer.setSize(window.innerWidth, window.innerHeight);
@@ -32,40 +35,39 @@ class App {
 	}
 
 	_setupCamera() {
-		const camera1 = new THREE.PerspectiveCamera(
-            100, //fov
-            window.innerWidth / window.innerHeight, //aspect
-            0.1, //zNear
-            100 //zFar
-        );
-        camera1.position.set(7,7,0);
-        camera1.lookAt(0,0,0);
-
-        const aspect = window.innerWidth / window.innerHeight;
-        const camera2 = new THREE.OrthographicCamera(
-            -1 * aspect , 1 * aspect, // xLeft, xRight
-            1, -1, // yTop, yBottom
-            0.1, 100 // zNear, zFar
-        );
-        camera2.position.set(7,7,0);
-        camera2.lookAt(0,0,0);
-		camera2.zoom = 0.1
-        this._camera = camera1;
-
+		const width = this._divContainer.clientWidth;
+		const height = this._divContainer.clientHeight;
+		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
+		camera.position.set(7,7,0);
+		camera.lookAt(0,0,0)
+		this._camera = camera;
 	}
 
 	_setupLight() {
-		RectAreaLightUniformsLib.init();
-		const light = new THREE.RectAreaLight(0xffffff, 5, 4, 4);
-		light.position.set(0,5,0);
-		light.rotation.x = THREE.MathUtils.degToRad(-90);
+		const auxLight = new THREE.DirectionalLight(0xffffff, 0.5);
+		auxLight.position.set(0,5,0);
+		auxLight.target.position.set(0,0,0);
+		this._scene.add(auxLight.target);
+		this._scene.add(auxLight);
 
-		const helper = new RectAreaLightHelper(light);
-		light.add(helper);
+
+
+		const light = new THREE.DirectionalLight(0xffffff, 0.5);
+		light.position.set(0,5,0)
+		light.target.position.set(0,0,0);
+		this._scene.add(light.target);
+		light.shadow.camera.top = light.shadow.camera.right = 6;
+		light.shadow.camera.bottom = light.shadow.camera.left = -6;
+		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048 // 텍스쳐 맵 픽셀 수 증가 -> 선명
+		light.shadow.radius = 1; // 흐리기 조정
+
+		const cameraHelper = new THREE.CameraHelper(light.shadow.camera);
+		this._scene.add(cameraHelper)
+		console.log(light.shadow.camera)
 
 		this._scene.add(light);
 		this._light = light
-
+		light.castShadow = true;
 	}
 
 	_setupModel() {
@@ -78,18 +80,21 @@ class App {
 		});
 		const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 		ground.rotation.x = THREE.MathUtils.degToRad(-90);
+		ground.receiveShadow = true;
 		this._scene.add(ground);
 
-		const bigSphereGeometry = new THREE.SphereGeometry(1.5, 64,64,0,Math.PI);
+		const bigSphereGeometry = new THREE.TorusKnotGeometry(1, 0.3, 128, 64, 2, 3);
 		const bigSphereMaterial = new THREE.MeshStandardMaterial({
 			color:"#ffffff",
 			roughness:0.1,
 			metalness:0.2,
 		});
 		const bigSphere = new THREE.Mesh(bigSphereGeometry,bigSphereMaterial);
-		bigSphere.rotation.x = THREE.MathUtils.degToRad(-90);
+		bigSphere.position.y =1.6
+		bigSphere.receiveShadow = true;
+		bigSphere.castShadow = true;
 		this._scene.add(bigSphere);
-
+		
 		const torusGeometry = new THREE.TorusGeometry(0.4, 0.1, 32,32);
 		const torusMaterial = new THREE.MeshStandardMaterial({
 			color: "#9b59b6",
@@ -102,6 +107,8 @@ class App {
 			torusPivot.rotation.y = THREE.MathUtils.degToRad(45*i);
 			torus.position.set(3,0.5,0);
 			torusPivot.add(torus);
+			torus.receiveShadow = true;
+			torus.castShadow = true;
 			this._scene.add(torusPivot);
 		}
 
@@ -117,41 +124,19 @@ class App {
 		smallSpherePivot.add(smallSphere);
 		smallSpherePivot.name = "smallSpherePivot";
 		smallSphere.position.set(3,0.5,0);
+		smallSphere.receiveShadow = true;
+		smallSphere.castShadow = true;
 		this._scene.add(smallSpherePivot)
-
-
-		//
-		const targetPivot = new THREE.Object3D();
-		const target = new THREE.Object3D();
-		targetPivot.add(target);
-		targetPivot.name = "targetPivot";
-		target.position.set(3,0.5,0);
-		this._scene.add(targetPivot)
 	}
 
 	resize() {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
-		const aspect = width / height;
-		
-		// camera 속성에 따른 창 크기 조절 이벤트
-		if(this._camera instanceof THREE.PerspectiveCamera){
-			this._camera.aspect = aspect;
-		}
-		else{
-			this._camera.left = -1 * aspect;
-			this._camera.right = 1 * aspect;
-		}
-		//
+
+		this._camera.aspect = width / height;
 		this._camera.updateProjectionMatrix();
 
 		this._renderer.setSize(width, height);
-	}
-
-	render(time) {
-		this._renderer.render(this._scene, this._camera);
-		this.update(time);
-		requestAnimationFrame(this.render.bind(this));
 	}
 
 	update(time) {
@@ -161,21 +146,21 @@ class App {
 		if(smallSpherePivot){
 			smallSpherePivot.rotation.y = THREE.MathUtils.degToRad(time * 50);
 
-			//
-			const smallSphere = smallSpherePivot.children[0];
-			smallSphere.getWorldPosition(this._camera.position);
-
-			const targetPivot = this._scene.getObjectByName("targetPivot")
-			if(targetPivot){
-				targetPivot.rotation.y = THREE.MathUtils.degToRad(time * 50 + 10);
-				const target = targetPivot.children[0];
-				const pt = new THREE.Vector3()
-				target.getWorldPosition(pt)
-				this._camera.lookAt(pt)
-				console.log(this._camera.position, pt)
+			if(this._light.target){
+				const smallSphere = smallSpherePivot.children[0];
+				smallSphere.getWorldPosition(this._light.target.position);
+				if(this._lightHelper) this._lightHelper.update();
 			}
 		}
 	}
+
+	render(time) {
+		this._renderer.render(this._scene, this._camera);
+		this.update(time);
+		requestAnimationFrame(this.render.bind(this));
+	}
+
+
 }
 
 window.onload = function () {
