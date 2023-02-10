@@ -2,6 +2,9 @@ import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from "../node_modules/three/examples/jsm/loaders/GLTFLoader.js"
 
+// https://sketchfab.com
+
+
 class App {
 	constructor() {
 		const divContainer = document.querySelector("#webgl_container");
@@ -70,7 +73,7 @@ class App {
 
 	_setupModel() {
 		const gltfLoader = new GLTFLoader()
-        const url = '../img/holiday/scene.gltf';
+        const url = '../img/car/scene.gltf';
         gltfLoader.load(
             url,
             (gltf)=>{
