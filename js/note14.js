@@ -1,9 +1,5 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
-import {GLTFLoader} from "../node_modules/three/examples/jsm/loaders/GLTFLoader.js"
-
-// https://sketchfab.com
-
 
 class App {
 	constructor() {
@@ -33,34 +29,12 @@ class App {
 		new OrbitControls(this._camera, this._divContainer);
 	}
 
-    _zoomFit(object3D, camera){
-        const box = new THREE.Box3().setFromObject(object3D);
-        const sizeBox = box.getSize(new THREE.Vector3()).length();
-        const centerBox = box.getCenter(new THREE.Vector3());
-        const halfSizeModel = sizeBox * 0.5;
-        const halfFov = THREE.MathUtils.degToRad(camera.fov * 0.5);
-
-        const distance = halfSizeModel / Math.tan(halfFov);
-        const direction = (new THREE.Vector3()).subVectors(
-            camera.position, centerBox).normalize();
-
-        const position = direction.multiplyScalar(distance).add(centerBox);
-        camera.position.copy(position);
-
-        camera.near = sizeBox / 100;
-        camera.far = sizeBox * 100;
-
-        camera.updateProjectionMatrix();
-        camera.lookAt(centerBox.x, centerBox.y, centerBox.z)
-
-    }
 	_setupCamera() {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
-		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
 		camera.position.z = 2;
 		this._camera = camera;
-        this._scene.add(this._camera)
 	}
 
 	_setupLight() {
@@ -68,20 +42,37 @@ class App {
 		const intensity = 1;
 		const light = new THREE.DirectionalLight(color, intensity);
 		light.position.set(-1, 2, 4);
-		this._camera.add(light);
+		this._scene.add(light);
 	}
 
 	_setupModel() {
-		const gltfLoader = new GLTFLoader()
-        const url = '../data/car/scene.gltf';
-        gltfLoader.load(
-            url,
-            (gltf)=>{
-                const root = gltf.scene;
-                this._scene.add(root);
-                this._zoomFit(root, this._camera)
-            }
-        )
+		const geometry = new THREE.SphereBufferGeometry();
+
+		const material1 = new THREE.MeshStandardMaterial({
+			color: "#2ecc71",
+			roughness: 0.3,
+			metalness:0.9,
+		})
+		const material2 = new THREE.MeshStandardMaterial({
+			color: "#e74c3c",
+			roughness: 0.3,
+			metalness: 0.9,
+		})
+		const rangeMin = -20.0, rangeMax = 20.0;
+		const gap = 10.0;
+		let flag = true;
+
+		for(let x = rangeMin; x <= rangeMax; x += gap){
+			for(let y = rangeMin; y<= rangeMax;y+= gap){
+				for(let z = rangeMin * 10; z <= rangeMax; z += gap){
+					flag = !flag;
+					const mesh = new THREE.Mesh(geometry,
+						flag ? material1 : material2);
+					mesh.position.set(x,y,z)
+					this._scene.add(mesh)
+				}
+			}
+		}
 	}
 
 	resize() {
