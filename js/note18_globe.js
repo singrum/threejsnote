@@ -18,7 +18,7 @@ class App {
 		this._setupCamera();
 		this._setupLight();
 		this._setupModel();
-		// this._setupBackground();
+		// this._setupBackground(); 
 		// this._setupControls()
 		this._setupTouch();
 		this._damp = 0.3
