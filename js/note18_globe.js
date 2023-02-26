@@ -22,6 +22,7 @@ class App {
 		this._setupTouch();
 		this._damp = 0.3
 		this.step = 0;
+		this.step2 = 0;
 		
 		window.onresize = this.resize.bind(this);
 		this.resize();
@@ -41,7 +42,7 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-		camera.position.set(0,-20,20)
+		camera.position.set(0,0,60)
 		this._camera = camera;
 	}
 
@@ -109,13 +110,14 @@ class App {
 	update() {
 		
 		this.step += 0.01;
+		this.step2 += 0.005;
 
 		if(this._isTouch){
 			this._isTouch = false;
 			this.step = 0;
 		}
 		
-		this._sphere.rotation.x = this.step * 0.01
+		this._sphere.rotation.y = this.step2
 
 		for(let i = 0; i < this._count; i++){
 			const uX = this._geometry.attributes.uv.getX(i) * Math.PI * 16;
