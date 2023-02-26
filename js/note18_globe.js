@@ -51,22 +51,22 @@ class App {
 		const color = 0xffffff;
 		const intensity = 1;
 		const light = new THREE.DirectionalLight(color, intensity);
-		light.position.set(-1, 2, 4);
+		light.position.set(20, 20, 20);
 		this._scene.add(light);
 	}
 	_setupBackground(){
 		const loader = new THREE.TextureLoader();
-		loader.load("../data/outer-space-background.jpg", texture => {
+		loader.load("../data/outerspace.jpg", texture => {
 			const renderTarget = new THREE.WebGLCubeRenderTarget(texture.image.height);
 			renderTarget.fromEquirectangularTexture(this._renderer, texture);
 			this._scene.background = renderTarget.texture;
-			this._setupModel();
+			// this._setupModel();
 		})
 	}
 	_setupModel() {
 		const textureLoader = new THREE.TextureLoader();
 		const map = textureLoader.load(
-			"../data/earth.jpg", texture => {
+			"../data/Earth_Texture_Full.webp", texture => {
 				texture.repeat.x = 1;
 				texture.repeat.y = 1;
 				texture.wrapS = THREE.ClampToEdgeWrapping;
