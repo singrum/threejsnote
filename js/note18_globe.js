@@ -18,7 +18,8 @@ class App {
 		this._setupCamera();
 		this._setupLight();
 		this._setupModel();
-		this._setupControls()
+		// this._setupBackground();
+		// this._setupControls()
 		this._setupTouch();
 		this._damp = 0.3
 		this.step = 0;
@@ -53,7 +54,15 @@ class App {
 		light.position.set(-1, 2, 4);
 		this._scene.add(light);
 	}
-
+	_setupBackground(){
+		const loader = new THREE.TextureLoader();
+		loader.load("../data/outer-space-background.jpg", texture => {
+			const renderTarget = new THREE.WebGLCubeRenderTarget(texture.image.height);
+			renderTarget.fromEquirectangularTexture(this._renderer, texture);
+			this._scene.background = renderTarget.texture;
+			this._setupModel();
+		})
+	}
 	_setupModel() {
 		const textureLoader = new THREE.TextureLoader();
 		const map = textureLoader.load(
