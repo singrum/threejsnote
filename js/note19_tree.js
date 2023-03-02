@@ -115,8 +115,8 @@ class App {
 
         const lamp = new THREE.Mesh(geom, mate);
 
-        this._scene.add(lamp)
-        lamp.position.set(0,700,0)
+        // this._scene.add(lamp)
+        // lamp.position.set(0,700,0)
         
     }
 
