@@ -67,7 +67,7 @@ class App {
 		const onPointerDown = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
-			this._push();
+			this.isMove = false;
 			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
 			this.targetRotationOnPointerDown = this.targetRotation;
 
@@ -79,7 +79,7 @@ class App {
 		const onPointerMove = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
-			
+			this.isMove = true;
 			this.pointerX = event.clientX - window.innerWidth / 2;
 
 			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
@@ -90,7 +90,7 @@ class App {
 		const onPointerUp = (event) => {
 
 			if ( event.isPrimary === false ) return;
-
+			if(!this.isMove)this._push();
 			document.removeEventListener( 'pointermove', onPointerMove );
 			document.removeEventListener( 'pointerup', onPointerUp );
 
@@ -110,7 +110,7 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-		camera.position.set(0,3,-10);
+		camera.position.set(0,5,-10);
 		this._camera = camera;
         this._scene.add(this._camera)
 		this._camera.lookAt(0,3,0)
@@ -182,7 +182,7 @@ class App {
 			this.isLinear = true;
 			this.isRotate = false
 			this.linearStep = 10;
-			this.amp = 0.5
+			this.amp = 0.7
 			this.tempX = this._patrick.rotation.x;
 			this.tempY = this._patrick.rotation.x;
 			this.step = 0;
