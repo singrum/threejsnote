@@ -1,3 +1,4 @@
+
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from "../node_modules/three/examples/jsm/loaders/GLTFLoader.js"
@@ -17,7 +18,9 @@ class App {
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		const scene = new THREE.Scene();
 		this._scene = scene;
-
+		this.delta = 0.2
+		this.step = 0;
+		this.isPush = true;
 
         this._setupBackground();
 		this._setupCamera();
@@ -33,7 +36,7 @@ class App {
 
 
 	_push(){
-
+		this.isPush = true;
 	}
     _setupBackground(){
         this._scene.background = new THREE.Color(0xeeeeee);
@@ -163,21 +166,51 @@ class App {
 		this._renderer.setSize(width, height);
 	}
 
-	render(time) {
+	render() {
 
-		this.update(time);
+		this.update();
+		this._renderer.clear();
+		this._renderer.render(this._scene, this._camera);		
 		requestAnimationFrame(this.render.bind(this));
 	}
 
-	update(time) {
-		time *= 0.001;
-		this.group.rotation.z += ( this.targetRotation - this.group.rotation.z ) * 0.05;
+	update() {
+		if(this.isPush){
+			this.delta1 = Math.random() * 2 * Math.PI
+			this.delta2 = Math.random() * 2 * Math.PI
+			this.isPush = false;
+			this.isLinear = true;
+			this.isRotate = false
+			this.linearStep = 10;
+			this.amp = 0.5
+			this.tempX = this._patrick.rotation.x;
+			this.tempY = this._patrick.rotation.x;
+			this.step = 0;
+			
+		}
+		if(this.isLinear){
+			this.step ++;
+			this._patrick.rotation.x += this.amp * (Math.cos(this.delta1) - this.tempX) / this.linearStep
+			this._patrick.rotation.y += this.amp * (Math.sin(-this.delta2) - this.tempY) / this.linearStep
+			
+			
+			if(this.step >= this.linearStep){
+				this.step =0;
+				this.isLinear = false;
+				this.isRotate=true;
+			}
+			
+		}
+		if(this.isRotate){
+			
+			this._patrick.rotation.x = this.amp * Math.cos(this.step - this.delta1) / Math.exp(this.step/5)
+			this._patrick.rotation.y = this.amp * Math.sin(this.step - this.delta2) / Math.exp(this.step/5)
+			this.step += 0.1;
+		}
 		
+		this.group.rotation.z += ( this.targetRotation - this.group.rotation.z ) * 0.05;
 
-		this._camera.lookAt(0,3,0);
 
-		this._renderer.clear();
-		this._renderer.render(this._scene, this._camera);
 
 	}
 }
