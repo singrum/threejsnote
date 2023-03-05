@@ -31,27 +31,31 @@ class App {
 		
 	}
 
+
+	_push(){
+
+	}
     _setupBackground(){
         this._scene.background = new THREE.Color(0xeeeeee);
     }
 	_setupControls(){
-		const isTouchPatrick = event =>{
+		// const isTouchPatrick = event =>{
 			
-			const raycaster = new THREE.Raycaster();
-			const pt = {
-				x: (event.clientX / window.innerWidth) * 2 - 1,
-				y: - (event.clientX / window.innerWidth) * 2 + 1
-			}
+		// 	const raycaster = new THREE.Raycaster();
+		// 	const pt = {
+		// 		x: (event.clientX / window.innerWidth) * 2 - 1,
+		// 		y: - (event.clientX / window.innerWidth) * 2 + 1
+		// 	}
 			
-			raycaster.setFromCamera(pt, this._camera)
-			const interObj = raycaster.intersectObjects([this._patrickBody])
-			console.log(event)
-			console.log(this._patrickBody)
-			console.log(interObj)
-			if(interObj.length > 0){
-				console.log(1)
-			}
-		}
+		// 	raycaster.setFromCamera(pt, this._camera)
+		// 	const interObj = raycaster.intersectObjects([this._patrickBody])
+		// 	console.log(event)
+		// 	console.log(this._patrickBody)
+		// 	console.log(interObj)
+		// 	if(interObj.length > 0){
+		// 		console.log(1)
+		// 	}
+		// }
 
 
 
@@ -60,10 +64,7 @@ class App {
 		const onPointerDown = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
-			if (isTouchPatrick(event)) {
-				return;
-			}
-
+			this._push();
 			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
 			this.targetRotationOnPointerDown = this.targetRotation;
 
@@ -142,7 +143,7 @@ class App {
 				this._scene.add(root)
 
 				this._patrick = children[2]
-				this._patrick.rotation.y = 0
+
 				this._patrickBody = this._patrick.children[0].children[0].children[1].children[0]
 				
 				this._setupControls()
