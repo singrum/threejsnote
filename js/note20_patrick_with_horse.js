@@ -32,13 +32,37 @@ class App {
 	}
 
     _setupBackground(){
-        this._scene.background = new THREE.Color(0xdddddd);
+        this._scene.background = new THREE.Color(0xeeeeee);
     }
 	_setupControls(){
+		const isTouchPatrick = event =>{
+			
+			const raycaster = new THREE.Raycaster();
+			const pt = {
+				x: (event.clientX / window.innerWidth) * 2 - 1,
+				y: - (event.clientX / window.innerWidth) * 2 + 1
+			}
+			
+			raycaster.setFromCamera(pt, this._camera)
+			const interObj = raycaster.intersectObjects([this._patrickBody])
+			console.log(event)
+			console.log(this._patrickBody)
+			console.log(interObj)
+			if(interObj.length > 0){
+				console.log(1)
+			}
+		}
+
+
+
+
 
 		const onPointerDown = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
+			if (isTouchPatrick(event)) {
+				return;
+			}
 
 			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
 			this.targetRotationOnPointerDown = this.targetRotation;
@@ -71,9 +95,9 @@ class App {
 		this.targetRotationOnPointerDown = 0;
 		this.pointerX = 0;
 		this.pointerXOnPointerDown = 0;
-		
 		this._divContainer.style.touchAction = 'none';
 		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
+
 
 
 	}
@@ -116,14 +140,11 @@ class App {
 				// 해마&뚱이 : children[5]
 				// console.log(root)
 				this._scene.add(root)
-				children[2].rotation.y = 1
-				// console.log(root.children[0].children[0].children)
 
-
-
-
-
-
+				this._patrick = children[2]
+				this._patrick.rotation.y = 0
+				this._patrickBody = this._patrick.children[0].children[0].children[1].children[0]
+				
 				this._setupControls()
 				requestAnimationFrame(this.render.bind(this));
             }
