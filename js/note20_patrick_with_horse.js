@@ -203,8 +203,8 @@ class App {
 		}
 		if(this.isRotate){
 			
-			this._patrick.rotation.x = this.amp * Math.cos(this.step - this.delta1) / Math.exp(this.step/5)
-			this._patrick.rotation.y = this.amp * Math.sin(this.step - this.delta2) / Math.exp(this.step/5)
+			this._patrick.rotation.x = this.amp * Math.cos((this.step - this.delta1) * (1 + this.step / 10)) / Math.exp(this.step/5)
+			this._patrick.rotation.y = this.amp * Math.sin((this.step - this.delta2)* (1 + this.step / 10)) / Math.exp(this.step/5)
 			this.step += 0.1;
 		}
 		
