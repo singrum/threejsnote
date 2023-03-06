@@ -11,7 +11,9 @@ class App {
 		const divContainer = document.querySelector("#webgl_container");
 		this._divContainer = divContainer;
 
-		const renderer = new THREE.WebGLRenderer({ antialias: true });
+		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+		renderer.autoClear = false;
+        renderer.setClearColor(0x000000, 0.0);
 		
 		divContainer.appendChild(renderer.domElement);
 		this._renderer = renderer;
@@ -20,7 +22,7 @@ class App {
 		this._scene = scene;
 		this.delta = 0.2
 		this.step = 0;
-		this.isPush = true;
+		this.isPush = false;
 
         this._setupBackground();
 		this._setupCamera();
@@ -39,7 +41,7 @@ class App {
 		this.isPush = true;
 	}
     _setupBackground(){
-        this._scene.background = new THREE.Color(0xeeeeee);
+        // this._scene.background = new THREE.Color(0xeeeeee);
     }
 	_setupControls(){ 
 
@@ -49,6 +51,8 @@ class App {
 		const onPointerDown = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
+			this.startX = event.clientX
+			this.startY = event.clientY
 			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
 			this.targetRotationOnPointerDown = this.targetRotation;
 
@@ -68,9 +72,10 @@ class App {
 		}
 
 		const onPointerUp = (event) => {
-
+			
 			if ( event.isPrimary === false ) return;
-			this._push();
+			if(Math.hypot(this.startX - event.clientX, this.startY - event.clientY) < 10) this._push();
+			
 			document.removeEventListener( 'pointermove', onPointerMove );
 			document.removeEventListener( 'pointerup', onPointerUp );
 
@@ -90,7 +95,7 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-		camera.position.set(0,5,-8);
+		camera.position.set(0,5,-9);
 		this._camera = camera;
         this._scene.add(this._camera)
 		this._camera.lookAt(0,3,0)
@@ -98,7 +103,7 @@ class App {
 
 	_setupLight() {
 		const color = 0xffffff;
-		const intensity = 1;
+		const intensity = 1.5;
 		const light = new THREE.DirectionalLight(color, intensity);
 		light.position.set(0, 6, -10);
 		this._scene.add(light);
@@ -118,15 +123,11 @@ class App {
 				
 				children.splice(2,3)
 				// 받침대 : children[0], children[1]
-				// 우편함 : children[2],children[3], children[4]
-				// 해마&뚱이 : children[5]
-				// console.log(root)
+				// 우편함 : children[2],children[3], children[4] -> 삭제
+				// 해마&뚱이 : children[5] -> children[2]
 				this._scene.add(root)
-
 				this._patrick = children[2]
-
 				this._patrickBody = this._patrick.children[0].children[0].children[1].children[0]
-				
 				this._setupControls()
 				requestAnimationFrame(this.render.bind(this));
             }
@@ -162,7 +163,7 @@ class App {
 			this.linearStep = 10;
 			this.amp = 0.7
 			this.tempX = this._patrick.rotation.x;
-			this.tempY = this._patrick.rotation.x;
+			this.tempY = this._patrick.rotation.y;
 			this.step = 0;
 			
 		}
