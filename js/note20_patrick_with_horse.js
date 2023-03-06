@@ -90,7 +90,7 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-		camera.position.set(0,5,-10);
+		camera.position.set(0,5,-8);
 		this._camera = camera;
         this._scene.add(this._camera)
 		this._camera.lookAt(0,3,0)
