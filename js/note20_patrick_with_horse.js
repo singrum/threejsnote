@@ -42,24 +42,6 @@ class App {
         this._scene.background = new THREE.Color(0xeeeeee);
     }
 	_setupControls(){
-		// const isTouchPatrick = event =>{
-			
-		// 	const raycaster = new THREE.Raycaster();
-		// 	const pt = {
-		// 		x: (event.clientX / window.innerWidth) * 2 - 1,
-		// 		y: - (event.clientX / window.innerWidth) * 2 + 1
-		// 	}
-			
-		// 	raycaster.setFromCamera(pt, this._camera)
-		// 	const interObj = raycaster.intersectObjects([this._patrickBody])
-		// 	console.log(event)
-		// 	console.log(this._patrickBody)
-		// 	console.log(interObj)
-		// 	if(interObj.length > 0){
-		// 		console.log(1)
-		// 	}
-		// }
-
 
 
 
