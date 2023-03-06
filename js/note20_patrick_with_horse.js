@@ -41,7 +41,7 @@ class App {
     _setupBackground(){
         this._scene.background = new THREE.Color(0xeeeeee);
     }
-	_setupControls(){
+	_setupControls(){ 
 
 
 
