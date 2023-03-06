@@ -49,7 +49,6 @@ class App {
 		const onPointerDown = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
-			this.isMove = false;
 			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
 			this.targetRotationOnPointerDown = this.targetRotation;
 
@@ -61,7 +60,6 @@ class App {
 		const onPointerMove = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
-			this.isMove = true;
 			this.pointerX = event.clientX - window.innerWidth / 2;
 
 			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
@@ -72,7 +70,7 @@ class App {
 		const onPointerUp = (event) => {
 
 			if ( event.isPrimary === false ) return;
-			if(!this.isMove)this._push();
+			this._push();
 			document.removeEventListener( 'pointermove', onPointerMove );
 			document.removeEventListener( 'pointerup', onPointerUp );
 
@@ -107,8 +105,6 @@ class App {
 	}
 
 	_setupModel() {
-		const axesHelper = new THREE.AxesHelper(5)
-		this._scene.add(axesHelper)
 
 		const gltfLoader = new GLTFLoader()
         const url = '../data/patrick/scene.gltf';
