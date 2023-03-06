@@ -120,7 +120,7 @@ class App {
 		const color = 0xffffff;
 		const intensity = 1;
 		const light = new THREE.DirectionalLight(color, intensity);
-		light.position.set(0, 3, -10);
+		light.position.set(0, 6, -10);
 		this._scene.add(light);
 	}
 
