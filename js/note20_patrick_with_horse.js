@@ -103,7 +103,7 @@ class App {
 
 	_setupLight() {
 		const color = 0xffffff;
-		const intensity = 2;
+		const intensity = 1.5;
 		const light = new THREE.DirectionalLight(color, intensity);
 		light.position.set(0, 6, -10);
 		this._scene.add(light);
