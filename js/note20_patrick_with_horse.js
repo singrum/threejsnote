@@ -14,6 +14,7 @@ class App {
 		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		renderer.autoClear = false;
         renderer.setClearColor(0x000000, 0.0);
+		renderer.shadowMap.enabled = true;
 		
 		divContainer.appendChild(renderer.domElement);
 		this._renderer = renderer;
@@ -34,6 +35,21 @@ class App {
 		this.resize();
 
 		
+	}
+	debugPoint(pos){
+		const geometry = new THREE.BufferGeometry();
+		geometry.setAttribute(
+			"position",
+			new THREE.Float32BufferAttribute([pos.x, pos.y, pos.z], 3)
+		);
+
+		const material = new THREE.PointsMaterial({
+			color:0xff38a2,
+			size: 5,
+			sizeAttenuation : false
+		})
+		const points = new THREE.Points(geometry, material);
+		this._scene.add(points)
 	}
 
 
@@ -103,10 +119,19 @@ class App {
 
 	_setupLight() {
 		const color = 0xffffff;
-		const intensity = 1.5;
+		const intensity = 1;
 		const light = new THREE.DirectionalLight(color, intensity);
-		light.position.set(0, 6, -10);
+		light.castShadow = true;
+		light.shadow.camera.top = light.shadow.camera.right = 30;
+		light.shadow.camera.bottom = light.shadow.camera.left = -30;
+		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048 // 텍스쳐 맵 픽셀 수 증가 -> 선명
+		light.shadow.radius = 4;
+		light.position.set(6, 6, -10);
 		this._scene.add(light);
+
+		const light2 = new THREE.DirectionalLight(color, intensity);
+		light2.position.set(-6,6,-10);
+		this._scene.add(light2)
 	}
 
 	_setupModel() {
@@ -126,10 +151,34 @@ class App {
 				// 우편함 : children[2],children[3], children[4] -> 삭제
 				// 해마&뚱이 : children[5] -> children[2]
 				this._scene.add(root)
+				root.traverse( function( node ) {
+
+					if ( node.isMesh ) { node.castShadow = true; }
+			
+				} );
+				
+
+
 				this._patrick = children[2]
 				this._patrickBody = this._patrick.children[0].children[0].children[1].children[0]
 				this._setupControls()
+
+
+				const groundGeometry = new THREE.PlaneGeometry(60,60);
+				const material = new THREE.ShadowMaterial();
+				material.opacity = 0.3;
+
+				const mesh = new THREE.Mesh( groundGeometry, material );
+				mesh.receiveShadow = true;
+				mesh.rotation.x = THREE.MathUtils.degToRad(-90);
+				this._scene.add( mesh );
+
+
+
+				
+
 				requestAnimationFrame(this.render.bind(this));
+
             }
         )
 
