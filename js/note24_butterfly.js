@@ -85,6 +85,9 @@ class App {
             this.targetIndex = index;
 			this.startX = event.clientX
 			this.startY = event.clientY
+
+
+
 			this.stickInfo[this.targetIndex].pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
 			this.stickInfo[this.targetIndex].targetRotationOnPointerDown = this.stickInfo[this.targetIndex].targetRotation;
 
@@ -97,7 +100,6 @@ class App {
 			
 			if ( event.isPrimary === false ) return;
 			this.stickInfo[this.targetIndex].pointerX = event.clientX - window.innerWidth / 2;
-
 			this.stickInfo[this.targetIndex].targetRotation = this.stickInfo[this.targetIndex].targetRotationOnPointerDown + ( this.stickInfo[this.targetIndex].pointerX - this.stickInfo[this.targetIndex].pointerXOnPointerDown ) * 0.02;
 			
 
@@ -246,15 +248,21 @@ class App {
 			
 		// 	this._patrick.rotation.x = this.amp * Math.cos((this.step - this.delta1) * (1 + this.step / 10)) / Math.exp(this.step/5)
 		// 	this._patrick.rotation.y = this.amp * Math.sin((this.step - this.delta2)* (1 + this.step / 10)) / Math.exp(this.step/5)
-		// 	this.step += 0.1;
+
 		// }
         
-
-        for(let i = 0 ; i<this.stickInfo.length; i++){
-            this.stickArr[i].rotation.y += ( this.stickInfo[i].targetRotation - this.stickArr[i].rotation.y ) * 0.05;
-        }
-
-
+        
+        // for(let i = 0 ; i<this.stickInfo.length; i++){
+            
+        //     this.stickArr[i].rotation.y += ( this.stickInfo[i].targetRotation - this.stickArr[i].rotation.y ) * 0.05;
+        // }
+		this.stickArr[this.targetIndex].rotation.y += ( this.stickInfo[this.targetIndex].targetRotation - this.stickArr[this.targetIndex].rotation.y ) * 0.05;
+		if(this.stickArr[this.targetIndex + 1].rotation.y <= this.stickArr[this.targetIndex].rotation.y){
+			this.step += 0.1;
+			this.stickArr[this.targetIndex + 1].rotation.y = this.stickArr[this.targetIndex].rotation.y * (-Math.cos(this.step) + 1)/ 2
+		}
+		
+		
 
 	}
 }
