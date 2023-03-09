@@ -20,8 +20,12 @@ class App {
 		const scene = new THREE.Scene();
 		this._scene = scene;
 		this.delta = 0.2
-		this.step = 0;
+		this.time = 0;
+		this.step = 0.01;
         this.targetIndex = 0
+		this.coefficient = 6;
+		
+		this.b1 = 1
 
         this._setupBackground();
 		this._setupCamera();
@@ -73,7 +77,8 @@ class App {
             }
 
             const point = interObj[0].point;
-            return - Math.round(point.y) + 7;
+			
+            return [- Math.round(point.y) + 7, point.x > 0];
         }
 
 
@@ -81,49 +86,32 @@ class App {
 		const onPointerDown = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
-            const index = pointIndex(event);
+			
+			if(this.isRot) return;
+			const temp = pointIndex(event);
+            const index = temp[0];
+			const isCounterClock = temp[1];
+			this.startRotation = this.stickArr[index].rotation.y;
+			this.isStart = true;
+			this.time = 0;
             this.targetIndex = index;
-			this.startX = event.clientX
-			this.startY = event.clientY
+			this.isDown = true;
+			this.b2 = undefined
 
-
-
-			this.stickInfo[this.targetIndex].pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
-			this.stickInfo[this.targetIndex].targetRotationOnPointerDown = this.stickInfo[this.targetIndex].targetRotation;
-
-			document.addEventListener( 'pointermove', onPointerMove );
 			document.addEventListener( 'pointerup', onPointerUp );
-
-		}
-
-		const onPointerMove = ( event ) => {
-			
-			if ( event.isPrimary === false ) return;
-			this.stickInfo[this.targetIndex].pointerX = event.clientX - window.innerWidth / 2;
-			this.stickInfo[this.targetIndex].targetRotation = this.stickInfo[this.targetIndex].targetRotationOnPointerDown + ( this.stickInfo[this.targetIndex].pointerX - this.stickInfo[this.targetIndex].pointerXOnPointerDown ) * 0.02;
-			
 
 		}
 
 		const onPointerUp = (event) => {
 			
 			if ( event.isPrimary === false ) return;
+			this.isDown = false;
+			this.b2 = this.time;
 			
-			
-			document.removeEventListener( 'pointermove', onPointerMove );
 			document.removeEventListener( 'pointerup', onPointerUp );
 
 		}
 
-        this.stickInfo = [];
-        for(let i = 0;i < this.stickNum * 2 + 1;i++){
-            this.stickInfo.push({
-                targetRotation : 0,
-                targetRotationOnPointerDown : 0,
-                pointerX : 0,
-                pointerXOnPointerDown : 0         
-            })
-        }
 		this._divContainer.style.touchAction = 'none';
 		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
 
@@ -218,53 +206,44 @@ class App {
 	}
 
 	update() {
-		// if(this.isPush){
-		// 	this.delta1 = Math.random() * 2 * Math.PI
-		// 	this.delta2 = Math.random() * 2 * Math.PI
-		// 	this.isPush = false;
-		// 	this.isLinear = true;
-		// 	this.isRotate = false
-		// 	this.linearStep = 10;
-		// 	this.amp = 0.7
-		// 	this.tempX = this._patrick.rotation.x;
-		// 	this.tempY = this._patrick.rotation.y;
-		// 	this.step = 0;
-			
-		// }
-		// if(this.isLinear){
-		// 	this.step ++;
-		// 	this._patrick.rotation.x += this.amp * (Math.cos(this.delta1) - this.tempX) / this.linearStep
-		// 	this._patrick.rotation.y += this.amp * (Math.sin(-this.delta2) - this.tempY) / this.linearStep
-			
-			
-		// 	if(this.step >= this.linearStep){
-		// 		this.step =0;
-		// 		this.isLinear = false;
-		// 		this.isRotate=true;
-		// 	}
-			
-		// }
-		// if(this.isRotate){
-			
-		// 	this._patrick.rotation.x = this.amp * Math.cos((this.step - this.delta1) * (1 + this.step / 10)) / Math.exp(this.step/5)
-		// 	this._patrick.rotation.y = this.amp * Math.sin((this.step - this.delta2)* (1 + this.step / 10)) / Math.exp(this.step/5)
 
-		// }
-        
-        
-        // for(let i = 0 ; i<this.stickInfo.length; i++){
-            
-        //     this.stickArr[i].rotation.y += ( this.stickInfo[i].targetRotation - this.stickArr[i].rotation.y ) * 0.05;
-        // }
-		this.stickArr[this.targetIndex].rotation.y += ( this.stickInfo[this.targetIndex].targetRotation - this.stickArr[this.targetIndex].rotation.y ) * 0.05;
-		if(this.stickArr[this.targetIndex + 1].rotation.y <= this.stickArr[this.targetIndex].rotation.y){
-			this.step += 0.1;
-			this.stickArr[this.targetIndex + 1].rotation.y = this.stickArr[this.targetIndex].rotation.y * (-Math.cos(this.step) + 1)/ 2
+		
+		this.time += this.step;
+		
+		if(this.isDown){
+			this.isRot = true;
+			this.stickArr[this.targetIndex].rotation.y = this.startRotation + this.Rot(this.time);
+		
 		}
+		else{
+			this.stickArr[this.targetIndex].rotation.y = this.startRotation + this.Rot(this.time, this.b2);		
+		}
+		
 		
 		
 
 	}
+
+
+	Rot(t){
+		if(t < 0 ) return 0;
+		if(!this.isStart) return;
+		if(this.b2 === undefined || this.b1 < this.b2){
+			if(t < this.b1) return this.coefficient * t ** 2;
+			if(this.b2 === undefined || t < this.b2) {return this.coefficient * this.b1 *(2 * t - this.b1);}
+			if(t < this.b1 + this.b2) {return this.coefficient * (- ((t - this.b1 - this.b2) ** 2) + 2 * this.b1 * this.b2);}
+			this.isRot = false;
+			return 2 * this.coefficient * this.b1 * this.b2;
+		}
+		else{
+			if(t < this.b2) return this.coefficient * t ** 2;
+			if(t < 2 * this.b2) return this.coefficient * (- ((t - 2 * this.b2) ** 2) + 2 * this.b2 ** 2);
+			this.isRot = false;
+			return 2* this.coefficient * this.b2 ** 2
+		}
+		
+	}
+	
 }
 
 window.onload = function () {
