@@ -59,7 +59,7 @@ class App {
 	}
 
     _setupBackground(){
-        this._scene.background = new THREE.Color(0xeeeeee);
+        this._scene.background = new THREE.Color(0xdddddd);
     }
 
 	pointIndex(){
@@ -128,23 +128,57 @@ class App {
 	_setupLight() {
 		RectAreaLightUniformsLib.init();
 		const color = 0xffffff;
-		const intensity = 2;
-		const light1 = new THREE.RectAreaLight(0xffffff, intensity, 10, 10);
+		const intensity = 1.5;
+
+
+
+		const light1 = new THREE.RectAreaLight(color, intensity, 10, 10);
 		light1.position.set(0, 10, 0);
 		light1.lookAt(0,0,0)
 		const helper1 = new RectAreaLightHelper(light1);
-		light1.add(helper1);
+		// light1.add(helper1);
 		this._scene.add(light1);
 		
 
 
 		
-		const light2 = new THREE.RectAreaLight(0xffffff, intensity, 10, 10);
+		const light2 = new THREE.RectAreaLight(color, intensity, 10, 10);
 		light2.position.set(0, -10, 0);
 		light2.lookAt(0,0,0)
 		const helper2 = new RectAreaLightHelper(light2);
-		light2.add(helper2);
+		// light2.add(helper2);
 		this._scene.add(light2);
+
+
+
+		// const light3 = new THREE.RectAreaLight(color, intensity, 5, 5);
+		// light3.position.set(10, 0, 0);
+		// light3.lookAt(0,0,0)
+		// const helper3 = new RectAreaLightHelper(light3);
+		// light3.add(helper3);
+		// this._scene.add(light3);
+
+		// const light4 = new THREE.RectAreaLight(color, intensity, 5, 5);
+		// light4.position.set(-10,0, 0);
+		// light4.lookAt(0,0,0)
+		// const helper4 = new RectAreaLightHelper(light4);
+		// light4.add(helper4);
+		// this._scene.add(light4);
+
+
+		const light5 = new THREE.RectAreaLight(color, intensity, 10, 10);
+		light5.position.set(0, 0, 10);
+		light5.lookAt(0,0,0)
+		const helper5 = new RectAreaLightHelper(light5);
+		// light5.add(helper5);
+		this._scene.add(light5);
+
+		const light6 = new THREE.RectAreaLight(color, intensity, 10, 10);
+		light6.position.set(0,0, -10);
+		light6.lookAt(0,0,0)
+		const helper6 = new RectAreaLightHelper(light6);
+		// light6.add(helper6);
+		this._scene.add(light6);
 
 
 
