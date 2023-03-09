@@ -22,7 +22,7 @@ class App {
 		this.delta = 0.2
 		this.time = 0;
 		this.step = 0.01;
-        this.targetIndex = 0
+        this.targetIndex = 1
 		this.coefficient = 6;
 		
 		this.b1 = 1
@@ -154,7 +154,7 @@ class App {
         this._scene.add(plane)
         
         
-        this.stickNum = 7
+        this.stickNum = 9
         this.stickArr = []
 
         for(let i = 0; i<this.stickNum; i++){
@@ -207,23 +207,31 @@ class App {
 
 	update() {
 
-		
+		if(!this.isStart) return;
 		this.time += this.step;
-		
-		if(this.isDown){
-			this.isRot = true;
-			this.stickArr[this.targetIndex].rotation.y = this.startRotation + this.Rot(this.time);
-		
+		this.rotAnimation(this.targetIndex, this.time)
+		for(let i = this.targetIndex - 1; i >= 0; i--){
+			this.rotAnimation(i, this.time - 0.05 * (-i + this.targetIndex))
 		}
-		else{
-			this.stickArr[this.targetIndex].rotation.y = this.startRotation + this.Rot(this.time, this.b2);		
+		for(let i = this.targetIndex + 1; i < this.stickArr.length; i++){
+			this.rotAnimation(i, this.time - 0.05 * (i - this.targetIndex))
 		}
-		
+		console.log(this.isRot)
 		
 		
 
 	}
 
+	rotAnimation(index, time){
+		if(this.isDown){
+			this.isRot = true;
+			this.stickArr[index].rotation.y = this.startRotation + this.Rot(time);
+		
+		}
+		else{
+			this.stickArr[index].rotation.y = this.startRotation + this.Rot(time, this.b2);		
+		}
+	}
 
 	Rot(t){
 		if(t < 0 ) return 0;
@@ -231,13 +239,13 @@ class App {
 		if(this.b2 === undefined || this.b1 < this.b2){
 			if(t < this.b1) return this.coefficient * t ** 2;
 			if(this.b2 === undefined || t < this.b2) {return this.coefficient * this.b1 *(2 * t - this.b1);}
-			if(t < this.b1 + this.b2) {return this.coefficient * (- ((t - this.b1 - this.b2) ** 2) + 2 * this.b1 * this.b2);}
+			if(t < this.b1 + this.b2) {this.isRot = true; return this.coefficient * (- ((t - this.b1 - this.b2) ** 2) + 2 * this.b1 * this.b2);}
 			this.isRot = false;
 			return 2 * this.coefficient * this.b1 * this.b2;
 		}
 		else{
 			if(t < this.b2) return this.coefficient * t ** 2;
-			if(t < 2 * this.b2) return this.coefficient * (- ((t - 2 * this.b2) ** 2) + 2 * this.b2 ** 2);
+			if(t < 2 * this.b2) {this.isRot = true; return this.coefficient * (- ((t - 2 * this.b2) ** 2) + 2 * this.b2 ** 2)};
 			this.isRot = false;
 			return 2* this.coefficient * this.b2 ** 2
 		}
