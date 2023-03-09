@@ -77,12 +77,17 @@ class App {
 		}
 
 		const point = interObj[0].point;
-		
-		return [- Math.round(point.y) + this.stickNum, point.x > 0];
+		let index = - Math.round(point.y) + this.stickNum;
+		if (index < 0){
+			index = 0;
+		}
+		else if(index >= this.stickArr.length){
+			index = this.stickArr.length - 1;
+		}
+		return [index, point.x > 0];
 	}
 	_setupControls(){ 
         
-        new OrbitControls(this._camera, this._divContainer);
 		
 
 		const onPointerDown = ( event ) => {
@@ -132,8 +137,8 @@ class App {
 
 
 
-		const light1 = new THREE.RectAreaLight(color, intensity, 10, 10);
-		light1.position.set(0, 10, 0);
+		const light1 = new THREE.RectAreaLight(color, intensity, 15, 15);
+		light1.position.set(0, 15, 0);
 		light1.lookAt(0,0,0)
 		const helper1 = new RectAreaLightHelper(light1);
 		// light1.add(helper1);
@@ -142,8 +147,8 @@ class App {
 
 
 		
-		const light2 = new THREE.RectAreaLight(color, intensity, 10, 10);
-		light2.position.set(0, -10, 0);
+		const light2 = new THREE.RectAreaLight(color, intensity, 15, 15);
+		light2.position.set(0, -15, 0);
 		light2.lookAt(0,0,0)
 		const helper2 = new RectAreaLightHelper(light2);
 		// light2.add(helper2);
@@ -239,6 +244,17 @@ class App {
 			e.material.color = color
 			console.log()
 		})
+
+
+		const sphereGeom = new THREE.SphereGeometry(1,32,64	);
+		const sphereMate = new THREE.MeshPhysicalMaterial({color: 0xffffff, emissive : 0xffffff});
+
+		const sphere1 = new THREE.Mesh(sphereGeom, sphereMate);
+		sphere1.position.set(0,this.stickNum + 2);
+		this._scene.add(sphere1);
+		const sphere2 = new THREE.Mesh(sphereGeom, sphereMate);
+		sphere2.position.set(0,- this.stickNum - 2);
+		this._scene.add(sphere2);
 
 
 	}
