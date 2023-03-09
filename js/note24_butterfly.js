@@ -1,4 +1,6 @@
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
+import {RectAreaLightUniformsLib} from '../node_modules/three/examples/jsm/lights/RectAreaLightUniformsLib.js'
+import { RectAreaLightHelper } from '../node_modules/three/examples/jsm/helpers/RectAreaLightHelper.js';
 import * as THREE from '../node_modules/three/build/three.module.js';
 
 
@@ -57,7 +59,7 @@ class App {
 	}
 
     _setupBackground(){
-        // this._scene.background = new THREE.Color(0xeeeeee);
+        this._scene.background = new THREE.Color(0xeeeeee);
     }
 
 	pointIndex(){
@@ -80,26 +82,7 @@ class App {
 	}
 	_setupControls(){ 
         
-        // const pointIndex = (event)=>{
-            
-        //     const raycaster = new THREE.Raycaster();
-            
-        //     const pt = {
-        //         x: (event.clientX / this._divContainer.clientWidth) * 2 - 1,
-        //         y: - (event.clientY / this._divContainer.clientHeight) * 2 + 1
-        //     }
-        //     raycaster.setFromCamera(pt, this._camera)
-        //     const interObj = raycaster.intersectObject(this._plane)
-            
-        //     if(interObj.length === 0){
-        //         return false;
-        //     }
-
-        //     const point = interObj[0].point;
-			
-        //     return [- Math.round(point.y) + this.stickNum, point.x > 0];
-        // }
-
+        new OrbitControls(this._camera, this._divContainer);
 		
 
 		const onPointerDown = ( event ) => {
@@ -143,23 +126,38 @@ class App {
 	}
 
 	_setupLight() {
+		RectAreaLightUniformsLib.init();
 		const color = 0xffffff;
-		const intensity = 1;
-		const light = new THREE.DirectionalLight(color, intensity);
-		light.castShadow = true;
-		light.shadow.camera.top = light.shadow.camera.right = 30;
-		light.shadow.camera.bottom = light.shadow.camera.left = -30;
-		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048 // 텍스쳐 맵 픽셀 수 증가 -> 선명
-		light.shadow.radius = 4;
-		light.position.set(6, 6, 10);
-		this._scene.add(light);
+		const intensity = 2;
+		const light1 = new THREE.RectAreaLight(0xffffff, intensity, 10, 10);
+		light1.position.set(0, 10, 0);
+		light1.lookAt(0,0,0)
+		const helper1 = new RectAreaLightHelper(light1);
+		light1.add(helper1);
+		this._scene.add(light1);
+		
 
-		const light2 = new THREE.DirectionalLight(color, intensity);
-		light2.position.set(-6,6,-10);
-		this._scene.add(light2)
+
+		
+		const light2 = new THREE.RectAreaLight(0xffffff, intensity, 10, 10);
+		light2.position.set(0, -10, 0);
+		light2.lookAt(0,0,0)
+		const helper2 = new RectAreaLightHelper(light2);
+		light2.add(helper2);
+		this._scene.add(light2);
+
+
+
+		
+
+		// const light2 = new THREE.DirectionalLight(color, intensity);
+		// light2.position.set(-6,6,-10);
+		// this._scene.add(light2)
 	}
 
 	_setupModel() {
+
+
         const planeGeom = new THREE.PlaneGeometry(100, 100)
         const planeMate = new THREE.MeshBasicMaterial({visible: false});
         const plane = new THREE.Mesh(planeGeom, planeMate);
@@ -167,28 +165,34 @@ class App {
         this._scene.add(plane)
         
         
+
+
         this.stickNum = 9
         this.stickArr = []
-
+		const roughness = 0.2
+		const metalness = 0.5
         for(let i = 0; i<this.stickNum; i++){
-            const stickGeom =  new THREE.CylinderGeometry( 0.4, 0.4, 3 + i/2, 32 );
-            const stickMate = new THREE.MeshPhongMaterial({color : 0xffff00});
+
+			const stickGeom =  new THREE.CylinderGeometry( 0.5, 0.5, 8 * Math.cos((i - this.stickNum)/this.stickNum * 1.2), 32 );
+            const stickMate = new THREE.MeshPhysicalMaterial({roughness : roughness, metalness : metalness});
             const stick = new THREE.Mesh(stickGeom, stickMate);
             stick.rotation.z = Math.PI / 2
+
+
             stick.position.set(0,this.stickNum - i,0)
             this._scene.add(stick)
             this.stickArr.push(stick)
         }
-        const stickGeom =  new THREE.CylinderGeometry( 0.4, 0.4, 3 + this.stickNum/2, 32 );
-        const stickMate = new THREE.MeshPhongMaterial({color : 0xffff00});
+        const stickGeom =  new THREE.CylinderGeometry( 0.5, 0.5, 8, 32 );
+        const stickMate = new THREE.MeshPhysicalMaterial({roughness : roughness, metalness : metalness});
         const stick = new THREE.Mesh(stickGeom, stickMate);
         stick.rotation.z = Math.PI / 2
         stick.position.set(0, 0, 0)
         this._scene.add(stick)
         this.stickArr.push(stick)
         for(let i = 0; i<this.stickNum; i++){
-            const stickGeom =  new THREE.CylinderGeometry( 0.4, 0.4, 3 + (this.stickNum - i - 1)/2, 32 );
-            const stickMate = new THREE.MeshPhongMaterial({color : 0xffff00});
+            const stickGeom =  new THREE.CylinderGeometry( 0.5, 0.5, 8 * Math.cos((i +1)/this.stickNum * 1.2), 32 );
+            const stickMate = new THREE.MeshPhysicalMaterial({roughness : roughness, metalness : metalness});
             const stick = new THREE.Mesh(stickGeom, stickMate);
             stick.rotation.z = Math.PI / 2
             stick.position.set(0, - i - 1,0)
@@ -196,6 +200,11 @@ class App {
             this.stickArr.push(stick)
         }
         
+		this.stickArr.forEach((e,i,arr)=>{
+			const color = new THREE.Color(`hsl(${360 / arr.length * i}, 100%, 80%)`)
+			e.material.color = color
+			console.log()
+		})
 
 
 	}
@@ -212,6 +221,8 @@ class App {
 
 	render() {
 
+
+
 		this.update();
 		this._renderer.clear();
 		this._renderer.render(this._scene, this._camera);		
@@ -221,7 +232,6 @@ class App {
 	update() {
 
 		if(!this.isStart) return;
-		console.log(this.isRot, this.isDown)
 		if(!this.isRot && this.isDown){
 			this.isRot = true;
 
@@ -248,10 +258,10 @@ class App {
 			this.time += this.step;
 			this.rotAnimation(this.targetIndex, this.time)
 			for(let i = this.targetIndex - 1; i >= 0; i--){
-				this.rotAnimation(i, this.time - 0.05 * (-i + this.targetIndex))
+				this.rotAnimation(i, this.time - 0.03 * (-i + this.targetIndex))
 			}
 			for(let i = this.targetIndex + 1; i < this.stickArr.length; i++){
-				this.rotAnimation(i, this.time - 0.05 * (i - this.targetIndex))
+				this.rotAnimation(i, this.time - 0.03 * (i - this.targetIndex))
 			}
 		}
 
