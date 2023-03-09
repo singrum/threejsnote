@@ -59,54 +59,67 @@ class App {
     _setupBackground(){
         // this._scene.background = new THREE.Color(0xeeeeee);
     }
+
+	pointIndex(){
+		const raycaster = new THREE.Raycaster();
+            
+		const pt = {
+			x: (this.event.clientX / this._divContainer.clientWidth) * 2 - 1,
+			y: - (this.event.clientY / this._divContainer.clientHeight) * 2 + 1
+		}
+		raycaster.setFromCamera(pt, this._camera)
+		const interObj = raycaster.intersectObject(this._plane)
+		
+		if(interObj.length === 0){
+			return false;
+		}
+
+		const point = interObj[0].point;
+		
+		return [- Math.round(point.y) + this.stickNum, point.x > 0];
+	}
 	_setupControls(){ 
-        // new OrbitControls(this._camera, this._divContainer);
-        const pointIndex = (event)=>{
+        
+        // const pointIndex = (event)=>{
             
-            const raycaster = new THREE.Raycaster();
+        //     const raycaster = new THREE.Raycaster();
             
-            const pt = {
-                x: (event.clientX / this._divContainer.clientWidth) * 2 - 1,
-                y: - (event.clientY / this._divContainer.clientHeight) * 2 + 1
-            }
-            raycaster.setFromCamera(pt, this._camera)
-            const interObj = raycaster.intersectObject(this._plane)
+        //     const pt = {
+        //         x: (event.clientX / this._divContainer.clientWidth) * 2 - 1,
+        //         y: - (event.clientY / this._divContainer.clientHeight) * 2 + 1
+        //     }
+        //     raycaster.setFromCamera(pt, this._camera)
+        //     const interObj = raycaster.intersectObject(this._plane)
             
-            if(interObj.length === 0){
-                return false;
-            }
+        //     if(interObj.length === 0){
+        //         return false;
+        //     }
 
-            const point = interObj[0].point;
+        //     const point = interObj[0].point;
 			
-            return [- Math.round(point.y) + 7, point.x > 0];
-        }
+        //     return [- Math.round(point.y) + this.stickNum, point.x > 0];
+        // }
 
-
+		
 
 		const onPointerDown = ( event ) => {
 			
-			if ( event.isPrimary === false ) return;
-			
-			if(this.isRot) return;
-			const temp = pointIndex(event);
-            const index = temp[0];
-			const isCounterClock = temp[1];
-			this.startRotation = this.stickArr[index].rotation.y;
 			this.isStart = true;
-			this.time = 0;
-            this.targetIndex = index;
 			this.isDown = true;
-			this.b2 = undefined
-
+			this.event = event;
 			document.addEventListener( 'pointerup', onPointerUp );
+			if(this.isRot) return;
+			
+
+
+
 
 		}
 
 		const onPointerUp = (event) => {
 			
-			if ( event.isPrimary === false ) return;
 			this.isDown = false;
-			this.b2 = this.time;
+			// if(this.isRot) return;
 			
 			document.removeEventListener( 'pointerup', onPointerUp );
 
@@ -208,45 +221,78 @@ class App {
 	update() {
 
 		if(!this.isStart) return;
-		this.time += this.step;
-		this.rotAnimation(this.targetIndex, this.time)
-		for(let i = this.targetIndex - 1; i >= 0; i--){
-			this.rotAnimation(i, this.time - 0.05 * (-i + this.targetIndex))
+		console.log(this.isRot, this.isDown)
+		if(!this.isRot && this.isDown){
+			this.isRot = true;
+
+			const temp = this.pointIndex(this.event);
+            const index = temp[0];
+			const isCounterClock = temp[1];
+			this.isCounterClock = isCounterClock;
+			this.startRotation = this.stickArr[index].rotation.y;
+			
+			
+			this.time = 0;
+            this.targetIndex = index;
+			
+			this.b2 = undefined
+			this.once = true;
+
 		}
-		for(let i = this.targetIndex + 1; i < this.stickArr.length; i++){
-			this.rotAnimation(i, this.time - 0.05 * (i - this.targetIndex))
+		if(!this.isDown && this.once){
+			this.b2 = this.time;
+			this.once = false;
 		}
-		console.log(this.isRot)
+		if(this.isRot){
+			this.rotStart = false;
+			this.time += this.step;
+			this.rotAnimation(this.targetIndex, this.time)
+			for(let i = this.targetIndex - 1; i >= 0; i--){
+				this.rotAnimation(i, this.time - 0.05 * (-i + this.targetIndex))
+			}
+			for(let i = this.targetIndex + 1; i < this.stickArr.length; i++){
+				this.rotAnimation(i, this.time - 0.05 * (i - this.targetIndex))
+			}
+		}
+
 		
 		
 
 	}
 
 	rotAnimation(index, time){
+		let isLast = false;
+		if(index === this.stickArr.length - 1 && this.targetIndex < this.stickNum){
+			isLast = true;
+		}
+		else if(index === 0 && this.targetIndex >= this.stickNum){
+			isLast = true;
+		}
 		if(this.isDown){
-			this.isRot = true;
-			this.stickArr[index].rotation.y = this.startRotation + this.Rot(time);
+
+			this.stickArr[index].rotation.y = this.startRotation + (this.isCounterClock ? this.Rot(time, isLast) : -this.Rot(time, isLast));
 		
 		}
 		else{
-			this.stickArr[index].rotation.y = this.startRotation + this.Rot(time, this.b2);		
+			this.stickArr[index].rotation.y = this.startRotation + (this.isCounterClock ? this.Rot(time, isLast) : -this.Rot(time, isLast));		
 		}
 	}
 
-	Rot(t){
+	Rot(t, isLast){
+
 		if(t < 0 ) return 0;
 		if(!this.isStart) return;
 		if(this.b2 === undefined || this.b1 < this.b2){
-			if(t < this.b1) return this.coefficient * t ** 2;
+			if(t < this.b1) {;return this.coefficient * t ** 2;}
 			if(this.b2 === undefined || t < this.b2) {return this.coefficient * this.b1 *(2 * t - this.b1);}
-			if(t < this.b1 + this.b2) {this.isRot = true; return this.coefficient * (- ((t - this.b1 - this.b2) ** 2) + 2 * this.b1 * this.b2);}
-			this.isRot = false;
+			if(t < this.b1 + this.b2) { return this.coefficient * (- ((t - this.b1 - this.b2) ** 2) + 2 * this.b1 * this.b2);}
+			if(isLast) this.isRot = false;
 			return 2 * this.coefficient * this.b1 * this.b2;
 		}
 		else{
 			if(t < this.b2) return this.coefficient * t ** 2;
-			if(t < 2 * this.b2) {this.isRot = true; return this.coefficient * (- ((t - 2 * this.b2) ** 2) + 2 * this.b2 ** 2)};
-			this.isRot = false;
+			if(t < 2 * this.b2) { return this.coefficient * (- ((t - 2 * this.b2) ** 2) + 2 * this.b2 ** 2)};
+			if(isLast) this.isRot = false;
 			return 2* this.coefficient * this.b2 ** 2
 		}
 		
