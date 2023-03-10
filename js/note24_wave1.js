@@ -137,7 +137,7 @@ class App {
 
 
 
-		const light1 = new THREE.RectAreaLight(color, intensity, 15, 15);
+		const light1 = new THREE.PointLight( 0xffffff, 1, 100 )
 		light1.position.set(0, 15, 0);
 		light1.lookAt(0,0,0)
 		const helper1 = new RectAreaLightHelper(light1);
@@ -147,7 +147,7 @@ class App {
 
 
 		
-		const light2 = new THREE.RectAreaLight(color, intensity, 15, 15);
+		const light2 = new THREE.PointLight( 0xffffff, 1, 100 )
 		light2.position.set(0, -15, 0);
 		light2.lookAt(0,0,0)
 		const helper2 = new RectAreaLightHelper(light2);
@@ -171,14 +171,14 @@ class App {
 		// this._scene.add(light4);
 
 
-		const light5 = new THREE.RectAreaLight(color, intensity, 10, 10);
+		const light5 = new THREE.PointLight( 0xffffff, 1, 100 )
 		light5.position.set(0, 0, 10);
 		light5.lookAt(0,0,0)
 		const helper5 = new RectAreaLightHelper(light5);
 		// light5.add(helper5);
 		this._scene.add(light5);
 
-		const light6 = new THREE.RectAreaLight(color, intensity, 10, 10);
+		const light6 = new THREE.PointLight( 0xffffff, 1, 100 )
 		light6.position.set(0,0, -10);
 		light6.lookAt(0,0,0)
 		const helper6 = new RectAreaLightHelper(light6);
