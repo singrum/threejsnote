@@ -131,7 +131,7 @@ class App {
 	}
 
 	_setupLight() {
-		RectAreaLightUniformsLib.init();
+		// RectAreaLightUniformsLib.init();
 		const color = 0xffffff;
 		const intensity = 1.5;
 
@@ -208,12 +208,12 @@ class App {
 
         this.stickNum = 9
         this.stickArr = []
-		const roughness = 0.2
+		const roughness = 0.1
 		const metalness = 0.5
         for(let i = 0; i<this.stickNum; i++){
 
 			const stickGeom =  new THREE.CylinderGeometry( 0.5, 0.5, 8 * Math.cos((i - this.stickNum)/this.stickNum * 1.2), 32 );
-            const stickMate = new THREE.MeshPhongMaterial({roughness : roughness, metalness : metalness});
+            const stickMate = new THREE.MeshPhysicalMaterial({roughness : roughness, metalness : metalness});
             const stick = new THREE.Mesh(stickGeom, stickMate);
             stick.rotation.z = Math.PI / 2
 
@@ -223,7 +223,7 @@ class App {
             this.stickArr.push(stick)
         }
         const stickGeom =  new THREE.CylinderGeometry( 0.5, 0.5, 8, 32 );
-        const stickMate = new THREE.MeshPhongMaterial({roughness : roughness, metalness : metalness});
+        const stickMate = new THREE.MeshPhysicalMaterial({roughness : roughness, metalness : metalness});
         const stick = new THREE.Mesh(stickGeom, stickMate);
         stick.rotation.z = Math.PI / 2
         stick.position.set(0, 0, 0)
@@ -231,7 +231,7 @@ class App {
         this.stickArr.push(stick)
         for(let i = 0; i<this.stickNum; i++){
             const stickGeom =  new THREE.CylinderGeometry( 0.5, 0.5, 8 * Math.cos((i +1)/this.stickNum * 1.2), 32 );
-            const stickMate = new THREE.MeshPhongMaterial({roughness : roughness, metalness : metalness});
+            const stickMate = new THREE.MeshPhysicalMaterial({roughness : roughness, metalness : metalness});
             const stick = new THREE.Mesh(stickGeom, stickMate);
             stick.rotation.z = Math.PI / 2
             stick.position.set(0, - i - 1,0)
