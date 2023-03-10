@@ -140,7 +140,7 @@ class App {
 		const light1 = new THREE.PointLight( 0xffffff, 1, 100 )
 		light1.position.set(0, 15, 0);
 		light1.lookAt(0,0,0)
-		const helper1 = new RectAreaLightHelper(light1);
+		// const helper1 = new RectAreaLightHelper(light1);
 		// light1.add(helper1);
 		this._scene.add(light1);
 		
@@ -150,7 +150,7 @@ class App {
 		const light2 = new THREE.PointLight( 0xffffff, 1, 100 )
 		light2.position.set(0, -15, 0);
 		light2.lookAt(0,0,0)
-		const helper2 = new RectAreaLightHelper(light2);
+		// const helper2 = new RectAreaLightHelper(light2);
 		// light2.add(helper2);
 		this._scene.add(light2);
 
@@ -174,14 +174,14 @@ class App {
 		const light5 = new THREE.PointLight( 0xffffff, 1, 100 )
 		light5.position.set(0, 0, 10);
 		light5.lookAt(0,0,0)
-		const helper5 = new RectAreaLightHelper(light5);
+		// const helper5 = new RectAreaLightHelper(light5);
 		// light5.add(helper5);
 		this._scene.add(light5);
 
 		const light6 = new THREE.PointLight( 0xffffff, 1, 100 )
 		light6.position.set(0,0, -10);
 		light6.lookAt(0,0,0)
-		const helper6 = new RectAreaLightHelper(light6);
+		// const helper6 = new RectAreaLightHelper(light6);
 		// light6.add(helper6);
 		this._scene.add(light6);
 
