@@ -192,10 +192,10 @@ class App {
 
 		const jewelArr = [
 			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhongMaterial({color : 0x865DFF, shininess: 2, specular: 0xffffff})),
-			new THREE.Mesh(new THREE.OctahedronGeometry(0.4,0), new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 2, specular: 0xffffff})),
+			new THREE.Mesh(new THREE.OctahedronGeometry(0.4,0), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2, specular: 0xffffff})),
 			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,1), new THREE.MeshPhongMaterial({color : 0xFAEEE7, shininess: 2, specular: 0xffffff, flatShading: true})),
 			new THREE.Mesh(heartGeometry, new THREE.MeshPhongMaterial({color : 0xff0000, shininess: 2, specular: 0xffffff})),
-			new THREE.Mesh(emeraldGeometry, new THREE.MeshPhongMaterial({color : 0x31E1F7, shininess: 2, specular: 0xffffff})),
+			new THREE.Mesh(emeraldGeometry, new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 2, specular: 0xffffff})),
 			new THREE.Mesh(emeraldGeometry2 , new THREE.MeshPhongMaterial({color : 0xF8B500, shininess: 2, specular: 0xffffff}))
 		]
 		for(let i = 0;i<6;i++){
@@ -235,12 +235,12 @@ class App {
 
 	update() {
 		this.time += 0.01;
+		let i = 0
 		for(let obj of this._jewelArr){
+			i ++;
 			obj.rotation.y = this.time
-			obj.position.y += Math.sin(this.time * 5) * 0.003
+			obj.position.y += Math.sin(this.time * 5 + i) * 0.003
 		}
-		// this._cube.rotation.x = time;
-		// this._cube.rotation.y = time;
 	}
 }
 
