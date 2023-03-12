@@ -35,8 +35,8 @@ class App {
 		const renderPixelatedPass = new RenderPixelatedPass( 6, this._scene, this._camera );
 		this._renderPixelatedPass = renderPixelatedPass
         renderPixelatedPass.pixelSize = 3
-		renderPixelatedPass.normalEdgeStrength = 0.3;
-		renderPixelatedPass.depthEdgeStrength = 0.2
+		renderPixelatedPass.normalEdgeStrength = 0.2;
+		renderPixelatedPass.depthEdgeStrength = 0.1
         
 		composer.addPass( renderPixelatedPass );
 		this._composer = composer
@@ -48,7 +48,7 @@ class App {
 		requestAnimationFrame(this.render.bind(this));
 	}
     _setupBackground(){
-        this._scene.background = new THREE.Color(0x191825)
+        this._scene.background = new THREE.Color(0x0E8388)
     }
 	_setupControls(){
 		new OrbitControls(this._camera, this._divContainer);
@@ -59,8 +59,9 @@ class App {
 		const height = this._divContainer.clientHeight;
 		const aspectRatio = window.innerWidth / window.innerHeight;
 		const camera = new THREE.OrthographicCamera( - aspectRatio, aspectRatio, 1, - 1, 0.1, 40 );
-		camera.position.set(2,2,2);
-		camera.zoom = 0.20
+		// const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+		camera.position.set(5,5,5);
+		camera.zoom = 0.2
         
 		this._camera = camera;
         this._scene.add(camera)
@@ -76,27 +77,29 @@ class App {
 
 	_setupModel() {
 		const floorLen = 4;
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(floorLen,floorLen), new THREE.MeshPhysicalMaterial({color : 0x555555}));
+		const floorColor = 0xCBE4DE
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(floorLen,floorLen), new THREE.MeshPhysicalMaterial({color : floorColor}));
         floor.rotation.set(-Math.PI/2,0,0)
         floor.position.set(floorLen/2,0,floorLen/2)
         this._scene.add(floor)
 
-		const wall1 = new THREE.Mesh(new THREE.PlaneGeometry(floorLen,floorLen), new THREE.MeshPhysicalMaterial({color : 0x555555}));
+		const wall1 = new THREE.Mesh(new THREE.PlaneGeometry(floorLen,floorLen), new THREE.MeshPhysicalMaterial({color : floorColor}));
         wall1.rotation.set(0,0,0)
         wall1.position.set(floorLen/2,floorLen/2,0)
         this._scene.add(wall1)
 
-		const wall2 = new THREE.Mesh(new THREE.PlaneGeometry(floorLen,floorLen), new THREE.MeshPhysicalMaterial({color : 0x555555}));
+		const wall2 = new THREE.Mesh(new THREE.PlaneGeometry(floorLen,floorLen), new THREE.MeshPhysicalMaterial({color : floorColor}));
         wall2.rotation.set(0,Math.PI/2,0)
         wall2.position.set(0,floorLen/2,floorLen/2)
         this._scene.add(wall2)
 
-        const cubeArr = [new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : 0x7743DB})),
-            new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : 0x7743DB})),
-            new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : 0x7743DB})),
-            new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : 0x7743DB})),
-            new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : 0x7743DB})),
-            new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : 0x7743DB}))]
+		const cubeColor = 0x2C3333;
+        const cubeArr = [new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : cubeColor})),
+            new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : cubeColor})),
+            new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : cubeColor})),
+            new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : cubeColor})),
+            new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : cubeColor})),
+            new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhysicalMaterial({color : cubeColor}))]
 		const cubePosArr = [new THREE.Vector3(0.5,2.5,0.5),
 			new THREE.Vector3(1.5,1.5,0.5),
 			new THREE.Vector3(0.5,1.5,1.5),
@@ -109,29 +112,74 @@ class App {
 			this._scene.add(cubeArr[i])
 		}
 
+		
+
+		//heart shape
+		const heartShape = new THREE.Shape();
+		heartShape.moveTo(0, 0);
+		heartShape.bezierCurveTo(0, -0.5, -0.8, -1.5, -2, -1.5);
+		heartShape.bezierCurveTo(-3.5, -1.5, -4.5, 0, -4.5, 1.5);
+		heartShape.bezierCurveTo(-4.5, 3.5, -2.5, 5, 0, 7);
+		heartShape.bezierCurveTo(2.5, 5, 4.5, 3.5, 4.5, 1.5);
+		heartShape.bezierCurveTo(4.5, 0, 3.5, -1.5, 2, -1.5);
+		heartShape.bezierCurveTo(0.8, -1.5, 0, -0.5, 0, 0);
+		
+		const extrudeSettings = {
+			depth: 0,
+			bevelEnabled: true,
+			bevelSegments: 3,
+			steps: 3,
+			bevelSize: 2,
+			bevelThickness: 2,
+			curveSegments: 2
+		  };
+		  const heartGeometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings).scale(0.06,0.06,0.06).rotateZ(Math.PI)
+
+
+		//emerald shape
+		const emeraldShape = new THREE.Shape();
+		const width = 0.4;
+		const height = 0.8;
+		emeraldShape.moveTo( -width/2, -height/2 );
+		emeraldShape.lineTo( -width/2, height/2 );
+		emeraldShape.lineTo( width/2, height/2 );
+		emeraldShape.lineTo( width/2, -height/2 );
+		emeraldShape.lineTo( -width/2, -height/2 );
+
+		const emeraldExtrudeSettings = {
+			steps: 2,
+			depth: 0,
+			bevelEnabled: true,
+			bevelThickness: 0.2,
+			bevelSize: 0.1,
+			bevelOffset: 0,
+			bevelSegments: 1
+		};
+		const emeraldGeometry = new THREE.ExtrudeGeometry( emeraldShape, emeraldExtrudeSettings );
+
+
+
+
+
 		const jewelArr = [
-			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhysicalMaterial({color : 0xff0000})),
-			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhysicalMaterial({color : 0xff0000})),
-			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhysicalMaterial({color : 0xff0000})),
-			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhysicalMaterial({color : 0xff0000})),
-			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhysicalMaterial({color : 0xff0000})),
-			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhysicalMaterial({color : 0xff0000}))
+			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 3, specular: 0xffffff})),
+			new THREE.Mesh(new THREE.OctahedronGeometry(0.4,0), new THREE.MeshPhongMaterial({color : 0x865DFF, shininess: 3, specular: 0xffffff})),
+			new THREE.Mesh(new THREE.SphereGeometry(0.4,16,32), new THREE.MeshPhongMaterial({color : 0xffffff, shininess: 3, specular: 0xffffff, flatShading : false})),
+			new THREE.Mesh(heartGeometry, new THREE.MeshPhongMaterial({color : 0xff0000})),
+			new THREE.Mesh(emeraldGeometry, new THREE.MeshPhongMaterial({color : 0xff0000})),
+			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhongMaterial({color : 0xff0000}))
 		]
 		for(let i = 0;i<6;i++){
 			jewelArr[i].position.set(cubePosArr[i].x, cubePosArr[i].y + 1, cubePosArr[i].z)
 			this._scene.add(jewelArr[i])
 		}
+		jewelArr[1].scale.set(1,1.2,1)
+
+
 		
-        
-
-		// const geometry = new THREE.IcosahedronGeometry(1,0);
-		// const material = new THREE.MeshPhysicalMaterial({ color: 0x44a88 });
-		// const cube = new THREE.Mesh(geometry, material);
-		// cube.position.set(new THREE.Vector3(4,4,4))
+		
 
 
-		// this._scene.add(cube);
-		// this._cube = cube;
 	}
 
 	resize() {
