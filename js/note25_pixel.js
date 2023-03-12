@@ -48,7 +48,7 @@ class App {
 		requestAnimationFrame(this.render.bind(this));
 	}
     _setupBackground(){
-        this._scene.background = new THREE.Color(0x0E8388)
+        this._scene.background = new THREE.Color(0x400D51)
     }
 	_setupControls(){
 		new OrbitControls(this._camera, this._divContainer);
@@ -167,17 +167,36 @@ class App {
 		};
 		const emeraldGeometry = new THREE.ExtrudeGeometry( emeraldShape, emeraldExtrudeSettings );
 
+		//emerald shape
+		const emeraldShape2 = new THREE.Shape();
+		const width2 = 0.4;
+		const height2 = 0.7;
+		emeraldShape2.moveTo( -width2/2, 0 );
+		emeraldShape2.lineTo( 0, height2/2 );
+		emeraldShape2.lineTo( width2/2, 0 );
+		emeraldShape2.lineTo( 0, -height2/2 );
+		emeraldShape2.lineTo( -width2/2, 0 );
 
+		const emeraldExtrudeSettings2 = {
+			steps: 2,
+			depth: 0,
+			bevelEnabled: true,
+			bevelThickness: 0.2,
+			bevelSize: 0.1,
+			bevelOffset: 0,
+			bevelSegments: 1
+		};
+		const emeraldGeometry2 = new THREE.ExtrudeGeometry( emeraldShape2, emeraldExtrudeSettings2 );
 
 
 
 		const jewelArr = [
 			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhongMaterial({color : 0x865DFF, shininess: 2, specular: 0xffffff})),
 			new THREE.Mesh(new THREE.OctahedronGeometry(0.4,0), new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 2, specular: 0xffffff})),
-			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,1), new THREE.MeshPhongMaterial({color : 0xffffff, shininess: 2, specular: 0xffffff, flatShading: true})),
+			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,1), new THREE.MeshPhongMaterial({color : 0xFAEEE7, shininess: 2, specular: 0xffffff, flatShading: true})),
 			new THREE.Mesh(heartGeometry, new THREE.MeshPhongMaterial({color : 0xff0000, shininess: 2, specular: 0xffffff})),
-			new THREE.Mesh(emeraldGeometry, new THREE.MeshPhongMaterial({color : 0xff0000, shininess: 2, specular: 0xffffff})),
-			new THREE.Mesh(new THREE.IcosahedronGeometry(0.4,0), new THREE.MeshPhongMaterial({color : 0xff0000, shininess: 2, specular: 0xffffff}))
+			new THREE.Mesh(emeraldGeometry, new THREE.MeshPhongMaterial({color : 0x31E1F7, shininess: 2, specular: 0xffffff})),
+			new THREE.Mesh(emeraldGeometry2 , new THREE.MeshPhongMaterial({color : 0xF8B500, shininess: 2, specular: 0xffffff}))
 		]
 		for(let i = 0;i<6;i++){
 			jewelArr[i].position.set(cubePosArr[i].x, cubePosArr[i].y + 1, cubePosArr[i].z)
@@ -218,7 +237,7 @@ class App {
 		this.time += 0.01;
 		for(let obj of this._jewelArr){
 			obj.rotation.y = this.time
-			// obj.position.y = Math.sin(this.time) * 0.01
+			obj.position.y += Math.sin(this.time * 5) * 0.003
 		}
 		// this._cube.rotation.x = time;
 		// this._cube.rotation.y = time;
