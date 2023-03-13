@@ -2,7 +2,7 @@ import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from '../node_modules/three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPixelatedPass } from '../node_modules/three/examples/jsm/postprocessing/RenderPixelatedPass.js';
-
+//https://threejs.org/examples/?q=pixel
 
 class App {
 	constructor() {
@@ -22,19 +22,23 @@ class App {
 		this._scene = scene;
 
 		this.time = 0;
+		this.pixelSizeControl = document.querySelector("#pixelsize");
+		this.colorControl = document.querySelector("#color");
+		
 
+		
         this._setupBackground();
 		this._setupCamera();
 		this._setupLight();
 		this._setupModel();
-		this._setupControls()
+		this._setupControls();
 
 		
 
 		const composer = new EffectComposer( renderer );
 		const renderPixelatedPass = new RenderPixelatedPass( 6, this._scene, this._camera );
 		this._renderPixelatedPass = renderPixelatedPass
-        renderPixelatedPass.pixelSize = 4
+        renderPixelatedPass.pixelSize = 5
 		renderPixelatedPass.normalEdgeStrength = 0.2;
 		renderPixelatedPass.depthEdgeStrength = 0.1
         
@@ -48,10 +52,88 @@ class App {
 		requestAnimationFrame(this.render.bind(this));
 	}
     _setupBackground(){
-        this._scene.background = new THREE.Color(0x400D51)
+        this._scene.background = new THREE.Color(0xeeeeee)
     }
+	nextJewelIndex(currIndex){
+		return currIndex < this._jewelArr.length - 1 ? currIndex + 1 :0
+	}
+	prevJewelIndex(currIndex){
+		return currIndex > 0 ? currIndex - 1 : this._jewelArr.length-1
+	}
 	_setupControls(){
-		new OrbitControls(this._camera, this._divContainer);
+		// new OrbitControls(this._camera, this._divContainer);
+		let touchstartX = 0
+		let touchendX = 0
+		
+		const isTouchValid = e=>{
+			const raycaster = new THREE.Raycaster();
+            
+			const pt = {
+				x: (e.touches[0].clientX/ this._divContainer.clientWidth) * 2 - 1,
+				y: - (e.touches[0].clientY / this._divContainer.clientHeight) * 2 + 1
+			}
+			raycaster.setFromCamera(pt, this._camera)
+			const interObj = raycaster.intersectObject(this._jewelArr[this._currJewelIndex])
+			if(interObj.length === 0){
+				return false;
+			}
+			
+			return true
+		}
+		const touchEnd = e => {
+			touchendX = e.changedTouches[0].screenX
+			checkDirection()
+			document.removeEventListener('touchend', touchEnd)
+		  }
+		
+		document.addEventListener('touchstart', e => {
+			if(!isTouchValid(e)){
+				return;
+			}
+		  	touchstartX = e.changedTouches[0].screenX
+			document.addEventListener('touchend', touchEnd)
+		})
+		
+
+
+		const checkDirection = ()=> {
+			if (touchendX < touchstartX) {
+				gsap.to(this._jewelArr[this._currJewelIndex].position,{duration : 2, x : -5, z : 5})
+				this._currJewelIndex = this.nextJewelIndex(this._currJewelIndex)
+				const nextJewel = this._jewelArr[this._currJewelIndex]
+				
+				this._scene.add(nextJewel)
+				nextJewel.position.set(5,1.5,-5)
+				
+				gsap.to(nextJewel.position,{duration : 2, x : 0, z : 0,
+					onComplete : ()=>{
+						this._jewelArr[this.prevJewelIndex(this._currJewelIndex)].remove()
+					}})
+			}
+			if (touchendX > touchstartX){
+				gsap.to(this._jewelArr[this._currJewelIndex].position,{duration : 2, x : 5, z : -5})
+				this._currJewelIndex = this.prevJewelIndex(this._currJewelIndex)
+				const nextJewel = this._jewelArr[this._currJewelIndex]
+				
+				this._scene.add(nextJewel)
+				nextJewel.position.set(-5,1.5,5)
+				
+				gsap.to(nextJewel.position,{duration : 2, x : 0, z : 0,
+					onComplete : () => {
+						this._jewelArr[this.nextJewelIndex(this._currJewelIndex)].remove()
+					}})
+			}
+		}
+
+		this.pixelSizeControl.addEventListener("change", (e)=>{
+			this._renderPixelatedPass.setPixelSize(this.pixelSizeControl.value)
+		})
+
+		this.colorControl.addEventListener("change", (e)=>{
+			const color = new THREE.Color(`hsl(${this.colorControl.value}, 100%, 60%)`)
+			this._jewelArr[this._currJewelIndex].material.color = color
+			// this._jewelArr[this._currJewelIndex].material.specular = color
+		})
 	}
 
 	_setupCamera() {
@@ -62,7 +144,7 @@ class App {
 		// const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 		camera.position.set(5,5,5);
 		camera.zoom = 0.2
-		// camera.lookAt(0,0,0)
+		camera.lookAt(0,0,0)
         
 		this._camera = camera;
         this._scene.add(camera)
@@ -72,58 +154,13 @@ class App {
 		const color = 0xffffff;
 		const intensity = 1;
 		const light = new THREE.DirectionalLight(color, intensity);
-		light.position.set(3, 10, 3);
+		light.position.set(3, 10, 2);
 		light.castShadow = true;
 		this._scene.add(light);
 	}
-
+	
 	_setupModel() {
-		// const floorLen = 4;
-		// const floorColor = 0xCBE4DE
 
-		// const planeArr = [new THREE.Mesh(new THREE.PlaneGeometry(floorLen,floorLen), new THREE.MeshPhysicalMaterial({color : floorColor})),
-		// 	new THREE.Mesh(new THREE.PlaneGeometry(floorLen,floorLen), new THREE.MeshPhysicalMaterial({color : floorColor})),
-		// 	new THREE.Mesh(new THREE.PlaneGeometry(floorLen,floorLen), new THREE.MeshPhysicalMaterial({color : floorColor}))]
-
-		// planeArr[0].rotation.set(-Math.PI/2,0,0)
-		// planeArr[0].position.set(floorLen/2,0,floorLen/2)
-
-		// planeArr[1].rotation.set(0,0,0)
-		// planeArr[1].position.set(floorLen/2,floorLen/2,0)
-
-		// planeArr[2].rotation.set(0,Math.PI/2,0)
-		// planeArr[2].position.set(0,floorLen/2,floorLen/2)
-		// planeArr.forEach(e=>{
-		// 	// this._scene.add(e);
-		// })
-
-
-
-		// const cubeColor = 0x2C3333;
-		// const cubeMate = new THREE.MeshPhysicalMaterial({color : cubeColor, side: THREE.DoubleSide, transparent : true, opacity : 0.5})
-        // const cubeArr = [new THREE.Mesh(new THREE.BoxGeometry(1,1,1), cubeMate),
-        //     new THREE.Mesh(new THREE.BoxGeometry(1,1,1), cubeMate),
-        //     new THREE.Mesh(new THREE.BoxGeometry(1,1,1), cubeMate),
-        //     new THREE.Mesh(new THREE.BoxGeometry(1,1,1), cubeMate),
-        //     new THREE.Mesh(new THREE.BoxGeometry(1,1,1), cubeMate),
-        //     new THREE.Mesh(new THREE.BoxGeometry(1,1,1), cubeMate)]
-		// const cubePosArr = [new THREE.Vector3(0.5,2.5,0.5),
-		// 	new THREE.Vector3(1.5,1.5,0.5),
-		// 	new THREE.Vector3(0.5,1.5,1.5),
-		// 	new THREE.Vector3(2.5,0.5,0.5),
-		// 	new THREE.Vector3(1.5,0.5,1.5),
-		// 	new THREE.Vector3(0.5,0.5,2.5)]
-		
-		// for(let i = 0;i<6;i++){
-		// 	cubeArr[i].position.set(cubePosArr[i].x, cubePosArr[i].y, cubePosArr[i].z)
-		// 	// this._scene.add(cubeArr[i])
-		// }
-
-		// cubeArr.forEach(e=>{
-		// 	e.receiveShadow = true;
-		// 	e.castShadow = true;
-		// })
-		
 
 		//heart shape
 		const heartShape = new THREE.Shape();
@@ -192,36 +229,62 @@ class App {
 
 
 		const jewelArr = [
-			new THREE.Mesh(new THREE.IcosahedronGeometry(1,0), new THREE.MeshPhongMaterial({color : 0x865DFF, shininess: 2, specular: 0xffffff, transparent: true, opacity : 1})),
-			new THREE.Mesh(new THREE.OctahedronGeometry(0.8,0).scale(1,1.5,1), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2, specular: 0xffffff, transparent: true, opacity : 0.8})),
+			new THREE.Mesh(new THREE.IcosahedronGeometry(1,0), new THREE.MeshPhongMaterial({color : 0x865DFF, shininess: 2, specular: 0xffffff})),
+			new THREE.Mesh(new THREE.OctahedronGeometry(0.8,0).scale(1,1.5,1), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2, specular: 0xffffff})),
 			new THREE.Mesh(new THREE.IcosahedronGeometry(1,1), new THREE.MeshPhongMaterial({color : 0xFAEEE7, shininess: 2, specular: 0xffffff, flatShading: true})),
 			new THREE.Mesh(heartGeometry, new THREE.MeshPhongMaterial({color : 0xff0000, shininess: 2, specular: 0xffffff})),
 			new THREE.Mesh(emeraldGeometry, new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 2, specular: 0xffffff})),
 			new THREE.Mesh(emeraldGeometry2 , new THREE.MeshPhongMaterial({color : 0xF8B500, shininess: 2, specular: 0xffffff}))
 		]
 		this._jewelArr = jewelArr;
-
+		this._currJewelIndex = 0
 		jewelArr.forEach(e=>{
 			e.castShadow =true;
 			e.receiveShadow = true;
 		})
 		
+
+
+
+
+		function pixelTexture( texture ) {
+
+			texture.minFilter = THREE.NearestFilter;
+			texture.magFilter = THREE.NearestFilter;
+			texture.generateMipmaps = false;
+			texture.wrapS = THREE.RepeatWrapping;
+			texture.wrapT = THREE.RepeatWrapping;
+			return texture;
+
+		}
+		const loader = new THREE.TextureLoader();
+		const texChecker = pixelTexture( loader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/checker.png' ) );
+		const texChecker2 = pixelTexture( loader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/checker.png' ) );
+		texChecker.repeat.set( 3, 3 );
+		texChecker2.repeat.set( 1.5, 1.5 );
+
+
 		const cylColor = 0x2C3333;
-		const cylRadius = 2;
-		const cylHeight = 10;
-		const cylMate = new THREE.MeshPhysicalMaterial({color : cylColor, side: THREE.DoubleSide, transparent : false, opacity : 0.5})
-        const cylArr = [new THREE.Mesh(new THREE.CylinderGeometry(cylRadius,cylRadius,cylHeight,32), cylMate)]
-		const cylPosArr = [new THREE.Vector3(0,-cylHeight / 2,0)]
+		const cylRadius = 3;
+		const cylHeight = 3;
+		const cylMate = new THREE.MeshPhysicalMaterial({map : texChecker2})
+        const cylArr = [new THREE.Mesh(new THREE.BoxGeometry(cylRadius,cylHeight,cylRadius), cylMate),
+			new THREE.Mesh(new THREE.BoxGeometry(cylRadius,cylHeight,cylRadius), cylMate),
+			new THREE.Mesh(new THREE.BoxGeometry(cylRadius,cylHeight,cylRadius), cylMate)]
+		const cylPosArr = [new THREE.Vector3(0,-cylHeight / 2,0),
+			new THREE.Vector3(0,-cylHeight*7/6,0),
+			new THREE.Vector3(0,-cylHeight*11/6,0),
+		]
 		
-		for(let i = 0;i<1;i++){
+		for(let i = 0;i<3;i++){
 			cylArr[i].position.set(cylPosArr[i].x, cylPosArr[i].y, cylPosArr[i].z)
 			this._scene.add(cylArr[i])
-			console.log(this._scene)
+			
 			cylArr[i].receiveShadow = true;
 		}
 
-		let jewelIndex = 5
-		jewelArr[jewelIndex].position.set(0, 2, 0)
+		let jewelIndex = 0
+		jewelArr[jewelIndex].position.set(0, 1.5, 0)
 		this._scene.add(jewelArr[jewelIndex])
 
 
