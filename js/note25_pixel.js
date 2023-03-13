@@ -253,7 +253,7 @@ class App {
 		for(let obj of this._jewelArr){
 			i ++;
 			obj.rotation.y = this.time
-			obj.position.y += Math.sin(this.time * 5 + i) * 0.003
+			obj.position.y += Math.sin(this.time * 5 + i) * 0.008
 		}
 	}
 }
