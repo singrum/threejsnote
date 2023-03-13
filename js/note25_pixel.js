@@ -166,12 +166,12 @@ class App {
 			bevelOffset: 0,
 			bevelSegments: 1
 		};
-		const emeraldGeometry = new THREE.ExtrudeGeometry( emeraldShape, emeraldExtrudeSettings ).translate(0,0.5,0);
+		const emeraldGeometry = new THREE.ExtrudeGeometry( emeraldShape, emeraldExtrudeSettings );
 
 		//emerald shape
 		const emeraldShape2 = new THREE.Shape();
 		const width2 = 0.8;
-		const height2 = 1.2;
+		const height2 = 1.3;
 		emeraldShape2.moveTo( -width2/2, 0 );
 		emeraldShape2.lineTo( 0, height2/2 );
 		emeraldShape2.lineTo( width2/2, 0 );
@@ -193,7 +193,7 @@ class App {
 
 		const jewelArr = [
 			new THREE.Mesh(new THREE.IcosahedronGeometry(1,0), new THREE.MeshPhongMaterial({color : 0x865DFF, shininess: 2, specular: 0xffffff, transparent: true, opacity : 1})),
-			new THREE.Mesh(new THREE.OctahedronGeometry(1,0).scale(1,1.5,1).translate(0,0.8,0), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2, specular: 0xffffff, transparent: true, opacity : 0.8})),
+			new THREE.Mesh(new THREE.OctahedronGeometry(0.8,0).scale(1,1.5,1), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2, specular: 0xffffff, transparent: true, opacity : 0.8})),
 			new THREE.Mesh(new THREE.IcosahedronGeometry(1,1), new THREE.MeshPhongMaterial({color : 0xFAEEE7, shininess: 2, specular: 0xffffff, flatShading: true})),
 			new THREE.Mesh(heartGeometry, new THREE.MeshPhongMaterial({color : 0xff0000, shininess: 2, specular: 0xffffff})),
 			new THREE.Mesh(emeraldGeometry, new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 2, specular: 0xffffff})),
@@ -221,7 +221,7 @@ class App {
 		}
 
 		let jewelIndex = 5
-		jewelArr[jewelIndex].position.set(0, 1.5, 0)
+		jewelArr[jewelIndex].position.set(0, 2, 0)
 		this._scene.add(jewelArr[jewelIndex])
 
 
