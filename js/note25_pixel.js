@@ -64,8 +64,9 @@ class App {
 		// new OrbitControls(this._camera, this._divContainer);
 		let touchstartX = 0
 		let touchendX = 0
-		
+		this._static = true;
 		const isTouchValid = e=>{
+			if(!this._static){return}
 			const raycaster = new THREE.Raycaster();
             
 			const pt = {
@@ -90,6 +91,7 @@ class App {
 			if(!isTouchValid(e)){
 				return;
 			}
+			this._static = false;
 		  	touchstartX = e.changedTouches[0].screenX
 			document.addEventListener('touchend', touchEnd)
 		})
@@ -107,7 +109,9 @@ class App {
 				
 				gsap.to(nextJewel.position,{duration : 2, x : 0, z : 0,
 					onComplete : ()=>{
+						console.log(1)
 						this._scene.remove(this._jewelArr[this.prevJewelIndex(this._currJewelIndex)])
+						this._static = true;
 					}})
 			}
 			if (touchendX > touchstartX){
@@ -120,7 +124,8 @@ class App {
 				
 				gsap.to(nextJewel.position,{duration : 2, x : 0, z : 0,
 					onComplete : () => {
-						this._scene.remove(this._jewelArr[this.nextJewelIndex(this._currJewelIndex)].remove())
+						this._scene.remove(this._jewelArr[this.nextJewelIndex(this._currJewelIndex)])
+						this._static = true;
 					}})
 			}
 		}
@@ -247,10 +252,10 @@ class App {
 
 		const jewelArr = [
 			new THREE.Mesh(new THREE.IcosahedronGeometry(1,0), new THREE.MeshPhongMaterial({color : 0x865DFF, shininess: 2.5, specular: 0xffffff})),
-			new THREE.Mesh(new THREE.OctahedronGeometry(0.8,1).scale(1,1.5,1), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2.5, specular: 0xffffff,flatShading: true})),
+			// new THREE.Mesh(new THREE.OctahedronGeometry(0.8,1).scale(1,1.5,1), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2.5, specular: 0xffffff,flatShading: true})),
 			new THREE.Mesh(new THREE.IcosahedronGeometry(1,1), new THREE.MeshPhongMaterial({color : 0xFAEEE7, shininess: 2.5, specular: 0xffffff, flatShading: true})),
-			new THREE.Mesh(heartGeometry, new THREE.MeshPhongMaterial({color : 0xff0000, shininess: 2.5, specular: 0xffffff})),
-			new THREE.Mesh(new THREE.LatheGeometry(diamondPoints, 8).scale(0.6,0.6,0.6), new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 2.0, specular: 0xffffff,flatShading: true})),
+			new THREE.Mesh(heartGeometry, new THREE.MeshPhongMaterial({color : 0xDF2E38, shininess: 2.5, specular: 0xffffff})),
+			new THREE.Mesh(new THREE.LatheGeometry(diamondPoints, 8).scale(0.6,0.6,0.6), new THREE.MeshPhongMaterial({color : 0xC9EEFF, shininess: 2.0, specular: 0xffffff,flatShading: true})),
 			new THREE.Mesh(emeraldGeometry2 , new THREE.MeshPhongMaterial({color : 0xF8B500, shininess: 2.5, specular: 0xffffff}))
 		]
 		this._jewelArr = jewelArr;
