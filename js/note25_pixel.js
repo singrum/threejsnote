@@ -107,7 +107,7 @@ class App {
 				
 				gsap.to(nextJewel.position,{duration : 2, x : 0, z : 0,
 					onComplete : ()=>{
-						this._jewelArr[this.prevJewelIndex(this._currJewelIndex)].remove()
+						this._scene.remove(this._jewelArr[this.prevJewelIndex(this._currJewelIndex)])
 					}})
 			}
 			if (touchendX > touchstartX){
@@ -120,7 +120,7 @@ class App {
 				
 				gsap.to(nextJewel.position,{duration : 2, x : 0, z : 0,
 					onComplete : () => {
-						this._jewelArr[this.nextJewelIndex(this._currJewelIndex)].remove()
+						this._scene.remove(this._jewelArr[this.nextJewelIndex(this._currJewelIndex)].remove())
 					}})
 			}
 		}
@@ -143,7 +143,7 @@ class App {
 		const aspectRatio = window.innerWidth / window.innerHeight;
 		const camera = new THREE.OrthographicCamera( - aspectRatio, aspectRatio, 1, - 1, 0.1, 40 );
 		// const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-		camera.position.set(5,5,5);
+		camera.position.set(5,4,5);
 		camera.zoom = 0.2
 		camera.lookAt(0,0,0)
         
@@ -161,8 +161,8 @@ class App {
 
 
 
-		const spotLight = new THREE.SpotLight( 0xfd9f68, 1, 10, Math.PI / 5, .02, 2 );
-		spotLight.position.set( 2, 5, 0);
+		const spotLight = new THREE.SpotLight( 0xfd9f68, 1, 20, Math.PI / 20	, 0.02, 2 );
+		spotLight.position.set( 0, 10, 0);
 		const target = spotLight.target;
 		this._scene.add( target );
 		target.position.set( 0, 0, 0 );
@@ -237,14 +237,20 @@ class App {
 		};
 		const emeraldGeometry2 = new THREE.ExtrudeGeometry( emeraldShape2, emeraldExtrudeSettings2 );
 
+		const diamondPoints = [
+			new THREE.Vector3(0, -1.5, 0),
+			new THREE.Vector3(1.5, 0, 0),
+			new THREE.Vector3(1, 0.7, 0),
+			new THREE.Vector3(0, 0.8, 0)
+		  ]
 
 
 		const jewelArr = [
 			new THREE.Mesh(new THREE.IcosahedronGeometry(1,0), new THREE.MeshPhongMaterial({color : 0x865DFF, shininess: 2.5, specular: 0xffffff})),
-			new THREE.Mesh(new THREE.OctahedronGeometry(0.8,0).scale(1,1.5,1), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2.5, specular: 0xffffff})),
+			new THREE.Mesh(new THREE.OctahedronGeometry(0.8,1).scale(1,1.5,1), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2.5, specular: 0xffffff,flatShading: true})),
 			new THREE.Mesh(new THREE.IcosahedronGeometry(1,1), new THREE.MeshPhongMaterial({color : 0xFAEEE7, shininess: 2.5, specular: 0xffffff, flatShading: true})),
 			new THREE.Mesh(heartGeometry, new THREE.MeshPhongMaterial({color : 0xff0000, shininess: 2.5, specular: 0xffffff})),
-			new THREE.Mesh(emeraldGeometry, new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 2.5, specular: 0xffffff})),
+			new THREE.Mesh(new THREE.LatheGeometry(diamondPoints, 8).scale(0.6,0.6,0.6), new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 2.0, specular: 0xffffff,flatShading: true})),
 			new THREE.Mesh(emeraldGeometry2 , new THREE.MeshPhongMaterial({color : 0xF8B500, shininess: 2.5, specular: 0xffffff}))
 		]
 		this._jewelArr = jewelArr;
