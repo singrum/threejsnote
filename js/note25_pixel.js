@@ -130,8 +130,9 @@ class App {
 		})
 
 		this.colorControl.addEventListener("change", (e)=>{
-			const color = new THREE.Color(`hsl(${this.colorControl.value}, 100%, 60%)`)
+			const color = new THREE.Color(`hsl(${this.colorControl.value}, 100%, 50%)`)
 			this._jewelArr[this._currJewelIndex].material.color = color
+			this._jewelArr[this._currJewelIndex].material.emissive = color
 			// this._jewelArr[this._currJewelIndex].material.specular = color
 		})
 	}
@@ -239,6 +240,7 @@ class App {
 		this._jewelArr = jewelArr;
 		this._currJewelIndex = 0
 		jewelArr.forEach(e=>{
+			e.material.emissive = e.material.color
 			e.castShadow =true;
 			e.receiveShadow = true;
 		})
@@ -317,6 +319,10 @@ class App {
 			i ++;
 			obj.rotation.y = this.time
 			obj.position.y += Math.sin(this.time * 5 + i) * 0.008
+			obj.material.emissiveIntensity = Math.sin( this.time * 4 ) * .2 + 0.3 ;
+			// obj.shininess = Math.sin( this.time * 3 ) * .2 + 0.3 ;
+			
+			// console.log(obj.material.emissiveIntensity)
 		}
 	}
 }
