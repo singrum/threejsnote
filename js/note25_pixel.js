@@ -52,7 +52,7 @@ class App {
 		requestAnimationFrame(this.render.bind(this));
 	}
     _setupBackground(){
-        this._scene.background = new THREE.Color(0xeeeeee)
+        this._scene.background = new THREE.Color(0xF7EFE5)
     }
 	nextJewelIndex(currIndex){
 		return currIndex < this._jewelArr.length - 1 ? currIndex + 1 :0
@@ -130,7 +130,7 @@ class App {
 		})
 
 		this.colorControl.addEventListener("change", (e)=>{
-			const color = new THREE.Color(`hsl(${this.colorControl.value}, 100%, 50%)`)
+			const color = new THREE.Color(`hsl(${this.colorControl.value}, 100%, 60%)`)
 			this._jewelArr[this._currJewelIndex].material.color = color
 			this._jewelArr[this._currJewelIndex].material.emissive = color
 			// this._jewelArr[this._currJewelIndex].material.specular = color
@@ -153,11 +153,21 @@ class App {
 
 	_setupLight() {
 		const color = 0xffffff;
-		const intensity = 1;
+		const intensity = 0.5;
 		const light = new THREE.DirectionalLight(color, intensity);
 		light.position.set(3, 10, 2);
-		light.castShadow = true;
+		// light.castShadow = true;
 		this._scene.add(light);
+
+
+
+		const spotLight = new THREE.SpotLight( 0xfd9f68, 1, 10, Math.PI / 5, .02, 2 );
+		spotLight.position.set( 2, 5, 0);
+		const target = spotLight.target;
+		this._scene.add( target );
+		target.position.set( 0, 0, 0 );
+		spotLight.castShadow = true;
+		this._scene.add( spotLight );
 	}
 	
 	_setupModel() {
@@ -230,12 +240,12 @@ class App {
 
 
 		const jewelArr = [
-			new THREE.Mesh(new THREE.IcosahedronGeometry(1,0), new THREE.MeshPhongMaterial({color : 0x865DFF, shininess: 2, specular: 0xffffff})),
-			new THREE.Mesh(new THREE.OctahedronGeometry(0.8,0).scale(1,1.5,1), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2, specular: 0xffffff})),
-			new THREE.Mesh(new THREE.IcosahedronGeometry(1,1), new THREE.MeshPhongMaterial({color : 0xFAEEE7, shininess: 2, specular: 0xffffff, flatShading: true})),
-			new THREE.Mesh(heartGeometry, new THREE.MeshPhongMaterial({color : 0xff0000, shininess: 2, specular: 0xffffff})),
-			new THREE.Mesh(emeraldGeometry, new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 2, specular: 0xffffff})),
-			new THREE.Mesh(emeraldGeometry2 , new THREE.MeshPhongMaterial({color : 0xF8B500, shininess: 2, specular: 0xffffff}))
+			new THREE.Mesh(new THREE.IcosahedronGeometry(1,0), new THREE.MeshPhongMaterial({color : 0x865DFF, shininess: 2.5, specular: 0xffffff})),
+			new THREE.Mesh(new THREE.OctahedronGeometry(0.8,0).scale(1,1.5,1), new THREE.MeshPhongMaterial({color : 0x35D0BA, shininess: 2.5, specular: 0xffffff})),
+			new THREE.Mesh(new THREE.IcosahedronGeometry(1,1), new THREE.MeshPhongMaterial({color : 0xFAEEE7, shininess: 2.5, specular: 0xffffff, flatShading: true})),
+			new THREE.Mesh(heartGeometry, new THREE.MeshPhongMaterial({color : 0xff0000, shininess: 2.5, specular: 0xffffff})),
+			new THREE.Mesh(emeraldGeometry, new THREE.MeshPhongMaterial({color : 0x16FF00, shininess: 2.5, specular: 0xffffff})),
+			new THREE.Mesh(emeraldGeometry2 , new THREE.MeshPhongMaterial({color : 0xF8B500, shininess: 2.5, specular: 0xffffff}))
 		]
 		this._jewelArr = jewelArr;
 		this._currJewelIndex = 0
@@ -319,7 +329,7 @@ class App {
 			i ++;
 			obj.rotation.y = this.time
 			obj.position.y += Math.sin(this.time * 5 + i) * 0.008
-			obj.material.emissiveIntensity = Math.sin( this.time * 4 ) * .2 + 0.3 ;
+			obj.material.emissiveIntensity = Math.sin( this.time * 5 ) * .2 + 0.3 ;
 			// obj.shininess = Math.sin( this.time * 3 ) * .2 + 0.3 ;
 			
 			// console.log(obj.material.emissiveIntensity)
