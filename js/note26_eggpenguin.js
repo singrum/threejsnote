@@ -26,10 +26,8 @@ class App {
 		this.delta = 0.2
 		this.step = 0.1;
 		this.time = 0;
-		this.shearAmp = 0.3;
-		this.scaleAmp = 0.2;
-		this.scaleFre = 1;
-		this.shearFre = 1;
+		this.scaleAmp = 0.2;this.scaleFre = 1;
+		this.shearAmp = 0.3;this.shearFre = 1;
 		this.dogRow = 5;
 		this.dogCol = 5;
 		this.dogArr = new Array(this.dogRow);
@@ -62,7 +60,7 @@ class App {
 		this.isPush = true;
 	}
     _setupBackground(){
-        this._scene.background = new THREE.Color(0xeeeeee);
+        this._scene.background = new THREE.Color(0xdddddd);
 
     }
 	_setupControls(){ 
@@ -111,15 +109,19 @@ class App {
 
 		this.scaleAmpCtrl.addEventListener("change", (e)=>{
 			this.scaleAmp = this.scaleAmpCtrl.value / 100
+			// this.time = 0;
 		})
 		this.scaleFreCtrl.addEventListener("change", (e)=>{
 			this.scaleFre = this.scaleFreCtrl.value / 50
+			this.time = 0;
 		})
 		this.shearAmpCtrl.addEventListener("change", (e)=>{
 			this.shearAmp = this.shearAmpCtrl.value / 100
+			// this.time = 0;
 		})
 		this.shearFreCtrl.addEventListener("change", (e)=>{
 			this.shearFre = this.shearFreCtrl.value / 50
+			this.time = 0;
 		})
 
 
@@ -150,9 +152,9 @@ class App {
 		light.castShadow = true;
 		light.shadow.camera.top = light.shadow.camera.right = 30;
 		light.shadow.camera.bottom = light.shadow.camera.left = -30;
-		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048 // 텍스쳐 맵 픽셀 수 증가 -> 선명
+		light.shadow.mapSize.width = light.shadow.mapSize.height = 4096 // 텍스쳐 맵 픽셀 수 증가 -> 선명
 		light.shadow.radius = 4;
-		light.position.set(0, 2, 0);
+		light.position.set(0, 5, 0);
 		this._camera.add(light);
 
 		// const light2 = new THREE.DirectionalLight(color, intensity);
