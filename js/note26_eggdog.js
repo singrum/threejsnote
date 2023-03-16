@@ -28,10 +28,22 @@ class App {
 		this.time = 0;
 		this.shearAmp = 0.3;
 		this.scaleAmp = 0.2;
-		this.frequency1 = 1;
-		this.frequency2 = 1;
-		this.dogLen = 3;
-		this.dogArr = []
+		this.scaleFre = 1;
+		this.shearFre = 1;
+		this.dogRow = 5;
+		this.dogCol = 5;
+		this.dogArr = new Array(this.dogRow);
+		for(let i = 0;i < this.dogRow;i++){
+			this.dogArr[i] = []
+		}
+
+		this.scaleAmpCtrl = document.querySelector("#scaleAmplitude");
+		this.scaleFreCtrl = document.querySelector("#scaleFrequency");
+		this.shearAmpCtrl = document.querySelector("#shearAmplitude");
+		this.shearFreCtrl = document.querySelector("#shearFrequency");
+
+
+		
         this._setupBackground();
 		this._setupCamera();
 		this._setupLight();
@@ -51,6 +63,7 @@ class App {
 	}
     _setupBackground(){
         this._scene.background = new THREE.Color(0xeeeeee);
+
     }
 	_setupControls(){ 
 		// new OrbitControls(this._camera, this._divContainer);
@@ -96,6 +109,18 @@ class App {
 		this._divContainer.style.touchAction = 'none';
 		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
 
+		this.scaleAmpCtrl.addEventListener("change", (e)=>{
+			this.scaleAmp = this.scaleAmpCtrl.value / 100
+		})
+		this.scaleFreCtrl.addEventListener("change", (e)=>{
+			this.scaleFre = this.scaleFreCtrl.value / 50
+		})
+		this.shearAmpCtrl.addEventListener("change", (e)=>{
+			this.shearAmp = this.shearAmpCtrl.value / 100
+		})
+		this.shearFreCtrl.addEventListener("change", (e)=>{
+			this.shearFre = this.shearFreCtrl.value / 50
+		})
 
 
 	}
@@ -104,22 +129,22 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const aspectRatio = window.innerWidth / window.innerHeight;
-		const camera = new THREE.OrthographicCamera( - aspectRatio, aspectRatio, 1, - 1, 0.1, 40 );
-		camera.position.set(0,2,5);
-		camera.zoom = 0.3
+		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+		camera.position.set(0,2,4);
+		// camera.zoom = 0.3
 		this._camera = camera;
         this._scene.add(this._camera)
-		this._camera.lookAt(0,1,0)
+		this._camera.lookAt(0,0,0)
 	}
 
 	_setupLight() {
-		const defaultLight = new THREE.AmbientLight(0xffffff, 0.3);
+		const defaultLight = new THREE.AmbientLight(0xffffff, 0.5);
 		
 		this._scene.add(defaultLight)
 
 
 
-		const color = 0xFFDD83;
+		const color = 0xffffff;
 		const intensity = 1;
 		const light = new THREE.DirectionalLight(color, intensity);
 		light.castShadow = true;
@@ -138,7 +163,7 @@ class App {
 	_setupModel() {
 
 		const gltfLoader = new GLTFLoader()
-        const url = '../data/eggdog2/scene.gltf';
+        const url = '../data/penguin/scene.gltf';
 		
         gltfLoader.load(
             url,
@@ -146,8 +171,8 @@ class App {
                 const root = gltf.scene.children[0];
 			
 				this.group = root;
-				this.dogArr.push(this.group)
-				this._scene.add(this.group)
+				
+				// this._scene.add(this.group)
 				root.traverse( function( node ) {
 
 					if ( node.isMesh ) { node.castShadow = true;  }
@@ -171,16 +196,21 @@ class App {
 
 
 				//cloning
-				for(let i = 0; i<this.dogLen - 1; i++){
-					const clone = this.group.clone()
-					this._scene.add(clone)
-					this.dogArr.push(clone)
+				for(let i = 0; i<this.dogRow; i++){					
+					for(let j = 0; j < this.dogCol; j++){
+						
+						const clone = this.group.clone()
+						this.dogArr[i][j] = clone
+						this._scene.add(clone)
+						clone.matrixAutoUpdate = false
+					}
 				}
-				this.dogArr.forEach(e => e.matrixAutoUpdate = false)
+				
+
 				
 
 
-				console.log(this._scene)
+				
 				requestAnimationFrame(this.render.bind(this));
 
             }
@@ -210,15 +240,17 @@ class App {
 	update() {
 		this.time += this.step;
 		
-		for(let i = 0; i<this.dogArr.length; i++){
-			
-			
-			this.dogArr[i].matrix = matmul(
-				new THREE.Matrix4().makeTranslation(-3 + i * 3,0,0),
+		for(let i = 0; i<this.dogRow; i++){
+			for(let j = 0;j<this.dogCol;j++){
+				this.dogArr[i][j].matrix = matmul(
+				new THREE.Matrix4().makeTranslation((i - (this.dogRow -1 )/ 2) * 1, 0, (j - (this.dogCol - 1)/ 2) * 1),
 				new THREE.Matrix4().makeRotationY(this.rotationY),
-				new THREE.Matrix4().makeShear(0,0,this.shearAmp * Math.sin(this.time * this.frequency1),0,0,0), 
-				new THREE.Matrix4().makeScale(1,this.scaleAmp * (Math.cos(this.time * this.frequency2) + 1) / 2 + 0.8, 1),
+				new THREE.Matrix4().makeShear(0,0,this.shearAmp * Math.sin(this.time * this.shearFre),0,0,0), 
+				new THREE.Matrix4().makeScale(1,this.scaleAmp * (Math.cos(this.time * this.scaleFre) + 1) / 2 + 0.8, 1),
 				this.initMat)
+			}
+			
+
 		}
 
 
