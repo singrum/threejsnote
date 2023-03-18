@@ -118,6 +118,10 @@ class App {
 	}
 
 	_setupLight() {
+		const defaultLight = new THREE.AmbientLight(0xffffff, 0.8);
+		this._scene.add(defaultLight)
+
+
 		const color = 0xffffff;
 		const intensity = 1;
 		const light = new THREE.DirectionalLight(color, intensity);
@@ -129,9 +133,6 @@ class App {
 		light.position.set(6, 6, -10);
 		this._scene.add(light);
 
-		const light2 = new THREE.DirectionalLight(color, intensity);
-		light2.position.set(-6,6,-10);
-		this._scene.add(light2)
 	}
 
 	_setupModel() {
