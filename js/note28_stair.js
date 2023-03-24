@@ -18,6 +18,10 @@ class App {
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		const scene = new THREE.Scene();
 		this._scene = scene;
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+		this.rot = 0;
 
 		this._setupCamera();
 		this._setupLight();
@@ -31,12 +35,12 @@ class App {
 		requestAnimationFrame(this.render.bind(this));
 	}
     _setupBackground(){
-        this._scene.background = new THREE.Color(0x100848);
+        this._scene.background = new THREE.Color(0xff9a95);
 
     }
 	_setupControls(){ 
 
-
+		// new OrbitControls(this._camera, this._divContainer);
 
 
 		const onPointerDown = ( event ) => {
@@ -86,8 +90,10 @@ class App {
 		const height = this._divContainer.clientHeight;
 		const aspectRatio = window.innerWidth / window.innerHeight;
 		const camera = new THREE.OrthographicCamera( - aspectRatio, aspectRatio, 1, - 1, 0.1, 40 );
-		camera.position.set(5,5,5)
+		
+		camera.position.set(-20,20,20)
 		camera.lookAt(0,0,0)
+		// camera.zoom = 0.1
 		this._camera = camera;
         this._scene.add(this._camera)
 	}
@@ -96,20 +102,49 @@ class App {
 		const color = 0xffffff;
 		const intensity = 0.5;
 
-		const defaultLight = new THREE.AmbientLight(0xffffff, intensity);
+		const defaultLight = new THREE.AmbientLight(0xffffff, 0.5);
 		this._scene.add(defaultLight)
 
-		const light = new THREE.DirectionalLight(color, intensity);
-		light.position.set(6, 0, 1);
+		const light = new THREE.DirectionalLight(color, 0.3);
+		
+		light.castShadow = true;
+		light.shadow.camera.top = light.shadow.camera.right = 1000;
+		light.shadow.camera.bottom = light.shadow.camera.left = -1000;
+		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048 // 텍스쳐 맵 픽셀 수 증가 -> 선명
+		light.shadow.radius = 1;
+		light.position.set(100, 100, 50);
+		console.log(light.shadow)
+		
 		this._camera.add(light);
+		// const helper = new THREE.DirectionalLightHelper(light);
+		// this._scene.add(helper);
+		const helper = new THREE.CameraHelper( light.shadow.camera );
+		this._scene.add( helper );
+		this._helper = helper;
+		
 	}
 
 	_setupModel() {
 		
+		function pixelTexture( texture ) {
+
+			texture.minFilter = THREE.NearestFilter;
+			texture.magFilter = THREE.NearestFilter;
+			texture.generateMipmaps = false;
+			texture.wrapS = THREE.RepeatWrapping;
+			texture.wrapT = THREE.RepeatWrapping;
+			return texture;
+
+		}
+		const texChecker = pixelTexture(new THREE.TextureLoader().load( '../data/checker.png' ) );
+		texChecker.repeat.set( 30, 30 );
+
+
+
 		const stairWidth = 0.06;
 		const stairHeight = 0.03;
 		const stairGeom = new THREE.BoxGeometry(stairWidth, stairHeight, stairWidth);
-		const stairMate = new THREE.MeshPhysicalMaterial({color : 0x777777});
+		const stairMate = new THREE.MeshPhysicalMaterial({color : 0x54539f, clearcoat : 1, clearcoatRoughness : 1});
 		
 		const stairNum = 20;
 		const stair = new THREE.Mesh(stairGeom, stairMate);
@@ -136,18 +171,6 @@ class App {
 		})()
 		
 
-		function pixelTexture( texture ) {
-
-			texture.minFilter = THREE.NearestFilter;
-			texture.magFilter = THREE.NearestFilter;
-			texture.generateMipmaps = false;
-			texture.wrapS = THREE.RepeatWrapping;
-			texture.wrapT = THREE.RepeatWrapping;
-			return texture;
-
-		}
-		const texChecker = pixelTexture(new THREE.TextureLoader().load( '../data/checker.png' ) );
-		texChecker.repeat.set( 10, 10 );
 		
 
 		const spineWidth = stairWidth / 2 * (stairNum + 1);
@@ -156,9 +179,10 @@ class App {
 		const spineMate = new THREE.MeshPhysicalMaterial({map : texChecker})
 		const spine = new THREE.Object3D();
 		const spinePiece = new THREE.Mesh(spineGeom, spineMate);
-		for(let i = 0; i<10; i++){
+		for(let i = 0; i<7; i++){
 			const clone = spinePiece.clone();
-			clone.position.set(0, (-2 + i) * spineWidth ,0)
+			clone.name = "spinePiece";
+			clone.position.set(0, (-1 + i) * spineWidth ,0)
 			spine.add(clone)
 		}
 		
@@ -194,7 +218,19 @@ class App {
 
 		this._scene.add(building);
 		this.building = building
-
+		building.traverse( function ( object ) {
+			if ( object.isMesh ) {
+				// if(object.name !== "spinePiece"){
+				// 	object.receiveShadow = true;
+				// }
+				object.castShadow = true;
+				object.receiveShadow = true;
+				
+		
+			}
+		
+		} );
+		building.position.set(0,0.5,0)
 		
 
 		
@@ -217,9 +253,14 @@ class App {
 	}
 
 	update() {
+		
+		this._helper.update()
 		const delta = ( this.targetRotation - this.building.rotation.y ) * 0.05;
 		this.building.rotation.y += delta;
 		this.building.position.y += delta * this.stairSetHeight/ (Math.PI / 2)
+		if(this.building.rotation.y){
+			
+		}
 	}
 }
 
