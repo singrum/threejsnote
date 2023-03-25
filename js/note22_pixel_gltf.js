@@ -20,6 +20,7 @@ class App {
 		divContainer.appendChild(renderer.domElement);
 		this._renderer = renderer;
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setPixelRatio( window.devicePixelRatio );
 		const scene = new THREE.Scene();
 		this._scene = scene;
 		this.delta = 0.2

@@ -43,6 +43,7 @@ class App {
 		this._renderer = renderer;
 		renderer.shadowMap.enabled = true;
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setPixelRatio( window.devicePixelRatio );
 		const scene = new THREE.Scene();
 		this._scene = scene;
 		this._setupCamera();

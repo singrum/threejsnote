@@ -16,6 +16,7 @@ class App {
 		divContainer.appendChild(renderer.domElement);
 		this._renderer = renderer;
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setPixelRatio( window.devicePixelRatio );
 		const scene = new THREE.Scene();
 		this._scene = scene;
 		renderer.shadowMap.enabled = true;
@@ -89,9 +90,9 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const aspectRatio = window.innerWidth / window.innerHeight;
-		const camera = new THREE.OrthographicCamera( - aspectRatio, aspectRatio, 1, - 1, 0.1, 40 );
+		const camera = new THREE.OrthographicCamera( - aspectRatio, aspectRatio, 1, - 1, 0.1, 1000 );
 		
-		camera.position.set(-20,20,20)
+		camera.position.set(40,40,-40)
 		camera.lookAt(0,0,0)
 		// camera.zoom = 0.1
 		this._camera = camera;
@@ -112,15 +113,10 @@ class App {
 		light.shadow.camera.bottom = light.shadow.camera.left = -1000;
 		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048 // 텍스쳐 맵 픽셀 수 증가 -> 선명
 		light.shadow.radius = 1;
-		light.position.set(100, 100, 50);
+		light.position.set(100, -100, 50);
 		console.log(light.shadow)
 		
 		this._camera.add(light);
-		// const helper = new THREE.DirectionalLightHelper(light);
-		// this._scene.add(helper);
-		const helper = new THREE.CameraHelper( light.shadow.camera );
-		this._scene.add( helper );
-		this._helper = helper;
 		
 	}
 
@@ -141,12 +137,12 @@ class App {
 
 
 
-		const stairWidth = 0.06;
-		const stairHeight = 0.03;
+		const stairWidth = 0.1;
+		const stairHeight = 0.05;
 		const stairGeom = new THREE.BoxGeometry(stairWidth, stairHeight, stairWidth);
-		const stairMate = new THREE.MeshPhysicalMaterial({color : 0x54539f, clearcoat : 1, clearcoatRoughness : 1});
+		const stairMate = new THREE.MeshPhysicalMaterial({color : 0x54539f, clearcoat : 1, clearcoatRoughness : 0});
 		
-		const stairNum = 20;
+		const stairNum = 30;
 		const stair = new THREE.Mesh(stairGeom, stairMate);
 		const smallStairGeom = new THREE.BoxGeometry(stairWidth / 2, stairHeight, stairWidth);
 		const smallStair = new THREE.Mesh(smallStairGeom, stairMate);
@@ -218,19 +214,18 @@ class App {
 
 		this._scene.add(building);
 		this.building = building
-		building.traverse( function ( object ) {
-			if ( object.isMesh ) {
-				// if(object.name !== "spinePiece"){
-				// 	object.receiveShadow = true;
-				// }
-				object.castShadow = true;
-				object.receiveShadow = true;
+		// building.traverse( function ( object ) {
+		// 	if ( object.isMesh ) {
+		// 		if(object.name === "spinePiece"){
+		// 			object.receiveShadow = true;
+		// 		}
+		// 		object.castShadow = true;
 				
 		
-			}
+		// 	}
 		
-		} );
-		building.position.set(0,0.5,0)
+		// } );
+		building.position.set(-0.5,-stairSetHeight * 2,0)
 		
 
 		
@@ -254,13 +249,14 @@ class App {
 
 	update() {
 		
-		this._helper.update()
+		if(this.building.rotation.y > Math.PI / 2 || this.building.rotation.y < -Math.PI / 2){
+			this.building.rotation.y = 0;
+			
+		}
 		const delta = ( this.targetRotation - this.building.rotation.y ) * 0.05;
 		this.building.rotation.y += delta;
 		this.building.position.y += delta * this.stairSetHeight/ (Math.PI / 2)
-		if(this.building.rotation.y){
-			
-		}
+		console.log(this.building.rotation.y)
 	}
 }
 
