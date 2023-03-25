@@ -252,8 +252,6 @@ class App {
 				new THREE.Matrix4().makeScale(1,this.scaleAmp * (Math.cos(this.time * this.scaleFre) + 1) / 2 + 0.8, 1),
 				this.initMat)
 			}
-			
-
 		}
 
 
