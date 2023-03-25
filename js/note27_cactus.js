@@ -75,33 +75,46 @@ class App {
 
 	_setupModel() {
 		const gltfLoader = new GLTFLoader()
-		
-        gltfLoader.load('../data/cactus/scene.gltf',
-            (gltf)=>{
-                const root = gltf.scene;
-                // this._scene.add(root);
-				root.traverse( function( node ) {
-					if ( node.isMesh ) { node.castShadow = true;  }
-				} );
-
-				this.cactusArr = [];
-				for(let i = 0; i< 10; i++){
-					const clone = root.clone()
-					this._scene.add(clone)
-					
-					clone.matrixAutoUpdate = false
-					this.cactusArr.push(clone);
-					clone.random1 = this.randRange(-10,10);
-					clone.random2 = this.randRange(-10,10);
-				}
-				this.initMat = root.matrix.makeScale(0.005,0.005,0.005);
-				console.log(this.initMat)
-
-				requestAnimationFrame(this.render.bind(this));
+		gltfLoader.load('../data/cutewhale/scene.gltf',
+			(gltf)=>{
+				const whaleRoot = gltf.scene;
+				this.whale = whaleRoot;
+				this._scene.add(this.whale);
+				gltfLoader.load('../data/cactus/scene.gltf',
 				
-				
-            }
-        )
+				(gltf)=>{
+						
+						const cactusRoot = gltf.scene;
+						
+						cactusRoot.traverse( function( node ) {
+							if ( node.isMesh ) { node.castShadow = true;  }
+						} );
+
+						this.cactusArr = [];
+						for(let i = 0; i< 10; i++){
+							const clone = cactusRoot.clone()
+							this._scene.add(clone)
+							
+							clone.matrixAutoUpdate = false
+							this.cactusArr.push(clone);
+							clone.random1 = this.randRange(-10,10);
+							clone.random2 = this.randRange(-10,10);
+						}
+						this.initMat = cactusRoot.matrix.makeScale(0.005,0.005,0.005);
+						
+						this.whale.matrixAutoUpdate = false;
+						console.log(this.whale)
+
+
+
+						requestAnimationFrame(this.render.bind(this));
+							
+							
+					}
+				)
+			}
+		)
+
 	}
 
 	_setupGround(){
@@ -131,6 +144,7 @@ class App {
 		this.time += this.step;
 		this.groundUpdate();
 		this.cactusDance();
+		this.whaleSwim();
 		this.update();
 		
 		requestAnimationFrame(this.render.bind(this));
@@ -157,6 +171,9 @@ class App {
 				this.initMat)
 		}
 
+
+	}
+	whaleSwim(){
 
 	}
 	update() {
