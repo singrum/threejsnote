@@ -1,12 +1,12 @@
 {
   "dependencies": {
+    "@tweenjs/tween.js": "^18.6.4",
     "three": "^0.149.0"
   },
   "name": "threejsnote",
   "description": "",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

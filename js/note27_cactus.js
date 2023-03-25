@@ -1,6 +1,7 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from "../node_modules/three/examples/jsm/loaders/GLTFLoader.js"
+import * as TWEEN from "../node_modules/@tweenjs/tween.js/dist/tween.esm.js"
 
 // https://sketchfab.com
 
@@ -29,9 +30,8 @@ class App {
 		this._setupLight();
 		this._setupGround();
 		this._setupModel();
-		this._setupControls();
 		this._setupBackground();
-
+		
 		window.onresize = this.resize.bind(this);
 		this.resize();
 
@@ -66,10 +66,26 @@ class App {
 			}
 		}
 		const onPointerDown = (e) => {
-			const groundCoord = getPointerGroundCoord(e);
-			if(groundCoord){
-				
+			function getAngle(x1, y1, x2, y2) {
+				return Math.atan2(y2 - y1, x2 - x1);
 			}
+
+			const groundCoord = getPointerGroundCoord(e);
+			if(!groundCoord){
+				return;
+			}
+			
+			const tween2 = new TWEEN.Tween(this.whale.rotation)
+			.to({y:getAngle(this.whale.position.x, this.whale.position.y, groundCoord.x, groundCoord.y)}, 1000)
+			tween2.start()
+			const tween1 = new TWEEN.Tween(this.whale.position)
+			.to({x : groundCoord.x, z : groundCoord.z}, Math.hypot(this.whale.position.x - groundCoord.x, this.whale.position.y - groundCoord.y) * 100)
+			.easing(TWEEN.Easing.Linear.None)
+			.onComplete(()=>{
+			})
+			tween1.start()
+
+
 		}
 
 		window.addEventListener("pointerdown", onPointerDown);
@@ -133,11 +149,10 @@ class App {
 						}
 						this.initMat = cactusRoot.matrix.makeScale(0.005,0.005,0.005);
 						
-						this.whale.matrixAutoUpdate = false;
-						console.log(this.whale)
+						
 
 
-
+						this._setupControls();
 						requestAnimationFrame(this.render.bind(this));
 							
 							
@@ -185,7 +200,7 @@ class App {
 		this.cactusDance();
 		this.whaleSwim();
 		this.update();
-		
+		TWEEN.update();
 		requestAnimationFrame(this.render.bind(this));
 	}
 	
@@ -213,10 +228,10 @@ class App {
 
 	}
 	whaleSwim(){
-		this.whale.matrix = matmul(
-			new THREE.Matrix4().makeTranslation(0,1 + Math.abs(Math.sin(this.time * 2)),0),
-			
-		)
+		this.whale.position.y = 1 + Math.abs(Math.sin(this.time * 2))
+		// this.whale.matrix = matmul(
+		// 	new THREE.Matrix4().makeTranslation(0,1 + Math.abs(Math.sin(this.time * 2)),0),
+		// )
 		
 	}
 	update() {
