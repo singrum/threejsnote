@@ -49,6 +49,31 @@ class App {
     }
 	_setupControls(){
 		new OrbitControls(this._camera, this._divContainer);
+		const getPointerGroundCoord = e => {
+			const raycaster = new THREE.Raycaster();
+            
+            const pt = {
+                x: (e.clientX / this._divContainer.clientWidth) * 2 - 1,
+                y: - (e.clientY / this._divContainer.clientHeight) * 2 + 1
+            }
+            raycaster.setFromCamera(pt, this._camera)
+            const interObj = raycaster.intersectObject(this.transparentGround);
+            if(interObj.length === 0){
+                return;
+            }
+			else{
+				return interObj[0].point;
+			}
+		}
+		const onPointerDown = (e) => {
+			const groundCoord = getPointerGroundCoord(e);
+			if(groundCoord){
+				
+			}
+		}
+
+		window.addEventListener("pointerdown", onPointerDown);
+
 	}
 
 	_setupCamera() {
@@ -61,6 +86,9 @@ class App {
 	}
 
 	_setupLight() {
+		const defaultlight = new THREE.AmbientLight(0xffffff, 0.2);
+		this._scene.add(defaultlight)
+
 		const color = 0xffffff;
 		const intensity = 1;
 		const light = new THREE.DirectionalLight(color, intensity);
@@ -79,6 +107,9 @@ class App {
 			(gltf)=>{
 				const whaleRoot = gltf.scene;
 				this.whale = whaleRoot;
+				whaleRoot.traverse( function( node ) {
+					if ( node.isMesh ) { node.castShadow = true;  }
+				} );
 				this._scene.add(this.whale);
 				gltfLoader.load('../data/cactus/scene.gltf',
 				
@@ -126,6 +157,14 @@ class App {
 		this.ground = ground;
 		this._scene.add(ground);
 		this._count = ground.geometry.attributes.position.count;
+
+
+		const transparentGroundGeom = new THREE.PlaneGeometry(100,100);
+		const transparentGroundMate = new THREE.MeshBasicMaterial({visible : false});
+		const transparentGround = new THREE.Mesh(transparentGroundGeom, transparentGroundMate);
+		transparentGround.rotation.set(-Math.PI/2,0,0);
+		this._scene.add(transparentGround)
+		this.transparentGround = transparentGround;
 	}
 
 
@@ -174,7 +213,11 @@ class App {
 
 	}
 	whaleSwim(){
-
+		this.whale.matrix = matmul(
+			new THREE.Matrix4().makeTranslation(0,1 + Math.abs(Math.sin(this.time * 2)),0),
+			
+		)
+		
 	}
 	update() {
 
