@@ -102,14 +102,15 @@ class App {
 
 			const tween2 = new TWEEN.Tween(this.whale.rotation)
 			.to({y:toAngle}, Math.abs(this.whale.rotation.y - toAngle) * 100)
+			.easing(TWEEN.Easing.Quadratic.Out)
 			
 			const tween1 = new TWEEN.Tween(this.whale.position)
 			.to({x : groundCoord.x, z : groundCoord.z}, Math.hypot(this.whale.position.x - groundCoord.x, this.whale.position.z - groundCoord.z) * 200)
-			.easing(TWEEN.Easing.Linear.None)
+			.easing(TWEEN.Easing.Quadratic.Out)
 			.onComplete(()=>{
 			})
-			tween2.chain(tween1).start()
-			
+			tween2.onStart(()=>{tween1.start()})
+			tween2.start()			
 
 			this.whale.tween = [tween1, tween2];
 
@@ -140,10 +141,10 @@ class App {
 		const light = new THREE.DirectionalLight(color, intensity);
 		light.position.set(100, 100, 100);
 		light.castShadow = true;
-		light.shadow.camera.top = light.shadow.camera.right = 30;
-		light.shadow.camera.bottom = light.shadow.camera.left = -30;
+		light.shadow.camera.top = light.shadow.camera.right = 100;
+		light.shadow.camera.bottom = light.shadow.camera.left = -100;
 		light.shadow.mapSize.width = light.shadow.mapSize.height = 4096 // 텍스쳐 맵 픽셀 수 증가 -> 선명
-		light.shadow.radius = 4;
+		light.shadow.radius = 1;
 		this._camera.add(light);
 	}
 
@@ -169,14 +170,14 @@ class App {
 						} );
 
 						this.cactusArr = [];
-						for(let i = 0; i< 10; i++){
+						for(let i = 0; i< 30; i++){
 							const clone = cactusRoot.clone()
 							this._scene.add(clone)
 							
 							clone.matrixAutoUpdate = false
 							this.cactusArr.push(clone);
-							clone.random1 = this.randRange(-10,10);
-							clone.random2 = this.randRange(-10,10);
+							clone.random1 = this.randRange(-40,40);
+							clone.random2 = this.randRange(-40,40);
 						}
 						this.initMat = cactusRoot.matrix.makeScale(0.005,0.005,0.005);
 						
