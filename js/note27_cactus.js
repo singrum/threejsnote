@@ -170,7 +170,7 @@ class App {
 						} );
 
 						this.cactusArr = [];
-						for(let i = 0; i< 30; i++){
+						for(let i = 0; i< 50; i++){
 							const clone = cactusRoot.clone()
 							this._scene.add(clone)
 							
@@ -262,7 +262,7 @@ class App {
 		
 		for(let cactus of this.cactusArr){
 			cactus.matrix = matmul(
-				new THREE.Matrix4().makeTranslation(cactus.random1, 0, cactus.random2),
+				new THREE.Matrix4().makeTranslation(cactus.random1, -0.1, cactus.random2),
 				new THREE.Matrix4().makeShear(0,0,this.shearAmp * Math.sin(this.time * this.shearFre),0,0,0), 
 				new THREE.Matrix4().makeScale(1,this.scaleAmp * (Math.cos(this.time * this.scaleFre) + 1) / 2 + 0.8, 1),
 				this.initMat)
