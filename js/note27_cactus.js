@@ -25,6 +25,7 @@ class App {
 		this.shearAmp = 0.1;this.shearFre = 4;
 		this.time = 0;
 		this.step = 0.1
+		
 
 		this._setupCamera();
 		this._setupLight();
@@ -48,7 +49,7 @@ class App {
 
     }
 	_setupControls(){
-		new OrbitControls(this._camera, this._divContainer);
+		// new OrbitControls(this._camera, this._divContainer);
 		const getPointerGroundCoord = e => {
 			const raycaster = new THREE.Raycaster();
             
@@ -66,24 +67,52 @@ class App {
 			}
 		}
 		const onPointerDown = (e) => {
+
+
 			function getAngle(x1, y1, x2, y2) {
-				return Math.atan2(y2 - y1, x2 - x1);
+				let angle = Math.atan2(y2 - y1,x2 - x1);
+				if(angle < 0){
+					return angle + 2 * Math.PI;
+				}
+				else if(angle > 2 * Math.PI){
+					return angle - 2 * Math.PI;
+				}
+				return angle
+				
 			}
+
+			this.whale.tween.forEach(e=>{e.stop();})
 
 			const groundCoord = getPointerGroundCoord(e);
 			if(!groundCoord){
 				return;
 			}
 			
+			if(this.whale.rotation.y < 0){
+				this.whale.rotation.y += 2 * Math.PI;
+			}
+			else if(this.whale.rotation.y > 2 * Math.PI){
+				this.whale.rotation.y -= 2 * Math.PI;
+			}
+			
+			const angle = getAngle(this.whale.position.z, this.whale.position.x, groundCoord.z, groundCoord.x);
+			const arr = [angle - 2 * Math.PI, angle, angle + 2 * Math.PI];
+			const toAngle = arr.reduce((min, val) => Math.abs(min - this.whale.rotation.y) < Math.abs(val  - this.whale.rotation.y) ? min : val);
+
+
 			const tween2 = new TWEEN.Tween(this.whale.rotation)
-			.to({y:getAngle(this.whale.position.x, this.whale.position.y, groundCoord.x, groundCoord.y)}, 1000)
-			tween2.start()
+			.to({y:toAngle}, Math.abs(this.whale.rotation.y - toAngle) * 100)
+			
 			const tween1 = new TWEEN.Tween(this.whale.position)
-			.to({x : groundCoord.x, z : groundCoord.z}, Math.hypot(this.whale.position.x - groundCoord.x, this.whale.position.y - groundCoord.y) * 100)
+			.to({x : groundCoord.x, z : groundCoord.z}, Math.hypot(this.whale.position.x - groundCoord.x, this.whale.position.z - groundCoord.z) * 200)
 			.easing(TWEEN.Easing.Linear.None)
 			.onComplete(()=>{
 			})
-			tween1.start()
+			tween2.chain(tween1).start()
+			
+
+			this.whale.tween = [tween1, tween2];
+
 
 
 		}
@@ -96,7 +125,8 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-		camera.position.set(10,10,10)
+		camera.initPos = {x : 10, y : 10, z : 10};
+		camera.position.set(camera.initPos.x, camera.initPos.y, camera.initPos.z);
 		this._camera = camera;
         this._scene.add(this._camera)
 	}
@@ -123,6 +153,7 @@ class App {
 			(gltf)=>{
 				const whaleRoot = gltf.scene;
 				this.whale = whaleRoot;
+				this.whale.tween = [];
 				whaleRoot.traverse( function( node ) {
 					if ( node.isMesh ) { node.castShadow = true;  }
 				} );
@@ -199,7 +230,9 @@ class App {
 		this.groundUpdate();
 		this.cactusDance();
 		this.whaleSwim();
-		this.update();
+		this.cameraUpdate();
+	
+		
 		TWEEN.update();
 		requestAnimationFrame(this.render.bind(this));
 	}
@@ -234,11 +267,9 @@ class App {
 		// )
 		
 	}
-	update() {
-
-		
-		// this._cube.rotation.x = time;
-		// this._cube.rotation.y = time;
+	cameraUpdate() {
+		this._camera.position.set(this._camera.initPos.x + this.whale.position.x, this._camera.initPos.y, this._camera.initPos.z + this.whale.position.z)
+		this._camera.lookAt(this.whale.position.x,0,this.whale.position.z)
 	}
 }
 
