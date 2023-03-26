@@ -102,7 +102,7 @@ class App {
 
 			const tween2 = new TWEEN.Tween(this.whale.rotation)
 			.to({y:toAngle}, Math.abs(this.whale.rotation.y - toAngle) * 100)
-			.easing(TWEEN.Easing.Quadratic.Out)
+			.easing(TWEEN.Easing.Quadratic.InOut)
 			
 			const tween1 = new TWEEN.Tween(this.whale.position)
 			.to({x : groundCoord.x, z : groundCoord.z}, Math.hypot(this.whale.position.x - groundCoord.x, this.whale.position.z - groundCoord.z) * 200)
@@ -133,7 +133,7 @@ class App {
 	}
 
 	_setupLight() {
-		const defaultlight = new THREE.AmbientLight(0xffffff, 0.2);
+		const defaultlight = new THREE.AmbientLight(0xffffff, 0.3);
 		this._scene.add(defaultlight)
 
 		const color = 0xffffff;
@@ -143,7 +143,7 @@ class App {
 		light.castShadow = true;
 		light.shadow.camera.top = light.shadow.camera.right = 100;
 		light.shadow.camera.bottom = light.shadow.camera.left = -100;
-		light.shadow.mapSize.width = light.shadow.mapSize.height = 4096 // 텍스쳐 맵 픽셀 수 증가 -> 선명
+		light.shadow.mapSize.width = light.shadow.mapSize.height = 8192 // 텍스쳐 맵 픽셀 수 증가 -> 선명
 		light.shadow.radius = 1;
 		this._camera.add(light);
 	}
@@ -197,7 +197,7 @@ class App {
 
 	_setupGround(){
 		const groundGeom = new THREE.PlaneGeometry(100,100, 300,300);
-		const groundMate = new THREE.MeshPhysicalMaterial({color : 0xf6d7b0});
+		const groundMate = new THREE.MeshPhysicalMaterial({color : 0xf2d2a9});
 		const ground = new THREE.Mesh(groundGeom, groundMate);
 		ground.receiveShadow = true;
 		ground.rotation.set(-Math.PI/2,0,0);
