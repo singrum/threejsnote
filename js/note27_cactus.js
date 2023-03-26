@@ -21,8 +21,8 @@ class App {
 		renderer.setPixelRatio( window.devicePixelRatio );
 		const scene = new THREE.Scene();
 		this._scene = scene;
-		this.scaleAmp = 0.1;this.scaleFre = 4;
-		this.shearAmp = 0.1;this.shearFre = 4;
+		this.scaleAmp = 0.1;this.scaleFre = 2;
+		this.shearAmp = 0.1;this.shearFre = 2;
 		this.time = 0;
 		this.step = 0.1
 		
@@ -138,7 +138,7 @@ class App {
 		const color = 0xffffff;
 		const intensity = 1;
 		const light = new THREE.DirectionalLight(color, intensity);
-		light.position.set(10, 10, 10);
+		light.position.set(100, 100, 100);
 		light.castShadow = true;
 		light.shadow.camera.top = light.shadow.camera.right = 30;
 		light.shadow.camera.bottom = light.shadow.camera.left = -30;
@@ -203,6 +203,15 @@ class App {
 		this.ground = ground;
 		this._scene.add(ground);
 		this._count = ground.geometry.attributes.position.count;
+		for(let i = 0; i < this._count; i++){
+			const x = this.ground.geometry.attributes.position.getX(i);
+			const y = this.ground.geometry.attributes.position.getY(i);
+			const xsin = 0.2 * Math.sin(x+0);
+			const ycos = 0.1 * Math.cos(y+0);
+			this.ground.geometry.attributes.position.setZ(i,xsin + ycos);
+		}
+		this.ground.geometry.computeVertexNormals();
+		this.ground.geometry.attributes.position.needsUpdate = true;
 
 
 		const transparentGroundGeom = new THREE.PlaneGeometry(100,100);
@@ -227,7 +236,7 @@ class App {
 	render() {
 		this._renderer.render(this._scene, this._camera);
 		this.time += this.step;
-		this.groundUpdate();
+		
 		this.cactusDance();
 		this.whaleSwim();
 		this.cameraUpdate();
@@ -261,7 +270,7 @@ class App {
 
 	}
 	whaleSwim(){
-		this.whale.position.y = 1 + Math.abs(Math.sin(this.time * 2))
+		this.whale.position.y = 1 + Math.abs(Math.sin(this.time))
 		// this.whale.matrix = matmul(
 		// 	new THREE.Matrix4().makeTranslation(0,1 + Math.abs(Math.sin(this.time * 2)),0),
 		// )
