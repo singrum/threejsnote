@@ -148,16 +148,12 @@ class App {
 		const face = new THREE.Mesh(new THREE.CylinderGeometry( faceRadius, faceRadius, eyeRadius, 32 ));
 		face.add(facePivot);
 
-		const mouth = new THREE.Mesh()
-
-
-
+		const mouth = new THREE.Mesh();
+		face.add(mouth);
 		
-		
-
-		
-
-		
+		face.position.set(0, - moveRadius, 0);
+		const pivot = new THREE.Object3D();
+		pivot.add(face);
 	}
 
 	resize() {
