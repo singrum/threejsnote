@@ -37,7 +37,7 @@ class App {
 		requestAnimationFrame(this.render.bind(this));
 	}
     _setupBackground(){
-        this._scene.background = new THREE.Color(0xffffff);
+        this._scene.background = new THREE.Color(0xc8e3c0);
 
     }
 	_setupControls(){ 
@@ -138,7 +138,7 @@ class App {
 
 		const dandelionSkinGeom = new THREE.IcosahedronGeometry(2, 5);
 		const dandelionSkin = new THREE.Mesh(dandelionSkinGeom, new THREE.MeshPhysicalMaterial({color : 0x049ef4, flatShading : true, transparent : true, opacity : 0.5}));
-		this._scene.add(dandelionSkin)
+		// this._scene.add(dandelionSkin)
 		
 		dandelionCoreGeom.positionVectors = this.numArrayToVectorArray(dandelionCoreGeom.attributes.position.array);
 		dandelionSkinGeom.positionVectors = this.numArrayToVectorArray(dandelionSkinGeom.attributes.position.array);
@@ -148,7 +148,7 @@ class App {
 			const points = [];
 			points.push(dandelionCoreGeom.positionVectors[i], dandelionSkinGeom.positionVectors[i]);
 			const geometry = new THREE.BufferGeometry().setFromPoints( points );
-			const line = new THREE.Line( geometry, new THREE.LineBasicMaterial({color : 0x000000}) );
+			const line = new THREE.Line( geometry, new THREE.LineBasicMaterial({color : 0xffffff}) );
 			console.log(line)
 			lines.push(line);
 		}
