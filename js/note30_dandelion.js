@@ -42,46 +42,47 @@ class App {
     }
 	_setupControls(){ 
 
-		new OrbitControls(this._camera, this._divContainer);
 
 
-		// const onPointerDown = ( event ) => {
+
+		const onPointerDown = ( event ) => {
 			
-		// 	if ( event.isPrimary === false ) return;
-		// 	this.startX = event.clientX
-		// 	this.startY = event.clientY
-		// 	this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
-		// 	this.targetRotationOnPointerDown = this.targetRotation;
+			if ( event.isPrimary === false ) return;
+			this.startX = event.clientX
+			this.startY = event.clientY
+			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
+			this.targetRotationOnPointerDown = this.targetRotation;
 
-		// 	document.addEventListener( 'pointermove', onPointerMove );
-		// 	document.addEventListener( 'pointerup', onPointerUp );
+			document.addEventListener( 'pointermove', onPointerMove );
+			document.addEventListener( 'pointerup', onPointerUp );
 
-		// }
+		}
 
-		// const onPointerMove = ( event ) => {
+		const onPointerMove = ( event ) => {
 			
-		// 	if ( event.isPrimary === false ) return;
-		// 	this.pointerX = event.clientX - window.innerWidth / 2;
+			if ( event.isPrimary === false ) return;
+			this.pointerX = event.clientX - window.innerWidth / 2;
 
-		// 	this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
 			
 
-		// }
+		}
 
-		// const onPointerUp = (event) => {
+		const onPointerUp = (event) => {
 			
-		// 	if ( event.isPrimary === false ) return;
+			if ( event.isPrimary === false ) return;
+			if(Math.hypot(this.startX - event.clientX, this.startY - event.clientY) < 10) this._push();
 			
-		// 	document.removeEventListener( 'pointermove', onPointerMove );
-		// 	document.removeEventListener( 'pointerup', onPointerUp );
+			document.removeEventListener( 'pointermove', onPointerMove );
+			document.removeEventListener( 'pointerup', onPointerUp );
 
-		// }
-		// this.targetRotation = 0;
-		// this.targetRotationOnPointerDown = 0;
-		// this.pointerX = 0;
-		// this.pointerXOnPointerDown = 0;
-		// this._divContainer.style.touchAction = 'none';
-		// this._divContainer.addEventListener( 'pointerdown', onPointerDown );
+		}
+		this.targetRotation = 0;
+		this.targetRotationOnPointerDown = 0;
+		this.pointerX = 0;
+		this.pointerXOnPointerDown = 0;
+		this._divContainer.style.touchAction = 'none';
+		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
 
 
 
@@ -93,7 +94,7 @@ class App {
 		const aspectRatio = window.innerWidth / window.innerHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 		
-		camera.position.set(-1,1,19)
+		camera.position.set(0,0,20)
 		camera.lookAt(0,0,0)
 		// camera.zoom = 0.1
 		this._camera = camera;
@@ -184,7 +185,7 @@ class App {
 		const dandelionCore = new THREE.Mesh(dandelionCoreGeom, new THREE.MeshPhysicalMaterial({color : 0x8D7B68, flatShading : true}))
 		dandelionCoreGeom.positionVectors = this.numArrayToVectorArray(dandelionCoreGeom.attributes.position.array);
 		
-		console.log(dandelionCoreGeom)
+		
 		for(let i = 0 ; i< dandelionCoreGeom.positionVectors.length; i++){
 			const seedClone = dandelionSeed.clone();
 			
@@ -195,21 +196,26 @@ class App {
 			
 			
 		}
-		this._scene.add(dandelionCore)
-
-		const curve = new THREE.CatmullRomCurve3( [
-			new THREE.Vector3( 0, 0, 0 ),
-			new THREE.Vector3( 0, -5, 0 ),
-			new THREE.Vector3( 0, -10, 0 )
-			
-		] );
-		const points = curve.getPoints( 50 );
-		const stemGeometry = new THREE.TubeGeometry( curve, 50, 0.1, 50, false );
-		const stemMaterial = new THREE.MeshPhysicalMaterial( { color: 0x54B435 } );
-		const stem = new THREE.Mesh( stemGeometry, stemMaterial );
 		
-		this._scene.add(stem);
 
+		// const curve = new THREE.CatmullRomCurve3( [
+		// 	new THREE.Vector3( 0, 0, 0 ),
+		// 	new THREE.Vector3( 0, -7, 0 ),
+		// 	new THREE.Vector3( 0, -10, 0 )
+			
+		// ] );
+		// const points = curve.getPoints( 50 );
+		// const stemGeometry = new THREE.TubeGeometry( curve, 6, 0.2, 5, false );
+		const stemMaterial = new THREE.MeshBasicMaterial( { color: 0x54B435,flatShading : false} );
+		// const stem = new THREE.Mesh( stemGeometry, stemMaterial );
+		const stem = new THREE.Mesh( new THREE.CylinderGeometry(0.1,0.1,20,32), stemMaterial );
+		stem.position.set(0,-10,0)
+		
+
+		this.stem = stem
+		dandelionCore.add(stem);
+		this._scene.add(dandelionCore)
+		this.group = dandelionCore
 
 
 
@@ -232,7 +238,7 @@ class App {
 	}
 
 	update() {
-		
+		this.group.rotation.y += ( this.targetRotation - this.group.rotation.y ) * 0.05;
 	}
 }
 
