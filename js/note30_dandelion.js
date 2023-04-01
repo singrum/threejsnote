@@ -147,14 +147,14 @@ class App {
 		for(let i = 0 ; i< dandelionCoreGeom.positionVectors.length; i++){
 			const points = [];
 			points.push(dandelionCoreGeom.positionVectors[i], dandelionSkinGeom.positionVectors[i]);
-			
 			const geometry = new THREE.BufferGeometry().setFromPoints( points );
 			const line = new THREE.Line( geometry, new THREE.LineBasicMaterial({color : 0xffffff}) );
 			
-			lines.push(line);
+			this._scene.add(line)
+
+			
 		}
 
-		lines.forEach(e=>this._scene.add(e))
 
 
 	}
