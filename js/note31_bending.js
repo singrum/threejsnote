@@ -3,6 +3,9 @@ import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from "../node_modules/three/examples/jsm/loaders/GLTFLoader.js"
 import {VertexNormalsHelper} from "../node_modules/three/examples/jsm/helpers/VertexNormalsHelper.js";
+import * as BufferGeometryUtils from '../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js';
+import { CurveModifier } from '../node_modules/three/examples/jsm/modifiers/CurveModifier.js';
+
 
 // https://sketchfab.com
 
@@ -93,7 +96,7 @@ class App {
 		const aspectRatio = window.innerWidth / window.innerHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 		
-		camera.position.set(-1,1,19)
+		camera.position.set(0,0,10)
 		camera.lookAt(0,0,0)
 		// camera.zoom = 0.1
 		this._camera = camera;
@@ -147,72 +150,25 @@ class App {
 		this._scene.add(points)
 	}
 	_setupModel() {
-		const hairLen = 1
-		const dandelionSeedHelperGeom = new THREE.IcosahedronGeometry(hairLen, 2); //Icosahedron
-		// const dandelionSeedHelper = new THREE.Mesh(dandelionSeedHelperGeom, new THREE.MeshPhysicalMaterial({color : 0xffff00, flatShading : true}));
-		
-		dandelionSeedHelperGeom.positionVectors = this.numArrayToVectorArray(dandelionSeedHelperGeom.attributes.position.array);
-		const seedLen = 2;
-
-		const dandelionSeed = new THREE.Line( new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,seedLen)] ), new THREE.LineBasicMaterial({color : 0xffffff}) );
-
-		// const dandelionSeedSup = new THREE.Mesh(new THREE.CylinderGeometry(0.01,0.01,0.3,32), new THREE.MeshPhysicalMaterial({color : 0x4F200D}));
-		// dandelionSeedSup.position.set(0,1,0);
-		
-		
-
-		// dandelionSeed.add(dandelionSeedSup);
-
-		const hairs = new THREE.Object3D();
-		for(let i = 0 ; i< dandelionSeedHelperGeom.positionVectors.length; i++){
-			if(dandelionSeedHelperGeom.positionVectors[i].z < 0.5){
-				continue;
-			}
-			const points = [];
-			points.push(new THREE.Vector3(0,0,0), dandelionSeedHelperGeom.positionVectors[i]);
-			const geometry = new THREE.BufferGeometry().setFromPoints( points );
-			const line = new THREE.Line( geometry, new THREE.LineBasicMaterial({color : 0xffffff}) );
-			
-			hairs.add(line);
-		}
-		dandelionSeed.add(hairs);
-		hairs.position.set(0,0,seedLen)
-		
-		
-
-		const dandelionCoreGeom = new THREE.IcosahedronGeometry(1, 1);
-		const dandelionCore = new THREE.Mesh(dandelionCoreGeom, new THREE.MeshPhysicalMaterial({color : 0x8D7B68, flatShading : true}))
-		dandelionCoreGeom.positionVectors = this.numArrayToVectorArray(dandelionCoreGeom.attributes.position.array);
-		
-		console.log(dandelionCoreGeom)
-		for(let i = 0 ; i< dandelionCoreGeom.positionVectors.length; i++){
-			const seedClone = dandelionSeed.clone();
-			
-			seedClone.lookAt(dandelionCoreGeom.positionVectors[i]);
-			
-			dandelionCore.add(seedClone)
-			
-			
-			
-		}
-		this._scene.add(dandelionCore)
-
-		const curve = new THREE.CatmullRomCurve3( [
-			new THREE.Vector3( 0, 0, 0 ),
-			new THREE.Vector3( 0, -5, 0 ),
-			new THREE.Vector3( 0, -10, 0 )
-			
-		] );
-		const points = curve.getPoints( 50 );
-		const stemGeometry = new THREE.TubeGeometry( curve, 50, 0.1, 50, false );
-		const stemMaterial = new THREE.MeshPhysicalMaterial( { color: 0x54B435 } );
-		const stem = new THREE.Mesh( stemGeometry, stemMaterial );
-		
-		this._scene.add(stem);
-
-
-
-
+        const curve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(0, 5, 0),
+            new THREE.Vector3(5, 5, 0),
+            new THREE.Vector3(5, 0, 0),
+          ]);
+          
+          const tubeGeometry = new THREE.TubeGeometry(curve, 32, 1, 8, false);
+          
+          const axis = new THREE.Vector3(0, 0, 1); // Z axis
+          const angle = Math.PI / 4; // 45 degrees
+          BufferGeometryUtils.computeTangents(tubeGeometry); // required for CurveModifier
+          const curveModifier = new CurveModifier();
+          curveModifier.set(curve, axis, angle);
+          curveModifier.modify(tubeGeometry);
+          
+          const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+          const mesh = new THREE.Mesh(tubeGeometry, material);
+          scene.add(mesh);
 	}
 
 	resize() {
