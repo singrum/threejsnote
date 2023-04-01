@@ -2,6 +2,7 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from "../node_modules/three/examples/jsm/loaders/GLTFLoader.js"
+import {VertexNormalsHelper} from "../node_modules/three/examples/jsm/helpers/VertexNormalsHelper.js";
 
 // https://sketchfab.com
 
@@ -36,51 +37,51 @@ class App {
 		requestAnimationFrame(this.render.bind(this));
 	}
     _setupBackground(){
-        this._scene.background = new THREE.Color(0xff9a95);
+        this._scene.background = new THREE.Color(0xffffff);
 
     }
 	_setupControls(){ 
 
-		// new OrbitControls(this._camera, this._divContainer);
+		new OrbitControls(this._camera, this._divContainer);
 
 
-		const onPointerDown = ( event ) => {
+		// const onPointerDown = ( event ) => {
 			
-			if ( event.isPrimary === false ) return;
-			this.startX = event.clientX
-			this.startY = event.clientY
-			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
-			this.targetRotationOnPointerDown = this.targetRotation;
+		// 	if ( event.isPrimary === false ) return;
+		// 	this.startX = event.clientX
+		// 	this.startY = event.clientY
+		// 	this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
+		// 	this.targetRotationOnPointerDown = this.targetRotation;
 
-			document.addEventListener( 'pointermove', onPointerMove );
-			document.addEventListener( 'pointerup', onPointerUp );
+		// 	document.addEventListener( 'pointermove', onPointerMove );
+		// 	document.addEventListener( 'pointerup', onPointerUp );
 
-		}
+		// }
 
-		const onPointerMove = ( event ) => {
+		// const onPointerMove = ( event ) => {
 			
-			if ( event.isPrimary === false ) return;
-			this.pointerX = event.clientX - window.innerWidth / 2;
+		// 	if ( event.isPrimary === false ) return;
+		// 	this.pointerX = event.clientX - window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
+		// 	this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
 			
 
-		}
+		// }
 
-		const onPointerUp = (event) => {
+		// const onPointerUp = (event) => {
 			
-			if ( event.isPrimary === false ) return;
+		// 	if ( event.isPrimary === false ) return;
 			
-			document.removeEventListener( 'pointermove', onPointerMove );
-			document.removeEventListener( 'pointerup', onPointerUp );
+		// 	document.removeEventListener( 'pointermove', onPointerMove );
+		// 	document.removeEventListener( 'pointerup', onPointerUp );
 
-		}
-		this.targetRotation = 0;
-		this.targetRotationOnPointerDown = 0;
-		this.pointerX = 0;
-		this.pointerXOnPointerDown = 0;
-		this._divContainer.style.touchAction = 'none';
-		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
+		// }
+		// this.targetRotation = 0;
+		// this.targetRotationOnPointerDown = 0;
+		// this.pointerX = 0;
+		// this.pointerXOnPointerDown = 0;
+		// this._divContainer.style.touchAction = 'none';
+		// this._divContainer.addEventListener( 'pointerdown', onPointerDown );
 
 
 
@@ -90,9 +91,9 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const aspectRatio = window.innerWidth / window.innerHeight;
-		const camera = new THREE.OrthographicCamera( - aspectRatio, aspectRatio, 1, - 1, 0.1, 1000 );
+		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 		
-		camera.position.set(0,0,10)
+		camera.position.set(0,0,5)
 		camera.lookAt(0,0,0)
 		// camera.zoom = 0.1
 		this._camera = camera;
@@ -114,46 +115,44 @@ class App {
 		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048 // 텍스쳐 맵 픽셀 수 증가 -> 선명
 		light.shadow.radius = 1;
 		light.position.set(10, 10, 10);
-		console.log(light.shadow)
+		
 		
 		this._camera.add(light);
 		
 	}
-
+	numArrayToVectorArray(numArray){
+		const vectorArray = [];
+		for (let i = 0; i < numArray.length; i += 3) {
+			const x = numArray[i];
+			const y = numArray[i + 1];
+			const z = numArray[i + 2];
+			const vector = new THREE.Vector3(x, y, z);
+			vectorArray.push(vector);
+		}
+		return vectorArray
+	}
 	_setupModel() {
-		const moveRadius = 25;
-		const faceRadius = 5;
-		const eyeRadius = 3;
-		const eyeBetween = 0.5
+		const dandelionCoreGeom = new THREE.IcosahedronGeometry(1, 5);
+		const dandelionCore = new THREE.Mesh(dandelionCoreGeom, new THREE.MeshPhysicalMaterial({color : 0xffff00, flatShading : true}));
+		this._scene.add(dandelionCore);
+
+		const dandelionSkinGeom = new THREE.IcosahedronGeometry(2, 5);
+		const dandelionSkin = new THREE.Mesh(dandelionSkinGeom, new THREE.MeshPhysicalMaterial({color : 0x049ef4, flatShading : true, transparent : true, opacity : 0.5}));
+		this._scene.add(dandelionSkin)
 		
-		const innerEye1 = new THREE.Mesh(new THREE.SphereGeometry(eyeRadius / 3,32.64), new THREE.MeshPhysicalMaterial({color : 0x000000}));
-		innerEye1.position.set(0,0,eyeRadius / 3 + eyeRadius);
-		const eye1 = new THREE.Mesh(new THREE.SphereGeometry(eyeRadius,32,64), new THREE.MeshPhysicalMaterial({color : 0xffffff}));
-		eye1.add(innerEye1);
-		eye1.position.set(-eyeRadius - eyeBetween / 2, 0, 0);
+		dandelionCoreGeom.positionVectors = this.numArrayToVectorArray(dandelionCoreGeom.attributes.position.array);
+		dandelionSkinGeom.positionVectors = this.numArrayToVectorArray(dandelionSkinGeom.attributes.position.array);
 		
-		const innerEye2 = new THREE.Mesh(new THREE.SphereGeometry(eyeRadius/3,32.64), new THREE.MeshPhysicalMaterial({color : 0x000000}));
-		innerEye2.position.set(0,0,eyeRadius/3 + eyeRadius);
-		const eye2 = new THREE.Mesh(new THREE.SphereGeometry(eyeRadius,32,64), new THREE.MeshPhysicalMaterial({color : 0xffffff}));
-		eye2.add(innerEye2);
-		eye2.position.set(eyeRadius + eyeBetween / 2, 0, 0);
+		const lines = [];
+		for(let i = 0 ; i< dandelionCoreGeom.positionVectors.length; i++){
+			const points = [];
+			points.push(dandelionCoreGeom.positionVectors, dandelionSkinGeom.positionVectors);
+			const geometry = new THREE.BufferGeometry().setFromPoints( points );
+			const line = new THREE.Line( geometry, material );
+		}
+		lines.push
 
-		const eye = new THREE.Object3D();
-		eye.add(eye1, eye2);
-		eye.position.set(0,Math.sqrt((eyeRadius + faceRadius)**2 - (eyeRadius + eyeBetween/2)**2),0)
 
-		const facePivot = new THREE.Object3D();
-		facePivot.add(eye);
-
-		const face = new THREE.Mesh(new THREE.CylinderGeometry( faceRadius, faceRadius, eyeRadius, 32 ));
-		face.add(facePivot);
-
-		const mouth = new THREE.Mesh();
-		face.add(mouth);
-		
-		face.position.set(0, - moveRadius, 0);
-		const pivot = new THREE.Object3D();
-		pivot.add(face);
 	}
 
 	resize() {
