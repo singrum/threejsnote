@@ -104,10 +104,10 @@ class App {
 		const color = 0xffffff;
 		const intensity = 0.5;
 
-		const defaultLight = new THREE.AmbientLight(0xffffff, 0.5);
+		const defaultLight = new THREE.AmbientLight(0xffffff, 0.4);
 		this._scene.add(defaultLight)
 
-		const light = new THREE.DirectionalLight(color, 0.3);
+		const light = new THREE.DirectionalLight(color, 0.5);
 		
 		light.castShadow = true;
 		light.shadow.camera.top = light.shadow.camera.right = 1000;
@@ -147,12 +147,22 @@ class App {
 		this._scene.add(points)
 	}
 	_setupModel() {
-		const dandelionSeedHelperGeom = new THREE.IcosahedronGeometry(1, 2); //Icosahedron
-		const dandelionSeedHelper = new THREE.Mesh(dandelionSeedHelperGeom, new THREE.MeshPhysicalMaterial({color : 0xffff00, flatShading : true}));
-		// this._scene.add(dandelionSeedHelper);
+		const hairLen = 1
+		const dandelionSeedHelperGeom = new THREE.IcosahedronGeometry(hairLen, 2); //Icosahedron
+		// const dandelionSeedHelper = new THREE.Mesh(dandelionSeedHelperGeom, new THREE.MeshPhysicalMaterial({color : 0xffff00, flatShading : true}));
+		
 		dandelionSeedHelperGeom.positionVectors = this.numArrayToVectorArray(dandelionSeedHelperGeom.attributes.position.array);
 		const seedLen = 2;
+
 		const dandelionSeed = new THREE.Line( new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,seedLen)] ), new THREE.LineBasicMaterial({color : 0xffffff}) );
+
+		// const dandelionSeedSup = new THREE.Mesh(new THREE.CylinderGeometry(0.01,0.01,0.3,32), new THREE.MeshPhysicalMaterial({color : 0x4F200D}));
+		// dandelionSeedSup.position.set(0,1,0);
+		
+		
+
+		// dandelionSeed.add(dandelionSeedSup);
+
 		const hairs = new THREE.Object3D();
 		for(let i = 0 ; i< dandelionSeedHelperGeom.positionVectors.length; i++){
 			if(dandelionSeedHelperGeom.positionVectors[i].z < 0.5){
@@ -171,7 +181,7 @@ class App {
 		
 
 		const dandelionCoreGeom = new THREE.IcosahedronGeometry(1, 1);
-		const dandelionCore = new THREE.Mesh(dandelionCoreGeom, new THREE.MeshPhysicalMaterial({color : 0xffff00, flatShading : true}))
+		const dandelionCore = new THREE.Mesh(dandelionCoreGeom, new THREE.MeshPhysicalMaterial({color : 0x8D7B68, flatShading : true}))
 		dandelionCoreGeom.positionVectors = this.numArrayToVectorArray(dandelionCoreGeom.attributes.position.array);
 		
 		console.log(dandelionCoreGeom)
@@ -180,12 +190,16 @@ class App {
 			
 			seedClone.lookAt(dandelionCoreGeom.positionVectors[i]);
 			
-			this._scene.add(seedClone)
-			this.debugPoint(dandelionCoreGeom.positionVectors[i])
+			dandelionCore.add(seedClone)
+			
 			
 			
 		}
 		this._scene.add(dandelionCore)
+		
+		const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,10,32), new THREE.MeshPhysicalMaterial({color : 0x54B435}));
+		stem.position.set(0,-5,0)
+		this._scene.add(stem);
 
 
 
