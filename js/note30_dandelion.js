@@ -23,7 +23,8 @@ class App {
 		renderer.shadowMap.enabled = true;
 		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-		this.rot = 0;
+		this.time = 0;
+		this.step = 0.1;
 
 		this._setupCamera();
 		this._setupLight();
@@ -41,48 +42,10 @@ class App {
 
     }
 	_setupControls(){ 
+		new OrbitControls(this._camera, this._divContainer);
 
 
 
-
-		const onPointerDown = ( event ) => {
-			
-			if ( event.isPrimary === false ) return;
-			this.startX = event.clientX
-			this.startY = event.clientY
-			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
-			this.targetRotationOnPointerDown = this.targetRotation;
-
-			document.addEventListener( 'pointermove', onPointerMove );
-			document.addEventListener( 'pointerup', onPointerUp );
-
-		}
-
-		const onPointerMove = ( event ) => {
-			
-			if ( event.isPrimary === false ) return;
-			this.pointerX = event.clientX - window.innerWidth / 2;
-
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
-			
-
-		}
-
-		const onPointerUp = (event) => {
-			
-			if ( event.isPrimary === false ) return;
-			if(Math.hypot(this.startX - event.clientX, this.startY - event.clientY) < 10) this._push();
-			
-			document.removeEventListener( 'pointermove', onPointerMove );
-			document.removeEventListener( 'pointerup', onPointerUp );
-
-		}
-		this.targetRotation = 0;
-		this.targetRotationOnPointerDown = 0;
-		this.pointerX = 0;
-		this.pointerXOnPointerDown = 0;
-		this._divContainer.style.touchAction = 'none';
-		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
 
 
 
@@ -148,41 +111,35 @@ class App {
 		this._scene.add(points)
 	}
 	_setupModel() {
-		const hairLen = 1
-		const dandelionSeedHelperGeom = new THREE.IcosahedronGeometry(hairLen, 2); //Icosahedron
-		// const dandelionSeedHelper = new THREE.Mesh(dandelionSeedHelperGeom, new THREE.MeshPhysicalMaterial({color : 0xffff00, flatShading : true}));
-		
+		const hairLen = 1;
+		const seedLen = 1;
+		const coreRad = 1;
+		const dandelionSeedHelperGeom = new THREE.SphereGeometry(hairLen, 16,16); 
 		dandelionSeedHelperGeom.positionVectors = this.numArrayToVectorArray(dandelionSeedHelperGeom.attributes.position.array);
-		const seedLen = 2;
 
-		const dandelionSeed = new THREE.Line( new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,seedLen)] ), new THREE.LineBasicMaterial({color : 0xffffff}) );
+		const dandelionSeed = new THREE.Object3D();
+		const dandelionSeedStem = new THREE.Line( new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0, seedLen)] ), new THREE.LineBasicMaterial({color : 0xffffff}) );
 
-		// const dandelionSeedSup = new THREE.Mesh(new THREE.CylinderGeometry(0.01,0.01,0.3,32), new THREE.MeshPhysicalMaterial({color : 0x4F200D}));
-		// dandelionSeedSup.position.set(0,1,0);
-		
-		
-
-		// dandelionSeed.add(dandelionSeedSup);
+		const dandelionCoreGeom = new THREE.IcosahedronGeometry(coreRad, 1);
+		const dandelionCore = new THREE.Mesh(dandelionCoreGeom, new THREE.MeshPhysicalMaterial({color : 0x8D7B68, flatShading : true}))
 
 		const hairs = new THREE.Object3D();
 		for(let i = 0 ; i< dandelionSeedHelperGeom.positionVectors.length; i++){
-			if(dandelionSeedHelperGeom.positionVectors[i].z < 0.5){
-				continue;
+			if(0.3 < dandelionSeedHelperGeom.positionVectors[i].z && dandelionSeedHelperGeom.positionVectors[i].z < 0.5){
+				const points = [];
+				points.push(new THREE.Vector3(0,0,0), dandelionSeedHelperGeom.positionVectors[i]);
+				const geometry = new THREE.BufferGeometry().setFromPoints( points );
+				const line = new THREE.Line( geometry, new THREE.LineBasicMaterial({color : 0xffffff}) );
+				
+				hairs.add(line);	
 			}
-			const points = [];
-			points.push(new THREE.Vector3(0,0,0), dandelionSeedHelperGeom.positionVectors[i]);
-			const geometry = new THREE.BufferGeometry().setFromPoints( points );
-			const line = new THREE.Line( geometry, new THREE.LineBasicMaterial({color : 0xffffff}) );
 			
-			hairs.add(line);
 		}
-		dandelionSeed.add(hairs);
-		hairs.position.set(0,0,seedLen)
-		
-		
+		dandelionSeed.add(dandelionSeedStem, hairs);
+		dandelionSeedStem.position.set(0,0,-seedLen/2);
+		hairs.position.set(0,0,seedLen / 2);
 
-		const dandelionCoreGeom = new THREE.IcosahedronGeometry(1, 1);
-		const dandelionCore = new THREE.Mesh(dandelionCoreGeom, new THREE.MeshPhysicalMaterial({color : 0x8D7B68, flatShading : true}))
+
 		dandelionCoreGeom.positionVectors = this.numArrayToVectorArray(dandelionCoreGeom.attributes.position.array);
 		
 		
@@ -192,11 +149,13 @@ class App {
 			seedClone.lookAt(dandelionCoreGeom.positionVectors[i]);
 			
 			dandelionCore.add(seedClone)
+			seedClone.position.set(0,0,seedLen / 2)
 			
+			// break;
 			
 			
 		}
-		
+		console.log(dandelionCore)
 
 		// const curve = new THREE.CatmullRomCurve3( [
 		// 	new THREE.Vector3( 0, 0, 0 ),
@@ -206,21 +165,27 @@ class App {
 		// ] );
 		// const points = curve.getPoints( 50 );
 		// const stemGeometry = new THREE.TubeGeometry( curve, 6, 0.2, 5, false );
-		const stemMaterial = new THREE.MeshBasicMaterial( { color: 0x54B435,flatShading : false} );
+		const stemMaterial = new THREE.MeshPhysicalMaterial( { color: 0x54B435,flatShading : false} );
 		// const stem = new THREE.Mesh( stemGeometry, stemMaterial );
 		const stem = new THREE.Mesh( new THREE.CylinderGeometry(0.1,0.1,20,32), stemMaterial );
 		stem.position.set(0,-10,0)
 		
 
 		this.stem = stem
-		dandelionCore.add(stem);
-		this._scene.add(dandelionCore)
-		this.group = dandelionCore
+		const dandelion = new THREE.Object3D();
+		dandelion.add(stem, dandelionCore);
+		this._scene.add(dandelion)
+		this.group = dandelion
+		this.dandelionCore = dandelionCore
 
+		dandelionCore.children.forEach(seed =>{seed.rand1 = this.randRange(0.5,1)})
 
 
 	}
 
+	randRange(a,b){
+		return Math.random() * (b - a) + a;
+	}
 	resize() {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
@@ -238,7 +203,13 @@ class App {
 	}
 
 	update() {
-		this.group.rotation.y += ( this.targetRotation - this.group.rotation.y ) * 0.05;
+		this.time += this.step;
+		for(let seed of this.dandelionCore.children){
+			// seed.position.x = this.time * seed.rand1;
+			// seed.rotation.x = this.time;
+			// seed.rotation.y = this.time;
+			// seed.rotation.z = this.time;
+		}
 	}
 }
 
