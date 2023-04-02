@@ -38,7 +38,7 @@ class App {
 		requestAnimationFrame(this.render.bind(this));
 	}
     _setupBackground(){
-        this._scene.background = new THREE.Color(0xc8e3c0);
+        this._scene.background = new THREE.Color(0xD6CDA4);
 
     }
 	_setupControls(){ 
@@ -201,7 +201,7 @@ class App {
 		// ] );
 		// const points = curve.getPoints( 50 );
 		// const stemGeometry = new THREE.TubeGeometry( curve, 6, 0.2, 5, false );
-		const stemMaterial = new THREE.MeshPhysicalMaterial( { color: 0x54B435,flatShading : false} );
+		const stemMaterial = new THREE.MeshPhysicalMaterial( { color: 0x9EB23B,flatShading : false} );
 		// const stem = new THREE.Mesh( stemGeometry, stemMaterial );
 		const stem = new THREE.Mesh( new THREE.CylinderGeometry(0.1,0.1,20,32), stemMaterial );
 		stem.position.set(0,-10,0)
@@ -215,9 +215,9 @@ class App {
 		this.dandelionCore = dandelionCore
 
 		this.attachedSeeds.forEach(seed =>{
-			seed.rand1 = this.randRange(1,1.5)
-			seed.rand2 = this.randRange(1,1.5)
-			seed.rand3 = this.randRange(1,1.5)
+			seed.rand1 = this.randRange(2,3)
+			seed.rand2 = this.randRange(1,2)
+			seed.rand3 = this.randRange(1,2)
 		})
 
 		
