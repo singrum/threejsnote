@@ -34,7 +34,7 @@ class App {
 
 		window.onresize = this.resize.bind(this);
 		this.resize();
-
+		this.temp = 0;
 		requestAnimationFrame(this.render.bind(this));
 	}
     _setupBackground(){
@@ -42,8 +42,43 @@ class App {
 
     }
 	_setupControls(){ 
-		new OrbitControls(this._camera, this._divContainer);
+		const onPointerDown = ( event ) => {
+			
+			if ( event.isPrimary === false ) return;
+			this.startX = event.clientX
+			this.startY = event.clientY
+			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
+			this.targetRotationOnPointerDown = this.targetRotation;
 
+			document.addEventListener( 'pointermove', onPointerMove );
+			document.addEventListener( 'pointerup', onPointerUp );
+
+		}
+
+		const onPointerMove = ( event ) => {
+			
+			if ( event.isPrimary === false ) return;
+			this.pointerX = event.clientX - window.innerWidth / 2;
+
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.01;
+			
+
+
+		}
+
+		const onPointerUp = (event) => {
+			
+			if ( event.isPrimary === false ) return;
+			document.removeEventListener( 'pointermove', onPointerMove );
+			document.removeEventListener( 'pointerup', onPointerUp );
+
+		}
+		this.targetRotation = 0;
+		this.targetRotationOnPointerDown = 0;
+		this.pointerX = 0;
+		this.pointerXOnPointerDown = 0;
+		this._divContainer.style.touchAction = 'none';
+		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
 
 
 
@@ -136,26 +171,27 @@ class App {
 			
 		}
 		dandelionSeed.add(dandelionSeedStem, hairs);
-		dandelionSeedStem.position.set(0,0,-seedLen/2);
-		hairs.position.set(0,0,seedLen / 2);
+		dandelionSeedStem.position.set(0,0,- seedLen /2);
+		hairs.position.set(0,0,seedLen /2);
+		const dandelionSeedWrap = new THREE.Object3D();
+		dandelionSeedWrap.add(dandelionSeed);
+		dandelionSeed.position.set(0,0,seedLen / 2 + coreRad);
 
 
 		dandelionCoreGeom.positionVectors = this.numArrayToVectorArray(dandelionCoreGeom.attributes.position.array);
 		
-		
+		this.attachedSeeds = []
+		this.flyingSeeds = []
 		for(let i = 0 ; i< dandelionCoreGeom.positionVectors.length; i++){
-			const seedClone = dandelionSeed.clone();
+			const seedClone = dandelionSeedWrap.clone();
 			
 			seedClone.lookAt(dandelionCoreGeom.positionVectors[i]);
 			
 			dandelionCore.add(seedClone)
-			seedClone.position.set(0,0,seedLen / 2)
-			
-			// break;
-			
+			this.attachedSeeds.push(seedClone.children[0])
 			
 		}
-		console.log(dandelionCore)
+		
 
 		// const curve = new THREE.CatmullRomCurve3( [
 		// 	new THREE.Vector3( 0, 0, 0 ),
@@ -178,7 +214,14 @@ class App {
 		this.group = dandelion
 		this.dandelionCore = dandelionCore
 
-		dandelionCore.children.forEach(seed =>{seed.rand1 = this.randRange(0.5,1)})
+		this.attachedSeeds.forEach(seed =>{
+			seed.rand1 = this.randRange(1,1.5)
+			seed.rand2 = this.randRange(1,1.5)
+			seed.rand3 = this.randRange(1,1.5)
+		})
+
+		
+		
 
 
 	}
@@ -204,12 +247,47 @@ class App {
 
 	update() {
 		this.time += this.step;
-		for(let seed of this.dandelionCore.children){
-			// seed.position.x = this.time * seed.rand1;
-			// seed.rotation.x = this.time;
-			// seed.rotation.y = this.time;
-			// seed.rotation.z = this.time;
+
+	    this.seedFly(this.velocity);
+		this.group.rotation.y += ( this.targetRotation - this.group.rotation.y ) * 0.05;
+		this.curr = this.group.rotation.y;
+		
+		
+		this.velocity = Math.floor(Math.abs(this.curr - this.temp) * 10);
+		
+		this.temp = this.curr;
+	}
+	getRandomNum(num){
+		
+	}
+	seedFly(velocity){
+		
+		for(let i = 0; i< velocity; i++){
+			console.log(i)
+			if(this.attachedSeeds.length > 0){
+				
+				const randomindex = this.randomChoice(this.attachedSeeds);
+				const seed = this.attachedSeeds[randomindex];
+				this.attachedSeeds.splice(randomindex, 1);
+				this.flyingSeeds.push(seed);
+			}
+	
 		}
+
+		
+		for(let seed of this.flyingSeeds){
+			seed.position.x += this.step * seed.rand1;
+			seed.position.y += this.step * seed.rand2;
+			seed.position.z += this.step * seed.rand3;
+			seed.rotation.x += this.step * seed.rand1 / 4;
+			seed.rotation.y += this.step * seed.rand1 / 4;
+			seed.rotation.z += this.step/3;
+		}
+
+	}
+	randomChoice(arr) {
+		const randomIndex = Math.floor(Math.random() * arr.length);
+		return randomIndex;
 	}
 }
 
