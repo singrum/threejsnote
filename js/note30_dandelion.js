@@ -263,7 +263,7 @@ class App {
 	seedFly(velocity){
 		
 		for(let i = 0; i< velocity; i++){
-			console.log(i)
+			
 			if(this.attachedSeeds.length > 0){
 				
 				const randomindex = this.randomChoice(this.attachedSeeds);
