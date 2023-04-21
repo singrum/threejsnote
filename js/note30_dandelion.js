@@ -25,6 +25,7 @@ class App {
 
 		this.time = 0;
 		this.step = 0.1;
+		this.prevTime = performance.now()
 
 		this._setupCamera();
 		this._setupLight();
@@ -246,7 +247,11 @@ class App {
 	}
 
 	update() {
-		this.time += this.step;
+		const currentTime = performance.now();
+		const deltaTime = (currentTime - this.prevTime) / 1000;
+		this.prevTime = currentTime;
+        this.time += deltaTime 
+		
 
 	    this.seedFly(this.velocity);
 		this.group.rotation.y += ( this.targetRotation - this.group.rotation.y ) * 0.05;
