@@ -23,8 +23,9 @@ class App {
 		// this._setupControls()
 		this._setupTouch();
 		this._damp = 0.3
-		this.step = 0;
-		this.step2 = 0;
+		this.time = 0;
+		this.time2 = 0;
+		this.prevTime = performance.now();
 		
 		window.onresize = this.resize.bind(this);
 		this.resize();
@@ -118,25 +119,29 @@ class App {
 	}
 
 	update() {
+		const currentTime = performance.now();
+		const deltaTime = (currentTime - this.prevTime) / 1000; // 시간 간격을 초 단위로 계산
+		this.prevTime = currentTime;
+	  
+		this.time += deltaTime/2; // time 변수를 업데이트
 		
-		this.step += 0.01;
-		this.step2 += 0.005;
+		this.time2 += deltaTime/3;
 
 		if(this._isTouch){
 			this._isTouch = false;
-			this.step = 0;
+			this.time = 0;
 		}
 		
-		this._sphere.rotation.y = this.step2
+		this._sphere.rotation.y = this.time2
 
 		for(let i = 0; i < this._count; i++){
 			const uX = this._geometry.attributes.uv.getX(i) * Math.PI * 16;
 			const uY = this._geometry.attributes.uv.getY(i) * Math.PI * 16;
 			
-			const xangle = uX + this.step * 10;
-			const xsin = Math.sin(xangle) * this._damp * Math.exp(-this.step)
-			const yangle = uY + this.step * 10;
-			const ycos = Math.sin(yangle) * this._damp * Math.exp(-this.step)
+			const xangle = uX + this.time * 10;
+			const xsin = Math.sin(xangle) * this._damp * Math.exp(-this.time)
+			const yangle = uY + this.time * 10;
+			const ycos = Math.sin(yangle) * this._damp * Math.exp(-this.time)
 
 			const ix = i* 3;
 			const iy = i * 3 + 1;
