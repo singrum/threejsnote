@@ -24,7 +24,7 @@ class App {
 		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 		this.time = 0;
-		this.step = 0.1;
+		
 		this.prevTime = performance.now()
 
 		this._setupCamera();
@@ -248,13 +248,13 @@ class App {
 
 	update() {
 		const currentTime = performance.now();
-		const deltaTime = (currentTime - this.prevTime) / 1000;
+		this.deltaTime = (currentTime - this.prevTime) / 1000 * 4.5;
 		this.prevTime = currentTime;
-        this.time += deltaTime 
+        this.time += this.deltaTime 
 		
 
 	    this.seedFly(this.velocity);
-		this.group.rotation.y += ( this.targetRotation - this.group.rotation.y ) * 0.05;
+		this.group.rotation.y += ( this.targetRotation - this.group.rotation.y ) * 0.1;
 		this.curr = this.group.rotation.y;
 		
 		
@@ -281,12 +281,12 @@ class App {
 
 		
 		for(let seed of this.flyingSeeds){
-			seed.position.x += this.step * seed.rand1;
-			seed.position.y += this.step * seed.rand2;
-			seed.position.z += this.step * seed.rand3;
-			seed.rotation.x += this.step * seed.rand1 / 4;
-			seed.rotation.y += this.step * seed.rand1 / 4;
-			seed.rotation.z += this.step/3;
+			seed.position.x += this.deltaTime * seed.rand1;
+			seed.position.y += this.deltaTime * seed.rand2;
+			seed.position.z += this.deltaTime * seed.rand3;
+			seed.rotation.x += this.deltaTime * seed.rand1 / 4;
+			seed.rotation.y += this.deltaTime * seed.rand1 / 4;
+			seed.rotation.z += this.deltaTime/3;
 		}
 
 	}
