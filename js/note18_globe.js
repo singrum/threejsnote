@@ -120,7 +120,7 @@ class App {
 
 	update() {
 		const currentTime = performance.now();
-		const deltaTime = (currentTime - this.prevTime) / 1000; // 시간 간격을 초 단위로 계산
+		const deltaTime = (currentTime - this.prevTime) / 1000;
 		this.prevTime = currentTime;
 	  
 		this.time += deltaTime/2; // time 변수를 업데이트

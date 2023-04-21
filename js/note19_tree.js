@@ -21,7 +21,8 @@ class App {
 		this._scene = scene;
         
         this.time = 0;
-        this.step = 0.076;
+		this.prevTime = performance.now();
+        
 
 
         this._setupCamera();
@@ -43,10 +44,10 @@ class App {
 	}
     _setupControls() {
         window.addEventListener("touchstart", ()=>{
-            this.step = 0.03;
+            this.isTouch = true;
         })
         window.addEventListener("touchend", ()=>{
-            this.step = 0.076;
+            this.isTouch = false;
         })
     }
 
@@ -144,16 +145,24 @@ class App {
         this._scene.add(new THREE.AmbientLight(color, 0.3));
     }
 
-    update(time) {
-        time *= 0.001; // second unit
-        this.time += this.step
+    update() {
+        const currentTime = performance.now();
+		const deltaTime = (currentTime - this.prevTime) / 1000;
+		this.prevTime = currentTime;
+        if(this.isTouch){
+            this.time += deltaTime 
+        }
+        else{
+            this.time += deltaTime * 2
+        }
+        
         this._camera.position.set(600*Math.sin(this.time * 0.05), 600, 600*Math.cos(this.time * 0.05))
         this._camera.lookAt(0,600,0)
     }
 
-    render(time) {
+    render() {
         this._renderer.render(this._scene, this._camera);   
-        this.update(time);
+        this.update();
 
         requestAnimationFrame(this.render.bind(this));
     }
