@@ -61,7 +61,7 @@ class App {
 			if ( event.isPrimary === false ) return;
 			this.pointerX = event.clientX - window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.014;
 			
 
 
