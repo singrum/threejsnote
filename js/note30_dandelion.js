@@ -61,7 +61,7 @@ class App {
 			if ( event.isPrimary === false ) return;
 			this.pointerX = event.clientX - window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.03;
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
 			
 
 
@@ -281,9 +281,9 @@ class App {
 
 		
 		for(let seed of this.flyingSeeds){
-			seed.position.x += this.deltaTime * seed.rand1;
-			seed.position.y += this.deltaTime * seed.rand2;
-			seed.position.z += this.deltaTime * seed.rand3;
+			seed.position.x += this.deltaTime * 2 *  seed.rand1;
+			seed.position.y += this.deltaTime * 2 * seed.rand2;
+			seed.position.z += this.deltaTime * 2 * seed.rand3;
 			seed.rotation.x += this.deltaTime * seed.rand1 / 4;
 			seed.rotation.y += this.deltaTime * seed.rand1 / 4;
 			seed.rotation.z += this.deltaTime/3;
