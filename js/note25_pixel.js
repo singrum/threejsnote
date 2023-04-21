@@ -100,7 +100,7 @@ class App {
 
 
 		const checkDirection = ()=> {
-			if (touchendX < touchstartX) {
+			if (touchendX <= touchstartX) {
 				gsap.to(this._jewelArr[this._currJewelIndex].position,{duration : 2, x : -5, z : 5})
 				this._currJewelIndex = this.nextJewelIndex(this._currJewelIndex)
 				const nextJewel = this._jewelArr[this._currJewelIndex]
