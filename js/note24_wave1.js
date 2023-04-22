@@ -21,7 +21,11 @@ class App {
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio( window.devicePixelRatio );
 		const scene = new THREE.Scene();
+		
 		this._scene = scene;
+		this.time = 0;
+		
+		this.prevTime = performance.now()
 		this.delta = 0.2
 		this.time = 0;
 		this.step = 0.01;
@@ -172,14 +176,14 @@ class App {
 		// this._scene.add(light4);
 
 
-		const light5 = new THREE.PointLight( 0xffffff, 1, 100 )
+		const light5 = new THREE.DirectionalLight( 0xffffff, 0.5 )
 		light5.position.set(0, 0, 10);
 		light5.lookAt(0,0,0)
 		// const helper5 = new RectAreaLightHelper(light5);
 		// light5.add(helper5);
 		this._scene.add(light5);
 
-		const light6 = new THREE.PointLight( 0xffffff, 1, 100 )
+		const light6 = new THREE.DirectionalLight( 0xffffff, 0.5 )
 		light6.position.set(0,0, -10);
 		light6.lookAt(0,0,0)
 		// const helper6 = new RectAreaLightHelper(light6);
@@ -306,7 +310,10 @@ class App {
 		}
 		if(this.isRot){
 			this.rotStart = false;
-			this.time += this.step;
+			const currentTime = performance.now();
+			this.deltaTime = (currentTime - this.prevTime) / 1000 ;
+			this.prevTime = currentTime;
+			this.time += this.deltaTime / 1.4 
 			this.rotAnimation(this.targetIndex, this.time)
 			for(let i = this.targetIndex - 1; i >= 0; i--){
 				this.rotAnimation(i, this.time - 0.03 * (-i + this.targetIndex))
