@@ -1,6 +1,6 @@
-import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
-import {RectAreaLightUniformsLib} from '../node_modules/three/examples/jsm/lights/RectAreaLightUniformsLib.js'
-import { RectAreaLightHelper } from '../node_modules/three/examples/jsm/helpers/RectAreaLightHelper.js';
+// import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
+// import {RectAreaLightUniformsLib} from '../node_modules/three/examples/jsm/lights/RectAreaLightUniformsLib.js'
+// import { RectAreaLightHelper } from '../node_modules/three/examples/jsm/helpers/RectAreaLightHelper.js';
 import * as THREE from '../node_modules/three/build/three.module.js';
 
 
@@ -176,14 +176,14 @@ class App {
 		// this._scene.add(light4);
 
 
-		const light5 = new THREE.DirectionalLight( 0xffffff, 0.5 )
+		const light5 = new THREE.DirectionalLight( 0xffffff, 0.7 )
 		light5.position.set(0, 0, 10);
 		light5.lookAt(0,0,0)
 		// const helper5 = new RectAreaLightHelper(light5);
 		// light5.add(helper5);
 		this._scene.add(light5);
 
-		const light6 = new THREE.DirectionalLight( 0xffffff, 0.5 )
+		const light6 = new THREE.DirectionalLight( 0xffffff, 0.7 )
 		light6.position.set(0,0, -10);
 		light6.lookAt(0,0,0)
 		// const helper6 = new RectAreaLightHelper(light6);
