@@ -14,7 +14,7 @@ class App {
 		renderer.setPixelRatio( window.devicePixelRatio );
 		const scene = new THREE.Scene();
 		this._scene = scene;
-        this.time = 0;
+        this.angle = 0;
         
         
 		this._setupCamera();
@@ -34,22 +34,65 @@ class App {
     }
 
 	_setupControls(){
-		new OrbitControls(this._camera, this._divContainer);
+		// new OrbitControls(this._camera, this._divContainer);
+        const onPointerDown = ( event ) => {
+			
+			if ( event.isPrimary === false ) return;
+			this.startX = event.clientX
+			this.startY = event.clientY
+			this.pointerYOnPointerDown = -event.clientY + window.innerWidth / 2;
+			this.targetRotationOnPointerDown = this.targetRotation;
+
+			document.addEventListener( 'pointermove', onPointerMove );
+			document.addEventListener( 'pointerup', onPointerUp );
+
+		}
+
+		const onPointerMove = ( event ) => {
+			
+			if ( event.isPrimary === false ) return;
+			this.pointerY = -event.clientY + window.innerWidth / 2;
+
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.014;
+			
+
+
+		}
+
+		const onPointerUp = (event) => {
+			
+			if ( event.isPrimary === false ) return;
+			document.removeEventListener( 'pointermove', onPointerMove );
+			document.removeEventListener( 'pointerup', onPointerUp );
+
+		}
+		this.targetRotation = 0;
+		this.targetRotationOnPointerDown = 0;
+		this.pointerY = 0;
+		this.pointerYOnPointerDown = 0;
+		this._divContainer.style.touchAction = 'none';
+		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
 	}
 
 	_setupCamera() {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
-		camera.position.z = 20;
+		camera.position.set(0,10,40)
+        camera.lookAt(0,10,0)
+        
 		this._camera = camera;
 	}
 
 	_setupLight() {
+
+		const defaultLight = new THREE.AmbientLight(0xffffff, 0.5);
+		this._scene.add(defaultLight)
+
 		const color = 0xffffff;
 		const intensity = 1;
 		const light = new THREE.DirectionalLight(color, intensity);
-		light.position.set(-1, 2, 4);
+		light.position.set(-10, 10, 10);
 		this._scene.add(light);
 	}
 
@@ -95,11 +138,11 @@ class App {
 	}
 
 	update() {
-		this.time += 0.01;
+		this.angle += 0.01;
         
 		
         for(let j = 0; j<this.bowArr.length; j++){
-            const time = this.time + Math.PI * 2 / this.bowArr.length * j
+            const time = this.angle + Math.PI * 2 / this.bowArr.length * j
             for(let i = 0; i< this.count; i++){
                 const ix = i* 3;
                 const iy = i * 3 + 1;
@@ -119,7 +162,7 @@ class App {
 		    this.bowArr[j].geometry.attributes.position.needsUpdate = true;
         }
 
-
+        this.angle += ( this.targetRotation - this.angle ) * 0.1;
 	}
 }
 
