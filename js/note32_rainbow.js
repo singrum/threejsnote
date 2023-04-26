@@ -95,10 +95,11 @@ class App {
 	}
 
 	update() {
-		this.time += 0.1;
+		this.time += 0.01;
         
 		
-        for(let bow of this.bowArr){
+        for(let j = 0; j<this.bowArr.length; j++){
+            const time = this.time + Math.PI * 2 / this.bowArr.length * j
             for(let i = 0; i< this.count; i++){
                 const ix = i* 3;
                 const iy = i * 3 + 1;
@@ -107,15 +108,15 @@ class App {
                 const y = this.positionClone[iy];
                 const z = this.positionClone[iz];
                 const lenFromZaxis = Math.hypot(x, y);
-                const temp1 = lenFromZaxis + this.rotRad * Math.sin(this.time)
-                bow.geometry.attributes.position.setX(i, temp1 * x / lenFromZaxis);
-                bow.geometry.attributes.position.setY(i, temp1 * y / lenFromZaxis);
-                bow.geometry.attributes.position.setZ(i, (z + this.rotRad * Math.cos(this.time)));
+                const temp1 = lenFromZaxis + this.rotRad * Math.sin(time)
+                this.bowArr[j].geometry.attributes.position.setX(i, temp1 * x / lenFromZaxis);
+                this.bowArr[j].geometry.attributes.position.setY(i, temp1 * y / lenFromZaxis);
+                this.bowArr[j].geometry.attributes.position.setZ(i, (z + this.rotRad * Math.cos(time)));
     
                 
             }
-            bow.geometry.computeVertexNormals();
-		    bow.geometry.attributes.position.needsUpdate = true;
+            this.bowArr[j].geometry.computeVertexNormals();
+		    this.bowArr[j].geometry.attributes.position.needsUpdate = true;
         }
 
 
