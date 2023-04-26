@@ -53,7 +53,7 @@ class App {
 			if ( event.isPrimary === false ) return;
 			this.pointerY = -event.clientY + window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.014;
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.02;
 			
 
 
@@ -162,7 +162,7 @@ class App {
 		    this.bowArr[j].geometry.attributes.position.needsUpdate = true;
         }
 
-        this.angle += ( this.targetRotation - this.angle ) * 0.1;
+        this.angle += ( this.targetRotation - this.angle ) * 0.2;
 	}
 }
 
