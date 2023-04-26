@@ -104,7 +104,7 @@ class App {
 		const bowGeometry = new THREE.TorusGeometry( torusRad, tubeRad, 32, 100, Math.PI );
         const bowMaterialArr = []
         for(let i = 0; i<this.rainbowLen; i++){
-            bowMaterialArr.push(new THREE.MeshPhysicalMaterial( { color: new THREE.Color(`hsl(${Math.floor(360 / this.rainbowLen * i)}, 100%, 50%)`)} ))
+            bowMaterialArr.push(new THREE.MeshPhysicalMaterial( { color: new THREE.Color(`hsl(${Math.floor(360 / this.rainbowLen * i)}, 100%, 70%)`)} ))
         }
         const bowArr = [];
         for(let i = 0; i< this.rainbowLen; i++){
