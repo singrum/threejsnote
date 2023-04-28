@@ -180,20 +180,13 @@ class App {
 		
 		// this._scene.add(...cloudArr)
 		
-		let pivotArr = []
-		this.pivotArr = pivotArr
 		cloudArr = cloudArr.concat(cloudArr.map(cloud =>cloud.clone()));
-
+		this.cloudArr = cloudArr;
 		for(let cloud of cloudArr){
-			const cloudPivotRadius = randRange(15,18);	
-			const theta = randRange(0,Math.PI * 2);
-			cloud.position.set(cloudPivotRadius * Math.cos(theta), 0, cloudPivotRadius * Math.sin(theta));
-			const pivot = new THREE.Object3D();
-			pivot.add(cloud);
-			pivot.rand1 = randRange(0.2,0.4)
-			pivot.rand2 = randRange(0,40)
-			pivotArr.push(pivot)
-			this._scene.add(pivot)
+			cloud.position.set(randRange(-30,30),randRange(10,30),randRange(-10,10));
+			cloud.posXinit = cloud.position.x
+			cloud.rand1 = randRange(0.5,1);
+			this._scene.add(cloud)
 		}
 		
 
@@ -257,11 +250,10 @@ class App {
         this.angle += ( this.targetRotation - this.angle ) * 0.005;
 		this._scene.background = new THREE.Color(`hsl(${Math.floor(- (this.angle / (2 * Math.PI) * 360) % 360 + 360)}, 100%, 95%)`)
 		
-		this.pivotArr.forEach(pivot=>{
-			const rand = pivot.rand1 * this.angle * 0.5
-			pivot.rotation.set(0,rand, 0)
-			pivot.position.set(0, pivot.rand2 * 1.5 * Math.sin(this.angle * rand * 0.001 + 1) + 20, 0)
-			pivot.children[0].rotation.set(0,-rand, 0)
+		this.cloudArr.forEach(cloud=>{
+			cloud.position.x = (cloud.posXinit + (this.angle) * cloud.rand1 + 30) % 60 -30;
+			
+			
 		})
 
 	}
