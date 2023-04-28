@@ -92,7 +92,7 @@ class App {
 		const color = 0xffffff;
 		const intensity = 1;
 		const light = new THREE.PointLight(color, intensity);
-		light.position.set(-10, 10, 10);
+		light.position.set(-20, 20, 20);
 		this._scene.add(light);
 	}
 
@@ -162,7 +162,8 @@ class App {
 		    this.bowArr[j].geometry.attributes.position.needsUpdate = true;
         }
 
-        this.angle += ( this.targetRotation - this.angle ) * 0.2;
+        this.angle += ( this.targetRotation - this.angle ) * 0.005;
+		this._scene.background = new THREE.Color(`hsl(${Math.floor(- (this.angle / (2 * Math.PI) * 360) % 360 + 360)}, 100%, 95%)`)
 	}
 }
 
