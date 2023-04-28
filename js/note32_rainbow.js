@@ -197,15 +197,15 @@ class App {
 		}
 		
 
-		let radius100 = [], posX100 = [], posY100 = [], posZ100 =[];
-		for(let i = 0; i<100; i++){
-			radius100.push(randRange(1,3));
-			posX100.push(randRange(-11, 11));
-			posY100.push(randRange(-2,0));
-			posZ100.push(randRange(-11,11));
-		}
-		const floorCloud = new Cloud(radius100, posX100, posY100, posZ100)
-		this._scene.add(floorCloud.mesh)
+		// let radius100 = [], posX100 = [], posY100 = [], posZ100 =[];
+		// for(let i = 0; i<100; i++){
+		// 	radius100.push(randRange(1,3));
+		// 	posX100.push(randRange(-11, 11));
+		// 	posY100.push(randRange(-2,0));
+		// 	posZ100.push(randRange(-11,11));
+		// }
+		// const floorCloud = new Cloud(radius100, posX100, posY100, posZ100)
+		// this._scene.add(floorCloud.mesh)
 		const floor = new THREE.Mesh(new THREE.PlaneGeometry(100,100), new THREE.MeshPhysicalMaterial(0xffffff));
 		floor.rotation.set(-Math.PI/2,0,0)
 		floor.position.set(0,-5,0)
