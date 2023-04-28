@@ -167,7 +167,7 @@ class App {
 					cloud.add(sphere);
 					
 				}
-				cloud.position.set(0,0,5)
+				cloud.position.set(0,0,0)
 				return cloud
 			}
 		}
@@ -184,13 +184,13 @@ class App {
 		this.pivotArr = pivotArr
 		
 		for(let cloud of cloudArr){
-			const cloudPivotRadius = randRange(8,15);	
+			const cloudPivotRadius = randRange(15,18);	
 			const theta = randRange(0,Math.PI * 2);
 			cloud.position.set(cloudPivotRadius * Math.cos(theta), cloudPivotRadius * Math.sin(theta), 0);
 			const pivot = new THREE.Object3D();
 			pivot.add(cloud);
 			pivot.rand1 = randRange(0.2,0.4)
-			pivot.rand2 = randRange(0,20)
+			pivot.rand2 = randRange(0,40)
 			pivotArr.push(pivot)
 			this._scene.add(pivot)
 		}
@@ -227,7 +227,7 @@ class App {
 
 	update() {
 		
-        this.angle += 0.02
+        this.angle += 0.01
 		
         for(let j = 0; j<this.bowArr.length; j++){
             const time = this.angle + Math.PI * 2 / this.bowArr.length * j
@@ -251,12 +251,12 @@ class App {
         }
 
         this.angle += ( this.targetRotation - this.angle ) * 0.005;
-		this._scene.background = new THREE.Color(`hsl(${Math.floor(- (this.angle / (2 * Math.PI) * 360) % 360 + 360)}, 100%, 95%)`)
+		// this._scene.background = new THREE.Color(`hsl(${Math.floor(- (this.angle / (2 * Math.PI) * 360) % 360 + 360)}, 100%, 95%)`)
 		
 		this.pivotArr.forEach(pivot=>{
-			const rand = pivot.rand1 * this.angle * 0.1
+			const rand = pivot.rand1 * this.angle * 0.5
 			pivot.rotation.set(0,rand, 0)
-			pivot.position.set(0, pivot.rand2 * Math.sin(pivot.rand2) + 20, 0)
+			pivot.position.set(0, pivot.rand2 * 2 * Math.sin(this.angle * rand * 0.001) + 20, 0)
 			pivot.children[0].rotation.set(0,-rand, 0)
 		})
 
