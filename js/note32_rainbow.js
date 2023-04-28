@@ -1,6 +1,9 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 
+function randRange(a, b){
+	return Math.random() * (b-a) + a
+}
 class App {
 	constructor() {
 		const divContainer = document.querySelector("#webgl_container");
@@ -21,6 +24,7 @@ class App {
         this._setupBackground();
 		this._setupLight();
 		this._setupModel();
+		this._setupCloud();
 		this._setupControls()
 
 		window.onresize = this.resize.bind(this);
@@ -78,8 +82,8 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
-		camera.position.set(0,10,40)
-        camera.lookAt(0,10,0)
+		camera.position.set(0,20,40)
+        camera.lookAt(0,20,0)
         
 		this._camera = camera;
 	}
@@ -120,6 +124,57 @@ class App {
         this.positionClone = JSON.parse(JSON.stringify(this.torus.geometry.attributes.position.array))
         
 	}
+
+	_setupCloud(){
+		
+		class Cloud{
+			constructor(radius,posX, posY){
+				this.len = radius.length
+				this.radius = radius;
+				this.posX = posX
+				this.posY = posY
+				this.mesh = this.makeCloud();
+			}
+			getPosX(){
+				const result = [0];
+				let distance = 0;
+				for(let i = 0; i < this.len - 1; i++){
+					
+					distance += this.radius[i] + this.radius[i+1] - randRange(1,1.5)
+					result.push(distance);
+					
+				}
+				return result;
+			}
+			getPosY(){
+				const result = [];
+				for(let i = 0;i < this.len; i++){
+					result.push(this.radius[i]);
+				}
+				console.log(result)
+				
+				return result;
+
+			}
+			makeCloud(){
+				const cloud = new THREE.Object3D();
+				for(let i = 0; i<this.len; i++){
+					
+					const sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius[i], 32,32), new THREE.MeshPhysicalMaterial(0xffffff));
+					console.log(this.posX)
+					sphere.position.set(this.posX[i], this.posY[i], 0);
+					cloud.add(sphere);
+					
+				}
+				cloud.position.set(0,0,5)
+				return cloud
+			}
+		}
+		this._scene.add(new Cloud([1.21,2.26,3,1.83,1.83, 1.21],[-2.89,-1.43, 0,1.79,1.90,2.78],[-0.48,-0.62, 0,-0.41,-0.85,0]).mesh)
+		
+		
+	}
+	
 
 	resize() {
 		const width = this._divContainer.clientWidth;
