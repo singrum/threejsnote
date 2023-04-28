@@ -96,7 +96,7 @@ class App {
 		const color = 0xffffff;
 		const intensity = 1;
 		const light = new THREE.PointLight(color, intensity);
-		light.position.set(-20, 20, 20);
+		light.position.set(-10, 50, 20);
 		this._scene.add(light);
 	}
 
@@ -119,7 +119,7 @@ class App {
         
         this.bowArr = bowArr
         this.torus = bowArr[0]
-        this._scene.add( this.torus );
+        
         this.count = this.torus.geometry.attributes.position.count;
         this.positionClone = JSON.parse(JSON.stringify(this.torus.geometry.attributes.position.array))
         
@@ -128,11 +128,12 @@ class App {
 	_setupCloud(){
 		
 		class Cloud{
-			constructor(radius,posX, posY){
+			constructor(radius,posX, posY, posZ){
 				this.len = radius.length
 				this.radius = radius;
 				this.posX = posX
 				this.posY = posY
+				this.posZ = posZ
 				this.mesh = this.makeCloud();
 			}
 			getPosX(){
@@ -151,7 +152,7 @@ class App {
 				for(let i = 0;i < this.len; i++){
 					result.push(this.radius[i]);
 				}
-				console.log(result)
+				
 				
 				return result;
 
@@ -161,8 +162,8 @@ class App {
 				for(let i = 0; i<this.len; i++){
 					
 					const sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius[i], 32,32), new THREE.MeshPhysicalMaterial(0xffffff));
-					console.log(this.posX)
-					sphere.position.set(this.posX[i], this.posY[i], 0);
+					
+					sphere.position.set(this.posX[i], this.posY[i], this.posZ[i]);
 					cloud.add(sphere);
 					
 				}
@@ -170,8 +171,40 @@ class App {
 				return cloud
 			}
 		}
-		this._scene.add(new Cloud([1.21,2.26,3,1.83,1.83, 1.21],[-2.89,-1.43, 0,1.79,1.90,2.78],[-0.48,-0.62, 0,-0.41,-0.85,0]).mesh)
+		const cloudArr = [new Cloud([1.21,2.26,3,1.83,1.83, 1.21],[-4.7,-2.73, 0,2.79,2.90,4.78],[-0.48,-0.62, 0,1,-0.85,0], [0,0,0,0,0,0]).mesh,
+		new Cloud([1.5,2,2.45,2,1.83, 1.6],[-4.7,-2.73, 0,-2,1,3.1],[-0.7,-0.3, 0,0.5,0.7,-0.7], [0,0,0,-1,-1.5,-0.5]).mesh,
+		new Cloud([1.5,2,2,2,1.4, 1, 2, 1.8],[-7,-5,-2.5,0,2,3.5, -2,1],[0,0.4,-0.1,0.2,-0.1,0,1, 1.4], [-1,-0.5,0,0,0,0,-1,-1.2]).mesh,
+		new Cloud([1.5, 2.4,1.6,2.2],[-2, 0, 1.6,2.4],[-0.7,0,-0.3,-1.1], [1,0,1.9,-1.0]).mesh,
+		new Cloud([1.5,3,2.3,1],[-3, 0, 2.4,3.8],[-0.7,0,-0.9,1.8], [0,0,-0.3,0.6]).mesh,
+		new Cloud([2,2.5,2.3,2.3,2.3,1.9],[-6,-3.1,0,3.4,-1,2],[0.1,1,1,1,2.3,1.5], [-1,0,0,0,-1,-1.2]).mesh,]
 		
+		this._scene.add(...cloudArr)
+		
+		let pivotArr = []
+		this.pivotArr = pivotArr
+		
+		for(let cloud of cloudArr){
+			const cloudPivotRadius = randRange(8,15);	
+			const theta = randRange(0,Math.PI * 2);
+			cloud.position.set(cloudPivotRadius * Math.cos(theta), cloudPivotRadius * Math.sin(theta), 0);
+			const pivot = new THREE.Object3D();
+			pivot.add(cloud);
+			pivot.rand1 = randRange(0.2,0.4)
+			pivot.rand2 = randRange(0,20)
+			pivotArr.push(pivot)
+			this._scene.add(pivot)
+		}
+		
+
+		let radius100 = [], posX100 = [], posY100 = [], posZ100 =[];
+		for(let i = 0; i<100; i++){
+			radius100.push(randRange(1,3));
+			posX100.push(randRange(-11, 11));
+			posY100.push(randRange(-2,0));
+			posZ100.push(randRange(-11,11));
+		}
+		const floorCloud = new Cloud(radius100, posX100, posY100, posZ100)
+		this._scene.add(floorCloud.mesh)
 		
 	}
 	
@@ -193,8 +226,8 @@ class App {
 	}
 
 	update() {
-		this.angle += 0.01;
-        
+		
+        this.angle += 0.02
 		
         for(let j = 0; j<this.bowArr.length; j++){
             const time = this.angle + Math.PI * 2 / this.bowArr.length * j
@@ -219,6 +252,14 @@ class App {
 
         this.angle += ( this.targetRotation - this.angle ) * 0.005;
 		this._scene.background = new THREE.Color(`hsl(${Math.floor(- (this.angle / (2 * Math.PI) * 360) % 360 + 360)}, 100%, 95%)`)
+		
+		this.pivotArr.forEach(pivot=>{
+			const rand = pivot.rand1 * this.angle * 0.1
+			pivot.rotation.set(0,rand, 0)
+			pivot.position.set(0, pivot.rand2 * Math.sin(pivot.rand2) + 20, 0)
+			pivot.children[0].rotation.set(0,-rand, 0)
+		})
+
 	}
 }
 
