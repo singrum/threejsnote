@@ -95,11 +95,13 @@ class App {
 
 		const color = 0xffffff;
 		const intensity = 1;
-		const light = new THREE.PointLight(color, intensity);
-		light.position.set(-10, 50, 20);
+		const pLight1 = new THREE.PointLight(color, 1);
+		pLight1.position.set(-10, 50, 20);
+		const pLight2 = new THREE.PointLight(color, 0.5);
+		pLight2.position.set(0, 20, 30);
 		this.light1 = defaultLight;
-		this.light2 = light
-		this._scene.add(light);
+		this.light2 = pLight1
+		this._scene.add(pLight1);
 	}
 
 	_setupModel() {
@@ -110,7 +112,7 @@ class App {
 		const bowGeometry = new THREE.TorusGeometry( torusRad, tubeRad, 32, 100, Math.PI );
         const bowMaterialArr = []
         for(let i = 0; i<this.rainbowLen; i++){
-            bowMaterialArr.push(new THREE.MeshPhysicalMaterial( { color: new THREE.Color(`hsl(${Math.floor(360 / this.rainbowLen * i)}, 100%, 70%)`)} ))
+            bowMaterialArr.push(new THREE.MeshPhysicalMaterial( { color: new THREE.Color(`hsl(${Math.floor(360 / this.rainbowLen * i)}, 100%, 75%)`)} ))
         }
         const bowArr = [];
         for(let i = 0; i< this.rainbowLen; i++){
@@ -163,7 +165,7 @@ class App {
 				const cloud = new THREE.Object3D();
 				for(let i = 0; i<this.len; i++){
 					
-					const sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius[i], 32,32), new THREE.MeshPhysicalMaterial(0xffffff));
+					const sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius[i], 32,32), new THREE.MeshPhysicalMaterial({color : 0xffffff, emissive : 0x444444}));
 					
 					sphere.position.set(this.posX[i], this.posY[i], this.posZ[i]);
 					cloud.add(sphere);
@@ -179,6 +181,12 @@ class App {
 		new Cloud([1.5, 2.4,1.6,2.2],[-2, 0, 1.6,2.4],[-0.7,0,-0.3,-1.1], [1,0,1.9,-1.0]).mesh,
 		new Cloud([1.5,3,2.3,1],[-3, 0, 2.4,3.8],[-0.7,0,-0.9,1.8], [0,0,-0.3,0.6]).mesh,
 		new Cloud([2,2.5,2.3,2.3,2.3,1.9],[-6,-3.1,0,3.4,-1,2],[0.1,1,1,1,2.3,1.5], [-1,0,0,0,-1,-1.2]).mesh,]
+		// let cloudArr = [new Cloud([1.21,2.26,3,1.83,1.83, 1.21],[-4.7,-2.73, 0,2.79,2.90,4.78],[-0.48,-0.62, 0,1,-0.85,0], [0,0,0,0,0,0]).mesh,
+		// new Cloud([1.5,2,2.45,2,1.83, 1.6],[-4.7,-2.73, 0,-2,1,3.1],[-0.7,-0.3, 0,0.5,0.7,-0.7], [0,0,0,0,0,0]).mesh,
+		// new Cloud([1.5,2,2,2,1.4, 1, 2, 1.8],[-7,-5,-2.5,0,2,3.5, -2,1],[0,0.4,-0.1,0.2,-0.1,0,1, 1.4], [0,0,0,0,0,0,0,0]).mesh,
+		// new Cloud([1.5, 2.4,1.6,2.2],[-2, 0, 1.6,2.4],[-0.7,0,-0.3,-1.1], [0,0,0,0]).mesh,
+		// new Cloud([1.5,3,2.3,1],[-3, 0, 2.4,3.8],[-0.7,0,-0.9,1.8], [0,0,0,0]).mesh,
+		// new Cloud([2,2.5,2.3,2.3,2.3,1.9],[-6,-3.1,0,3.4,-1,2],[0.1,1,1,1,2.3,1.5], [-1,0,0,0,0,0]).mesh,]
 		
 		// this._scene.add(...cloudArr)
 		
