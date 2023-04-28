@@ -251,7 +251,7 @@ class App {
         }
 
         this.angle += ( this.targetRotation - this.angle ) * 0.005;
-		// this._scene.background = new THREE.Color(`hsl(${Math.floor(- (this.angle / (2 * Math.PI) * 360) % 360 + 360)}, 100%, 95%)`)
+		this._scene.background = new THREE.Color(`hsl(${Math.floor(- (this.angle / (2 * Math.PI) * 360) % 360 + 360)}, 100%, 95%)`)
 		
 		this.pivotArr.forEach(pivot=>{
 			const rand = pivot.rand1 * this.angle * 0.5
