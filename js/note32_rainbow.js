@@ -171,22 +171,23 @@ class App {
 				return cloud
 			}
 		}
-		const cloudArr = [new Cloud([1.21,2.26,3,1.83,1.83, 1.21],[-4.7,-2.73, 0,2.79,2.90,4.78],[-0.48,-0.62, 0,1,-0.85,0], [0,0,0,0,0,0]).mesh,
+		let cloudArr = [new Cloud([1.21,2.26,3,1.83,1.83, 1.21],[-4.7,-2.73, 0,2.79,2.90,4.78],[-0.48,-0.62, 0,1,-0.85,0], [0,0,0,0,0,0]).mesh,
 		new Cloud([1.5,2,2.45,2,1.83, 1.6],[-4.7,-2.73, 0,-2,1,3.1],[-0.7,-0.3, 0,0.5,0.7,-0.7], [0,0,0,-1,-1.5,-0.5]).mesh,
 		new Cloud([1.5,2,2,2,1.4, 1, 2, 1.8],[-7,-5,-2.5,0,2,3.5, -2,1],[0,0.4,-0.1,0.2,-0.1,0,1, 1.4], [-1,-0.5,0,0,0,0,-1,-1.2]).mesh,
 		new Cloud([1.5, 2.4,1.6,2.2],[-2, 0, 1.6,2.4],[-0.7,0,-0.3,-1.1], [1,0,1.9,-1.0]).mesh,
 		new Cloud([1.5,3,2.3,1],[-3, 0, 2.4,3.8],[-0.7,0,-0.9,1.8], [0,0,-0.3,0.6]).mesh,
 		new Cloud([2,2.5,2.3,2.3,2.3,1.9],[-6,-3.1,0,3.4,-1,2],[0.1,1,1,1,2.3,1.5], [-1,0,0,0,-1,-1.2]).mesh,]
 		
-		this._scene.add(...cloudArr)
+		// this._scene.add(...cloudArr)
 		
 		let pivotArr = []
 		this.pivotArr = pivotArr
-		
+		cloudArr = cloudArr.concat(cloudArr.map(cloud =>cloud.clone()));
+
 		for(let cloud of cloudArr){
 			const cloudPivotRadius = randRange(15,18);	
 			const theta = randRange(0,Math.PI * 2);
-			cloud.position.set(cloudPivotRadius * Math.cos(theta), cloudPivotRadius * Math.sin(theta), 0);
+			cloud.position.set(cloudPivotRadius * Math.cos(theta), 0, cloudPivotRadius * Math.sin(theta));
 			const pivot = new THREE.Object3D();
 			pivot.add(cloud);
 			pivot.rand1 = randRange(0.2,0.4)
@@ -205,7 +206,10 @@ class App {
 		}
 		const floorCloud = new Cloud(radius100, posX100, posY100, posZ100)
 		this._scene.add(floorCloud.mesh)
-		
+		const floor = new THREE.Mesh(new THREE.PlaneGeometry(100,100), new THREE.MeshPhysicalMaterial(0xffffff));
+		floor.rotation.set(-Math.PI/2,0,0)
+		floor.position.set(0,-5,0)
+		this._scene.add(floor)
 	}
 	
 
@@ -256,7 +260,7 @@ class App {
 		this.pivotArr.forEach(pivot=>{
 			const rand = pivot.rand1 * this.angle * 0.5
 			pivot.rotation.set(0,rand, 0)
-			pivot.position.set(0, pivot.rand2 * 2 * Math.sin(this.angle * rand * 0.001) + 20, 0)
+			pivot.position.set(0, pivot.rand2 * 1.5 * Math.sin(this.angle * rand * 0.001 + 1) + 20, 0)
 			pivot.children[0].rotation.set(0,-rand, 0)
 		})
 
