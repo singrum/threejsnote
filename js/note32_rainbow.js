@@ -97,6 +97,8 @@ class App {
 		const intensity = 1;
 		const light = new THREE.PointLight(color, intensity);
 		light.position.set(-10, 50, 20);
+		this.light1 = defaultLight;
+		this.light2 = light
 		this._scene.add(light);
 	}
 
@@ -183,9 +185,9 @@ class App {
 		cloudArr = cloudArr.concat(cloudArr.map(cloud =>cloud.clone()));
 		this.cloudArr = cloudArr;
 		for(let cloud of cloudArr){
-			cloud.position.set(randRange(-30,30),randRange(10,40),randRange(-10,10));
+			cloud.position.set(randRange(-30,30),randRange(10,40),randRange(-30,-10));
 			cloud.posXinit = cloud.position.x
-			cloud.rand1 = randRange(0.5,1);
+			cloud.rand1 = randRange(0.2,1);
 			this._scene.add(cloud)
 		}
 		
@@ -199,7 +201,7 @@ class App {
 		// }
 		// const floorCloud = new Cloud(radius100, posX100, posY100, posZ100)
 		// this._scene.add(floorCloud.mesh)
-		const floor = new THREE.Mesh(new THREE.PlaneGeometry(100,100), new THREE.MeshPhysicalMaterial(0xffffff));
+		const floor = new THREE.Mesh(new THREE.PlaneGeometry(1000,100), new THREE.MeshPhysicalMaterial(0xffffff));
 		floor.rotation.set(-Math.PI/2,0,0)
 		floor.position.set(0,-5,0)
 		this._scene.add(floor)
@@ -248,10 +250,12 @@ class App {
         }
 
         this.angle += ( this.targetRotation - this.angle ) * 0.005;
-		this._scene.background = new THREE.Color(`hsl(${Math.floor(- (this.angle / (2 * Math.PI) * 360) % 360 + 360)}, 100%, 95%)`)
-		
+		const color = new THREE.Color(`hsl(${Math.floor(- (this.angle / (2 * Math.PI) * 360) % 360 + 360)}, 100%, 95%)`);
+		this._scene.background = color;
+		this.light1.color = color;
+		this.light2.color = color;
 		this.cloudArr.forEach(cloud=>{
-			cloud.position.x = (cloud.posXinit + (this.angle) * cloud.rand1 + 30) % 60 -30;
+			cloud.position.x = (cloud.posXinit + (this.angle) * cloud.rand1 + 50) % 100 -50;
 			
 			
 		})
