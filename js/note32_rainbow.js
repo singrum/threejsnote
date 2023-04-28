@@ -185,7 +185,7 @@ class App {
 		cloudArr = cloudArr.concat(cloudArr.map(cloud =>cloud.clone()));
 		this.cloudArr = cloudArr;
 		for(let cloud of cloudArr){
-			cloud.position.set(randRange(-30,30),randRange(10,40),randRange(-30,-10));
+			cloud.position.set(randRange(-50,50),randRange(10,40),randRange(-30,-10));
 			cloud.posXinit = cloud.position.x
 			cloud.rand1 = randRange(0.2,1);
 			this._scene.add(cloud)
