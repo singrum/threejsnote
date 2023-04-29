@@ -4,6 +4,10 @@ import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitCo
 function randRange(a, b){
 	return Math.random() * (b-a) + a
 }
+function mod(n, m) {
+    var remain = n % m;
+    return remain >= 0 ? remain : remain + m;
+};
 class App {
 	constructor() {
 		const divContainer = document.querySelector("#webgl_container");
@@ -263,7 +267,7 @@ class App {
 		this.light1.color = color;
 		this.light2.color = color;
 		this.cloudArr.forEach(cloud=>{
-			cloud.position.x = (cloud.posXinit + (this.angle) * cloud.rand1 + 50) % 100 -50;
+			cloud.position.x = mod(cloud.posXinit + (this.angle) * cloud.rand1 + 50, 100) -50;
 			
 			
 		})
