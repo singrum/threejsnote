@@ -82,8 +82,8 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
-		camera.position.set(0,20,40)
-        camera.lookAt(0,20,0)
+		camera.position.set(0,25,40)
+        camera.lookAt(0,25,0)
         
 		this._camera = camera;
 	}
@@ -97,8 +97,8 @@ class App {
 		const intensity = 1;
 		const pLight1 = new THREE.PointLight(color, 1);
 		pLight1.position.set(-10, 50, 20);
-		const pLight2 = new THREE.PointLight(color, 0.5);
-		pLight2.position.set(0, 20, 30);
+		const pLight2 = new THREE.DirectionalLight(color, 0.2);
+		pLight2.position.set(0, -10,0);
 		this.light1 = defaultLight;
 		this.light2 = pLight1
 		this._scene.add(pLight1);
@@ -209,7 +209,7 @@ class App {
 		// }
 		// const floorCloud = new Cloud(radius100, posX100, posY100, posZ100)
 		// this._scene.add(floorCloud.mesh)
-		const floor = new THREE.Mesh(new THREE.PlaneGeometry(1000,100), new THREE.MeshPhysicalMaterial(0xffffff));
+		const floor = new THREE.Mesh(new THREE.PlaneGeometry(1000,50), new THREE.MeshPhysicalMaterial(0xffffff));
 		floor.rotation.set(-Math.PI/2,0,0)
 		floor.position.set(0,-5,0)
 		this._scene.add(floor)
