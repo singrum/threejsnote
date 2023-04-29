@@ -90,7 +90,7 @@ class App {
 
 	_setupLight() {
 
-		const defaultLight = new THREE.AmbientLight(0xffffff, 0.5);
+		const defaultLight = new THREE.AmbientLight(0xffffff, 0.6);
 		this._scene.add(defaultLight)
 
 		const color = 0xffffff;
@@ -165,7 +165,7 @@ class App {
 				const cloud = new THREE.Object3D();
 				for(let i = 0; i<this.len; i++){
 					
-					const sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius[i], 32,32), new THREE.MeshPhysicalMaterial({color : 0xffffff, emissive : 0x444444}));
+					const sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius[i], 32,32), new THREE.MeshPhysicalMaterial({color : 0xffffff, emissive : 0x333333}));
 					
 					sphere.position.set(this.posX[i], this.posY[i], this.posZ[i]);
 					cloud.add(sphere);
