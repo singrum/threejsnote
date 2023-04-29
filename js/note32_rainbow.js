@@ -98,10 +98,10 @@ class App {
 		const pLight1 = new THREE.PointLight(color, 1);
 		pLight1.position.set(-10, 50, 20);
 		const pLight2 = new THREE.DirectionalLight(color, 0.2);
-		pLight2.position.set(0, -10,0);
+		pLight2.position.set(0, -10,10);
 		this.light1 = defaultLight;
 		this.light2 = pLight1
-		this._scene.add(pLight1);
+		this._scene.add(pLight1,pLight2);
 	}
 
 	_setupModel() {
@@ -165,7 +165,7 @@ class App {
 				const cloud = new THREE.Object3D();
 				for(let i = 0; i<this.len; i++){
 					
-					const sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius[i], 32,32), new THREE.MeshPhysicalMaterial({color : 0xffffff, emissive : 0x333333}));
+					const sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius[i], 32,32), new THREE.MeshPhysicalMaterial({color : 0xffffff, emissive : 0x222222}));
 					
 					sphere.position.set(this.posX[i], this.posY[i], this.posZ[i]);
 					cloud.add(sphere);
