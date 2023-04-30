@@ -166,11 +166,11 @@ class App {
 
 
         // frame
-        const lineRad = 0.1, bigRad = 20, depth = 4;
+        const lineRad = 0.1, bigRad = 30, depth = 6;
         const basicMat = new THREE.MeshBasicMaterial(0xffffff)
-        const bigRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, bigRad), basicMat);
-        const smallRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth), basicMat);
-        const diagRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, Math.hypot(bigRad / 4, depth / 2)));
+        const bigRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, bigRad,4), basicMat);
+        const smallRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth, 4), basicMat);
+        const diagRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, Math.hypot(bigRad / 4, depth / 2), 4), basicMat);
         
     
         const tempGroup1 = new THREE.Object3D();
@@ -191,28 +191,52 @@ class App {
         frame.children[5].position.set(bigRad/2, -depth/2, 0)
         frame.children[5].rotation.set(0,Math.PI, -Math.PI/2)
 
-        this._scene.add(frame)
+        
 
 
         // car
-        const board = new THREE.Mesh(new THREE.BoxGeometry(bigRad / 4, 2 * lineRad, 3 * depth / 4))
-        const stick = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, 3 * depth / 4));
+        const board = new THREE.Mesh(new THREE.BoxGeometry(bigRad / 5, 2 * lineRad, 3 * depth / 4))
+        const stick = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth / 2));
         const shape = new THREE.Shape();
         shape.moveTo(0,0);
-        shape.lineTo(bigRad / 8, 0);
-        shape.lineTo(bigRad / 12, -bigRad/6);
-        shape.lineTo(-bigRad / 12, -bigRad/6);
-        shape.lineTo(-bigRad / 8, 0);
+        shape.lineTo(bigRad / 10, 0);
+        shape.lineTo(bigRad / 14, -bigRad/8);
+        shape.lineTo(-bigRad / 14, -bigRad/8);
+        shape.lineTo(-bigRad / 10, 0);
         const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth: bigRad /6 ,bevelEnabled: false}))
         
 
         const car = new THREE.Object3D();
         car.add(board, stick, body);
         car.children[0].position.set(0, - lineRad, 0)
-        car.children[1].position.set(0, - 3 * depth / 8, 0)
-        car.children[2].position.set(0, - 3 * depth / 4, -body.geometry.parameters.options.depth / 2)
-        this._scene.add(car)
+        car.children[1].position.set(0, - depth / 4, 0)
+        car.children[2].position.set(0, - depth / 2, -body.geometry.parameters.options.depth / 2)
+        
 
+        
+        // frame, car cloning
+        const tempGroup2 = new THREE.Object3D();
+        tempGroup2.add(frame.clone(), car.clone());
+        tempGroup2.children[0].rotation.set(Math.PI/2, 0, 0);
+        tempGroup2.children[1].position.set(bigRad, 0,0);
+        
+
+        
+        //wheel
+        const wheel = new THREE.Object3D();
+        for(let i = 0; i<16; i++){
+            wheel.add(tempGroup2.clone());
+            wheel.children[i].rotation.set(0,0,Math.PI / 8 * i);
+            wheel.children[i].children[1].rotation.set(0,0,-Math.PI / 8 * i)
+        }
+        this._scene.add(wheel)
+        
+        const outerTorus = new THREE.Mesh(new THREE.TorusGeometry(bigRad, lineRad, 4,64), basicMat);
+        wheel.add(outerTorus.clone(), outerTorus.clone());
+        wheel.children[16].position.set(0, 0, depth / 2)
+        wheel.children[17].position.set(0, 0, -depth / 2)
+
+        
 
     }
 
