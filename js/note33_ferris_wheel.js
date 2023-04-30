@@ -145,24 +145,75 @@ class App {
         this._scene.traverse(this._disposeMaterial.bind(this));
         this._scene.children.length = 0;
 
-        const geometry = new THREE.IcosahedronGeometry(1, 15);
+        // const geometry = new THREE.IcosahedronGeometry(1, 2);
 
-        for(let i=0; i<1; i++) {
-            const color = new THREE.Color();
-            color.setHSL(Math.random(), 0.7, Math.random()*0.2+0.05);
+        // for(let i=0; i<10; i++) {
+        //     const color = new THREE.Color();
+        //     color.setHSL(Math.random(), 0.7, Math.random()*0.2+0.05);
 
-            const material = new THREE.MeshBasicMaterial({ color: color, wireframe : true});
-            const sphere = new THREE.Mesh(geometry, material);
+        //     const material = new THREE.MeshBasicMaterial({ color: color, wireframe : true});
+        //     const sphere = new THREE.Mesh(geometry, material);
 
-            sphere.position.x = Math.random() * 10 - 5;
-            sphere.position.y = Math.random() * 10 - 5;
-            sphere.position.z = Math.random() * 10 - 5;
-            sphere.position.normalize().multiplyScalar(Math.random()*4.0+2.0);
-            sphere.scale.setScalar(Math.random()*Math.random()+0.5);
-            this._scene.add(sphere);
+        //     sphere.position.x = Math.random() * 10 - 5;
+        //     sphere.position.y = Math.random() * 10 - 5;
+        //     sphere.position.z = Math.random() * 10 - 5;
+        //     sphere.position.normalize().multiplyScalar(Math.random()*4.0+2.0);
+        //     sphere.scale.setScalar(Math.random()*Math.random()+0.5);
+        //     this._scene.add(sphere);
 
-            if(Math.random() < 0.25) sphere.layers.enable(BLOOM_SCENE);
-        }
+        //     if(Math.random() < 0.25) sphere.layers.enable(BLOOM_SCENE);
+        // }
+
+
+        // frame
+        const lineRad = 0.1, bigRad = 20, depth = 4;
+        const basicMat = new THREE.MeshBasicMaterial(0xffffff)
+        const bigRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, bigRad), basicMat);
+        const smallRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth), basicMat);
+        const diagRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, Math.hypot(bigRad / 4, depth / 2)));
+        
+    
+        const tempGroup1 = new THREE.Object3D();
+        tempGroup1.add(smallRod.clone(), diagRod.clone(), diagRod.clone());
+        tempGroup1.children[0].position.set(bigRad/4, 0,0);
+        tempGroup1.children[1].position.set(bigRad/8, depth / 4, 0);
+        tempGroup1.children[1].rotation.set(0,0,Math.atan(bigRad / 2 / depth));
+        tempGroup1.children[2].position.set(bigRad/8, -depth / 4, 0);
+        tempGroup1.children[2].rotation.set(0,0,-Math.atan(bigRad / 2 / depth));
+    
+        const frame = new THREE.Object3D();
+        frame.add(tempGroup1.clone(),tempGroup1.clone(),tempGroup1.clone(),smallRod.clone(), bigRod.clone(), bigRod.clone())
+        frame.children[1].position.set(bigRad / 4, 0, 0)
+        frame.children[2].position.set(bigRad / 2, 0, 0)
+        frame.children[3].position.set(bigRad, 0, 0)
+        frame.children[4].position.set(bigRad/2, depth/2, 0)
+        frame.children[4].rotation.set(0,0, -Math.PI/2)
+        frame.children[5].position.set(bigRad/2, -depth/2, 0)
+        frame.children[5].rotation.set(0,Math.PI, -Math.PI/2)
+
+        this._scene.add(frame)
+
+
+        // car
+        const board = new THREE.Mesh(new THREE.BoxGeometry(bigRad / 4, 2 * lineRad, 3 * depth / 4))
+        const stick = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, 3 * depth / 4));
+        const shape = new THREE.Shape();
+        shape.moveTo(0,0);
+        shape.lineTo(bigRad / 8, 0);
+        shape.lineTo(bigRad / 12, -bigRad/6);
+        shape.lineTo(-bigRad / 12, -bigRad/6);
+        shape.lineTo(-bigRad / 8, 0);
+        const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth: bigRad /6 ,bevelEnabled: false}))
+        
+
+        const car = new THREE.Object3D();
+        car.add(board, stick, body);
+        car.children[0].position.set(0, - lineRad, 0)
+        car.children[1].position.set(0, - 3 * depth / 8, 0)
+        car.children[2].position.set(0, - 3 * depth / 4, -body.geometry.parameters.options.depth / 2)
+        this._scene.add(car)
+
+
     }
 
     _setupHelper() {
@@ -207,14 +258,14 @@ class App {
 
     _setupCamera() {
         const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 200);
-        camera.position.set(0, 0, 20);
+        camera.position.set(0, 0, 100);
         camera.lookAt(0, 0, 0);
         this._camera = camera;
     }
 
     _setupControls() {
         const controls = new OrbitControls(this._camera, this._renderer.domElement);
-        controls.maxPolarAngle = Math.PI * 0.5;
+        // controls.maxPolarAngle = Math.PI * 0.5;
         controls.minDistance = 1;
         controls.maxDistance = 100;
     }
