@@ -167,7 +167,7 @@ class App {
 
         // frame
         const lineRad = 0.1, bigRad = 30, depth = 6;
-        const basicMat = new THREE.MeshBasicMaterial(0xffffff)
+        const basicMat = new THREE.MeshBasicMaterial({color : 0x394867})
         const bigRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, bigRad,4), basicMat);
         const smallRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth, 4), basicMat);
         const diagRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, Math.hypot(bigRad / 4, depth / 2), 4), basicMat);
@@ -195,15 +195,15 @@ class App {
 
 
         // car
-        const board = new THREE.Mesh(new THREE.BoxGeometry(bigRad / 5, 2 * lineRad, 3 * depth / 4))
-        const stick = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth / 2));
+        const board = new THREE.Mesh(new THREE.BoxGeometry(bigRad / 5, 2 * lineRad, 3 * depth / 4),basicMat)
+        const stick = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth / 2), basicMat);
         const shape = new THREE.Shape();
         shape.moveTo(0,0);
         shape.lineTo(bigRad / 10, 0);
         shape.lineTo(bigRad / 14, -bigRad/8);
         shape.lineTo(-bigRad / 14, -bigRad/8);
         shape.lineTo(-bigRad / 10, 0);
-        const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth: bigRad /6 ,bevelEnabled: false}))
+        const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth: bigRad /6 ,bevelEnabled: false}), basicMat)
         
 
         const car = new THREE.Object3D();
@@ -229,7 +229,7 @@ class App {
             wheel.children[i].rotation.set(0,0,Math.PI / 8 * i);
             wheel.children[i].children[1].rotation.set(0,0,-Math.PI / 8 * i)
         }
-        this._scene.add(wheel)
+        
         
         const outerTorus = new THREE.Mesh(new THREE.TorusGeometry(bigRad, lineRad, 4,64), basicMat);
         wheel.add(outerTorus.clone(), outerTorus.clone());
@@ -237,6 +237,18 @@ class App {
         wheel.children[17].position.set(0, 0, -depth / 2)
 
         
+        const smallAxisLen = depth * 5 / 4
+        const bigAxisLen = depth  / 4
+        const smallAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad/24, bigRad/24, smallAxisLen, 4), basicMat);
+        const bigAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad / 8,bigRad / 8, bigAxisLen, 32), basicMat);
+        const axis = new THREE.Object3D();
+        axis.add(smallAxis, bigAxis.clone(), bigAxis.clone());
+        axis.children[1].position.set(0,smallAxisLen /2 + bigAxisLen /2,0)
+        axis.children[2].position.set(0,-smallAxisLen /2 - bigAxisLen /2,0)
+        
+        wheel.add(axis);
+        axis.rotation.set(Math.PI/2,0,0)
+        this._scene.add(wheel)
 
     }
 
@@ -291,11 +303,14 @@ class App {
         const controls = new OrbitControls(this._camera, this._renderer.domElement);
         // controls.maxPolarAngle = Math.PI * 0.5;
         controls.minDistance = 1;
-        controls.maxDistance = 100;
+        controls.maxDistance = 1000;
     }
 
     _setupLight() {
-        const ambientLight = new THREE.AmbientLight(0x404040);
+        const ambientLight = new THREE.AmbientLight(0xffffff);
+        this._scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff);
+        directionalLight.position.set(100,100,100)
         this._scene.add(ambientLight);
     }
 
