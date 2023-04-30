@@ -8,6 +8,9 @@ import { RenderPass } from '../node_modules/three/examples/jsm/postprocessing/Re
 import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from '../node_modules/three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
+//https://funspotamericaatlanta.com/wp-content/uploads/2018/06/Ferris-Wheel-5.jpg
+
+
 const ENTIRE_SCENE = 0, BLOOM_SCENE = 1;
 
 class App {
