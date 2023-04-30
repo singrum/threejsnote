@@ -148,7 +148,7 @@ class App {
             const color = new THREE.Color();
             color.setHSL(Math.random(), 0.7, Math.random()*0.2+0.05);
 
-            const material = new THREE.MeshBasicMaterial({ color: color });
+            const material = new THREE.MeshBasicMaterial({ color: color, wireframe : true});
             const sphere = new THREE.Mesh(geometry, material);
 
             sphere.position.x = Math.random() * 10 - 5;
