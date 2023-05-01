@@ -186,20 +186,21 @@ class App {
 
         // frame
         const lineRad = 0.1, bigRad = 30, depth = 6;
-        const basicMat = new THREE.MeshBasicMaterial({color : 0x394867})
+        const basicMat = new THREE.MeshBasicMaterial({color : 0x146C94})
         const bigRod = new THREE.Object3D();
         const bigRodBody = new THREE.Mesh(new THREE.CylinderGeometry(lineRad * 2, lineRad * 2, bigRad,4), basicMat);
         const bigRodBulb = new THREE.Object3D();
-        const bigRodBulbLen = 30
+        const bigRodBulbLen = 40
         for(let i = 0; i<bigRodBulbLen; i++){
+            
             const bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / bigRodBulbLen * (bigRodBulbLen - i - 1))}, 100%, 50%)`)).mesh
             bulb.layers.enable(BLOOM_SCENE)
             bigRodBulb.add(bulb)
             bigRodBulb.children[i].position.set(lineRad * 2, bigRad / bigRodBulbLen * (i + 0.5) - bigRad/2,0);
+
         }
-        
         bigRod.add(bigRodBody, bigRodBulb)
-        
+        bigRod.name = "bigRod"
 
 
 
@@ -262,13 +263,39 @@ class App {
             wheel.add(tempGroup2.clone());
             wheel.children[i].rotation.set(0,0,Math.PI / 8 * i);
             wheel.children[i].children[1].rotation.set(0,0,-Math.PI / 8 * i)
+            const bigRod = wheel.children[i].getObjectsByProperty("name","bigRod")
+            if(i % 2 === 0){
+                bigRod.forEach(e=>{e.rotation.y = Math.PI})
+            }
+            
         }
         
         
-        const outerTorus = new THREE.Mesh(new THREE.TorusGeometry(bigRad, lineRad, 4,64), basicMat);
+        const outerTorus = new THREE.Object3D();
+        const outerTorusBody = new THREE.Mesh(new THREE.TorusGeometry(bigRad, lineRad * 2, 4,64), basicMat);
+        const outerTorusBulb = new THREE.Object3D();
+        const outerTorusBulbLen = 16;
+        let step = 0;
+        for(let j = 0; j<16; j++){
+            for(let i =0;i<outerTorusBulbLen;i++){
+                let bulb;
+                if(j % 2 === 0) bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / outerTorusBulbLen * (outerTorusBulbLen - i - 1))}, 100%, 50%)`)).mesh
+                else bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / outerTorusBulbLen * i)}, 100%, 50%)`)).mesh
+                
+                bulb.layers.enable(BLOOM_SCENE)
+                const theta = Math.PI/8 * j + Math.PI/8 / outerTorusBulbLen * (i + 0.5);
+                bulb.position.set(bigRad * Math.cos(theta), bigRad * Math.sin(theta), lineRad * 2);
+    
+                outerTorusBulb.add(bulb)
+            }
+        }
+
+        
+        outerTorus.add(outerTorusBody, outerTorusBulb)
         wheel.add(outerTorus.clone(), outerTorus.clone());
         wheel.children[16].position.set(0, 0, depth / 2)
         wheel.children[17].position.set(0, 0, -depth / 2)
+        wheel.children[17].rotation.set(0, Math.PI , 0)
 
         const innerTorus = new THREE.Mesh(new THREE.TorusGeometry( bigRad / 2, lineRad, 4, 16), basicMat);
         wheel.add(innerTorus.clone(), innerTorus.clone());
@@ -282,6 +309,8 @@ class App {
         const bigAxisLen = depth  / 4
         const smallAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad/24, bigRad/24, smallAxisLen, 4), basicMat);
         const bigAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad / 16,bigRad / 16, bigAxisLen, 32), basicMat);
+        smallAxis.layers.enable(BLOOM_SCENE)
+        bigAxis.layers.enable(BLOOM_SCENE)
         const axis = new THREE.Object3D();
         axis.add(smallAxis, bigAxis.clone(), bigAxis.clone());
         axis.children[1].position.set(0,smallAxisLen /2 + bigAxisLen /2,0)
@@ -334,8 +363,8 @@ class App {
     }
 
     _setupCamera() {
-        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 200);
-        camera.position.set(0, 0, 100);
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.set(-50, -50, 100);
         camera.lookAt(0, 0, 0);
         this._camera = camera;
     }
