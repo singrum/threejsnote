@@ -155,24 +155,10 @@ class App {
         this._scene.traverse(this._disposeMaterial.bind(this));
         this._scene.children.length = 0;
 
-        // const geometry = new THREE.IcosahedronGeometry(1, 2);
+        // material
+        const basicMat = new THREE.MeshBasicMaterial({color : 0x146C94})
+        const whiteMat = new THREE.MeshBasicMaterial({color : 0xffffff})
 
-        // for(let i=0; i<10; i++) {
-        //     const color = new THREE.Color();
-        //     color.setHSL(Math.random(), 0.7, Math.random()*0.2+0.05);
-
-        //     const material = new THREE.MeshBasicMaterial({ color: color, wireframe : true});
-        //     const sphere = new THREE.Mesh(geometry, material);
-
-        //     sphere.position.x = Math.random() * 10 - 5;
-        //     sphere.position.y = Math.random() * 10 - 5;
-        //     sphere.position.z = Math.random() * 10 - 5;
-        //     sphere.position.normalize().multiplyScalar(Math.random()*4.0+2.0);
-        //     sphere.scale.setScalar(Math.random()*Math.random()+0.5);
-        //     this._scene.add(sphere);
-
-        //     if(Math.random() < 0.25) sphere.layers.enable(BLOOM_SCENE);
-        // }
 
         // bulb
         
@@ -186,7 +172,7 @@ class App {
 
         // frame
         const lineRad = 0.1, bigRad = 30, depth = 6;
-        const basicMat = new THREE.MeshBasicMaterial({color : 0x146C94})
+        
         const bigRod = new THREE.Object3D();
         const bigRodBody = new THREE.Mesh(new THREE.CylinderGeometry(lineRad * 2, lineRad * 2, bigRad,4), basicMat);
         const bigRodBulb = new THREE.Object3D();
@@ -230,7 +216,21 @@ class App {
 
 
         // car
-        const board = new THREE.Mesh(new THREE.BoxGeometry(bigRad / 5, 2 * lineRad, 3 * depth / 4),basicMat)
+        const plate = new THREE.Object3D();
+        const plateBody = new THREE.Mesh(new THREE.BoxGeometry(bigRad / 5, 2 * lineRad, 3 * depth / 4), whiteMat);
+        const plateBulbMat1 = new THREE.MeshBasicMaterial({color : 0xD800A6})
+        const plateBulbMat2 = new THREE.MeshBasicMaterial({color : 0x31E1F7})
+        const plateBulb = new THREE.Mesh(new THREE.BoxGeometry(bigRad / 5 / 2 * 0.6, 2 * lineRad, 3 * depth / 4 / 2 * 0.6));
+        plateBulb.name = "plateBulb";
+
+        plate.add(plateBody, plateBulb.clone(), plateBulb.clone(),plateBulb.clone(),plateBulb.clone());
+        
+        plate.children[1].position.set(bigRad / 5 * 0.25, -lineRad * 2, 3 * depth / 4 * 0.25)
+        plate.children[2].position.set(bigRad / 5 * 0.25, -lineRad * 2, -3 * depth / 4 * 0.25)
+        plate.children[3].position.set(-bigRad / 5 * 0.25, -lineRad * 2, 3 * depth / 4 * 0.25)
+        plate.children[4].position.set(-bigRad / 5 * 0.25, -lineRad * 2, -3 * depth / 4 * 0.25)
+        for(let i = 1; i<5; i++){plate.children[i].layers.enable(BLOOM_SCENE)}
+
         const stick = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth / 2), basicMat);
         const shape = new THREE.Shape();
         shape.moveTo(0,0);
@@ -242,7 +242,7 @@ class App {
         
 
         const car = new THREE.Object3D();
-        car.add(board, stick, body);
+        car.add(plate, stick, body);
         car.children[0].position.set(0, - lineRad, 0)
         car.children[1].position.set(0, - depth / 4, 0)
         car.children[2].position.set(0, - depth / 2, -body.geometry.parameters.options.depth / 2)
@@ -267,6 +267,10 @@ class App {
             if(i % 2 === 0){
                 bigRod.forEach(e=>{e.rotation.y = Math.PI})
             }
+            const plateBulb = wheel.children[i].getObjectsByProperty("name", "plateBulb");
+            
+            if(i % 2 === 0) {plateBulb.forEach(e=>{e.material = plateBulbMat1})}
+            else {plateBulb.forEach(e=>{e.material = plateBulbMat2})}
             
         }
         
