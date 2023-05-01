@@ -6,6 +6,7 @@ import { OrbitControls } from '../node_modules/three/examples/jsm/controls/Orbit
 import { EffectComposer } from '../node_modules/three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from '../node_modules/three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from '../node_modules/three/examples/jsm/shaders/FXAAShader.js';
 import { UnrealBloomPass } from '../node_modules/three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 //https://funspotamericaatlanta.com/wp-content/uploads/2018/06/Ferris-Wheel-5.jpg
@@ -19,7 +20,7 @@ class App {
         document.body.appendChild(domWebGL);
         this._domWebGL = domWebGL;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: false });
         renderer.outputEncoding = THREE.sRGBEncoding;
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio( window.devicePixelRatio );
@@ -73,6 +74,10 @@ class App {
             scene: "Scene with Glow"
         };
 
+        const fxaaPass = new ShaderPass(FXAAShader);
+        fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+        
+        
         const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
         bloomPass.threshold = params.bloomThreshold;
         bloomPass.strength = params.bloomStrength;
@@ -80,9 +85,11 @@ class App {
 
         const bloomComposer = new EffectComposer(this._renderer);
         bloomComposer.renderToScreen = false;
+        
         bloomComposer.addPass(renderScene);
         bloomComposer.addPass(bloomPass);
-
+        bloomComposer.addPass(fxaaPass);
+        // fxaaPass.renderToScreen = true;
         const finalPass = new ShaderPass(
             new THREE.ShaderMaterial({
                 uniforms: {
@@ -115,6 +122,9 @@ class App {
         const finalComposer = new EffectComposer(this._renderer);
         finalComposer.addPass(renderScene);
         finalComposer.addPass(finalPass);
+        finalComposer.addPass(fxaaPass);
+        
+        console.log(fxaaPass)
 
         this._bloomComposer = bloomComposer;
         this._finalComposer = finalComposer;
@@ -164,11 +174,35 @@ class App {
         //     if(Math.random() < 0.25) sphere.layers.enable(BLOOM_SCENE);
         // }
 
+        // bulb
+        
+        class Bulb{
+            constructor(rad,color){
+                this.mesh = new THREE.Mesh(new THREE.SphereGeometry(rad, 4,4), new THREE.MeshBasicMaterial({color : color}));
+            }
+        }
+
+
 
         // frame
         const lineRad = 0.1, bigRad = 30, depth = 6;
         const basicMat = new THREE.MeshBasicMaterial({color : 0x394867})
-        const bigRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, bigRad,4), basicMat);
+        const bigRod = new THREE.Object3D();
+        const bigRodBody = new THREE.Mesh(new THREE.CylinderGeometry(lineRad * 2, lineRad * 2, bigRad,4), basicMat);
+        const bigRodBulb = new THREE.Object3D();
+        const bigRodBulbLen = 30
+        for(let i = 0; i<bigRodBulbLen; i++){
+            const bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / bigRodBulbLen * (bigRodBulbLen - i - 1))}, 100%, 50%)`)).mesh
+            bulb.layers.enable(BLOOM_SCENE)
+            bigRodBulb.add(bulb)
+            bigRodBulb.children[i].position.set(lineRad * 2, bigRad / bigRodBulbLen * (i + 0.5) - bigRad/2,0);
+        }
+        
+        bigRod.add(bigRodBody, bigRodBulb)
+        
+
+
+
         const smallRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth, 4), basicMat);
         const diagRod = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, Math.hypot(bigRad / 4, depth / 2), 4), basicMat);
         
@@ -187,9 +221,9 @@ class App {
         frame.children[2].position.set(bigRad / 2, 0, 0)
         frame.children[3].position.set(bigRad, 0, 0)
         frame.children[4].position.set(bigRad/2, depth/2, 0)
-        frame.children[4].rotation.set(0,0, -Math.PI/2)
+        frame.children[4].rotation.set(Math.PI, 0, -Math.PI/2)
         frame.children[5].position.set(bigRad/2, -depth/2, 0)
-        frame.children[5].rotation.set(0,Math.PI, -Math.PI/2)
+        frame.children[5].rotation.set(0,0, -Math.PI/2)
 
         
 
@@ -236,11 +270,18 @@ class App {
         wheel.children[16].position.set(0, 0, depth / 2)
         wheel.children[17].position.set(0, 0, -depth / 2)
 
+        const innerTorus = new THREE.Mesh(new THREE.TorusGeometry( bigRad / 2, lineRad, 4, 16), basicMat);
+        wheel.add(innerTorus.clone(), innerTorus.clone());
+        wheel.children[18].position.set(0,0,depth /2);
+        wheel.children[19].position.set(0,0,-depth /2);
+
+
+
         
         const smallAxisLen = depth * 5 / 4
         const bigAxisLen = depth  / 4
         const smallAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad/24, bigRad/24, smallAxisLen, 4), basicMat);
-        const bigAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad / 8,bigRad / 8, bigAxisLen, 32), basicMat);
+        const bigAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad / 16,bigRad / 16, bigAxisLen, 32), basicMat);
         const axis = new THREE.Object3D();
         axis.add(smallAxis, bigAxis.clone(), bigAxis.clone());
         axis.children[1].position.set(0,smallAxisLen /2 + bigAxisLen /2,0)
@@ -308,10 +349,10 @@ class App {
 
     _setupLight() {
         const ambientLight = new THREE.AmbientLight(0xffffff);
-        this._scene.add(ambientLight);
+        // this._scene.add(ambientLight);
         const directionalLight = new THREE.DirectionalLight(0xffffff);
         directionalLight.position.set(100,100,100)
-        this._scene.add(ambientLight);
+        // this._scene.add(ambientLight);
     }
 
     update() {}
