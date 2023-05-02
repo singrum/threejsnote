@@ -159,6 +159,7 @@ class App {
         // material
         const basicMat = new THREE.MeshBasicMaterial({color : 0x146C94})
         const whiteMat = new THREE.MeshBasicMaterial({color : 0xffffff})
+        const blackMat = new THREE.MeshBasicMaterial({color : 0x111111})
 
 
         // bulb
@@ -219,8 +220,8 @@ class App {
         // car
         const plate = new THREE.Object3D();
         const plateBody = new THREE.Mesh(new THREE.BoxGeometry(bigRad / 5, 2 * lineRad, 3 * depth / 4), whiteMat);
-        const plateBulbMat1 = new THREE.MeshBasicMaterial({color : 0xD800A6})
-        const plateBulbMat2 = new THREE.MeshBasicMaterial({color : 0x31E1F7})
+        const purpleMat = new THREE.MeshBasicMaterial({color : 0xD800A6})
+        const skyblueMat = new THREE.MeshBasicMaterial({color : 0x08c6ff})
         const plateBulb = new THREE.Mesh(new THREE.BoxGeometry(bigRad / 5 / 2 * 0.6, 2 * lineRad, 3 * depth / 4 / 2 * 0.6));
         plateBulb.name = "plateBulb";
 
@@ -241,10 +242,10 @@ class App {
         const bodyH = bigRad / 8;
         const bodyFront = new THREE.Object3D();
         bodyFront.add(
-            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyW), basicMat),
-            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyH), basicMat),
-            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,Math.hypot((bodyW - bodySW)/2, bodyH)), basicMat),
-            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,Math.hypot((bodyW - bodySW)/2, bodyH)), basicMat)
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyW), blackMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyH), blackMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,Math.hypot((bodyW - bodySW)/2, bodyH)), blackMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,Math.hypot((bodyW - bodySW)/2, bodyH)), blackMat)
         )
         bodyFront.children[0].rotation.set(0,0,Math.PI/2);
         bodyFront.children[1].position.set(0,-bodyH/2,0);
@@ -257,7 +258,7 @@ class App {
         const bodySideBulb =new THREE.Mesh(new THREE.BoxGeometry(lineRad * 10 ,Math.hypot((bodyW - bodySW)/2, bodyH) / 2 * 0.8, bodyW* 0.8),basicMat)
         bodySideBulb.name = "bodySideBulb";
         bodySide.add(
-            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyW),basicMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyW),blackMat),
             bodySideBulb
         )
         bodySide.children[0].position.set(-bodyW/2,0,0)
@@ -267,7 +268,7 @@ class App {
 
         const bodyFloor = new THREE.Object3D();
         bodyFloor.add(
-            new THREE.Mesh(new THREE.BoxGeometry(bodySW, lineRad, bodySW),basicMat)
+            new THREE.Mesh(new THREE.BoxGeometry(bodySW, lineRad, bodyW),blackMat)
         )
         bodyFloor.children[0].position.set(0,-bodyH,0);
 
@@ -308,13 +309,13 @@ class App {
             const plateBulb = wheel.children[i].getObjectsByProperty("name", "plateBulb");
             const bodySideBulb = wheel.children[i].getObjectsByProperty("name", "bodySideBulb");
             if(i % 2 === 0) {
-                plateBulb.forEach(e=>{e.material = plateBulbMat1})
-                bodySideBulb.forEach(e=>{e.material = plateBulbMat1; e.layers.enable(BLOOM_SCENE)})
+                plateBulb.forEach(e=>{e.material = purpleMat})
+                bodySideBulb.forEach(e=>{e.material = purpleMat; e.layers.enable(BLOOM_SCENE)})
                 
             }
             else {
-                plateBulb.forEach(e=>{e.material = plateBulbMat2})
-                bodySideBulb.forEach(e=>{e.material = plateBulbMat2; e.layers.enable(BLOOM_SCENE)})
+                plateBulb.forEach(e=>{e.material = skyblueMat})
+                bodySideBulb.forEach(e=>{e.material = skyblueMat; e.layers.enable(BLOOM_SCENE)})
                 
             }
             
