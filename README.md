@@ -6,4 +6,5 @@ Pixel Preprocessing : https://singrum.github.io/threejsnote/notes/note25_pixel
 Wave Animation : https://singrum.github.io/threejsnote/notes/note24_wave1  
 Egg~~dog~~penguin Simulation : https://singrum.github.io/threejsnote/notes/note26_eggpenguin  
 Dandelion : https://singrum.github.io/threejsnote/notes/note30_dandelion  
-Rainbow : https://singrum.github.io/threejsnote/notes/note32_rainbow
+Rainbow : https://singrum.github.io/threejsnote/notes/note32_rainbow  
+Ferris Wheel : https://singrum.github.io/threejsnote/notes/note33_ferris_wheel  
