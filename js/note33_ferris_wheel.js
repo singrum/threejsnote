@@ -9,6 +9,7 @@ import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/Sh
 import { FXAAShader } from '../node_modules/three/examples/jsm/shaders/FXAAShader.js';
 import { UnrealBloomPass } from '../node_modules/three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
+
 //https://funspotamericaatlanta.com/wp-content/uploads/2018/06/Ferris-Wheel-5.jpg
 
 
@@ -232,20 +233,57 @@ class App {
         for(let i = 1; i<5; i++){plate.children[i].layers.enable(BLOOM_SCENE)}
 
         const stick = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth / 2), basicMat);
-        const shape = new THREE.Shape();
-        shape.moveTo(0,0);
-        shape.lineTo(bigRad / 10, 0);
-        shape.lineTo(bigRad / 14, -bigRad/8);
-        shape.lineTo(-bigRad / 14, -bigRad/8);
-        shape.lineTo(-bigRad / 10, 0);
-        const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth: bigRad /6 ,bevelEnabled: false}), basicMat)
+
+
+
+        const bodyW = bigRad / 7;
+        const bodySW = bigRad / 10;
+        const bodyH = bigRad / 8;
+        const bodyFront = new THREE.Object3D();
+        bodyFront.add(
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyW), basicMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyH), basicMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,Math.hypot((bodyW - bodySW)/2, bodyH)), basicMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,Math.hypot((bodyW - bodySW)/2, bodyH)), basicMat)
+        )
+        bodyFront.children[0].rotation.set(0,0,Math.PI/2);
+        bodyFront.children[1].position.set(0,-bodyH/2,0);
+        bodyFront.children[2].position.set((bodySW + bodyW)/4, - bodyH / 2,0);
+        bodyFront.children[2].rotation.set(0,0,-Math.atan((bodyW - bodySW)/2 / bodyH));
+        bodyFront.children[3].position.set(-(bodySW + bodyW)/4, - bodyH / 2,0);
+        bodyFront.children[3].rotation.set(0,0,Math.atan((bodyW - bodySW)/2 / bodyH));
         
+        const bodySide = new THREE.Object3D();
+        const bodySideBulb =new THREE.Mesh(new THREE.BoxGeometry(lineRad * 10 ,Math.hypot((bodyW - bodySW)/2, bodyH) / 2 * 0.8, bodyW* 0.8),basicMat)
+        bodySideBulb.name = "bodySideBulb";
+        bodySide.add(
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyW),basicMat),
+            bodySideBulb
+        )
+        bodySide.children[0].position.set(-bodyW/2,0,0)
+        bodySide.children[0].rotation.set(Math.PI/2,0, 0)
+        bodySide.children[1].position.set(-(bodyW + 3 * bodySW)/8, - bodyH *3/ 4,0)
+        bodySide.children[1].rotation.set(0,0,Math.atan((bodyW - bodySW)/2 / bodyH))
+
+        const bodyFloor = new THREE.Object3D();
+        bodyFloor.add(
+            new THREE.Mesh(new THREE.BoxGeometry(bodySW, lineRad, bodySW),basicMat)
+        )
+        bodyFloor.children[0].position.set(0,-bodyH,0);
+
+        const body = new THREE.Object3D();
+        body.add(bodyFront.clone(), bodyFront.clone(), bodySide.clone(), bodySide.clone(), bodyFloor);
+        body.children[0].position.set(0,0,bodyW /2);
+        body.children[1].position.set(0,0,-bodyW /2);
+        body.children[3].rotation.set(0,Math.PI,0);
+        
+
 
         const car = new THREE.Object3D();
         car.add(plate, stick, body);
         car.children[0].position.set(0, - lineRad, 0)
         car.children[1].position.set(0, - depth / 4, 0)
-        car.children[2].position.set(0, - depth / 2, -body.geometry.parameters.options.depth / 2)
+        car.children[2].position.set(0, - depth / 2, 0)
         
 
         
@@ -268,9 +306,17 @@ class App {
                 bigRod.forEach(e=>{e.rotation.y = Math.PI})
             }
             const plateBulb = wheel.children[i].getObjectsByProperty("name", "plateBulb");
-            
-            if(i % 2 === 0) {plateBulb.forEach(e=>{e.material = plateBulbMat1})}
-            else {plateBulb.forEach(e=>{e.material = plateBulbMat2})}
+            const bodySideBulb = wheel.children[i].getObjectsByProperty("name", "bodySideBulb");
+            if(i % 2 === 0) {
+                plateBulb.forEach(e=>{e.material = plateBulbMat1})
+                bodySideBulb.forEach(e=>{e.material = plateBulbMat1; e.layers.enable(BLOOM_SCENE)})
+                
+            }
+            else {
+                plateBulb.forEach(e=>{e.material = plateBulbMat2})
+                bodySideBulb.forEach(e=>{e.material = plateBulbMat2; e.layers.enable(BLOOM_SCENE)})
+                
+            }
             
         }
         
