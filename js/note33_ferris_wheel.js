@@ -56,12 +56,44 @@ class App {
     }
 
     _setupInteractions() {
-        const raycaster = new THREE.Raycaster();
-        raycaster._mouse = new THREE.Vector2();
+        const onPointerDown = ( event ) => {
+			
+			if ( event.isPrimary === false ) return;
+			this.startX = event.clientX
+			this.startY = event.clientY
+			this.pointerYOnPointerDown = event.clientY - window.innerWidth / 2;
+			this.targetRotationOnPointerDown = this.targetRotation;
 
-        window.addEventListener("pointerdown", this._onPointerDown.bind(this));
+			document.addEventListener( 'pointermove', onPointerMove );
+			document.addEventListener( 'pointerup', onPointerUp );
 
-        this._raycaster = raycaster;
+		}
+
+		const onPointerMove = ( event ) => {
+			
+			if ( event.isPrimary === false ) return;
+			this.pointerY = event.clientY - window.innerWidth / 2;
+
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.02;
+			
+
+
+		}
+
+		const onPointerUp = (event) => {
+			
+			if ( event.isPrimary === false ) return;
+			document.removeEventListener( 'pointermove', onPointerMove );
+			document.removeEventListener( 'pointerup', onPointerUp );
+
+		}
+        this.angle = 0;
+		this.targetRotation = 0;
+		this.targetRotationOnPointerDown = 0;
+		this.pointerY = 0;
+		this.pointerYOnPointerDown = 0;
+		this._domWebGL.style.touchAction = 'none';
+		this._domWebGL.addEventListener( 'pointerdown', onPointerDown );
     }
 
     _setupPostprocessing() {
@@ -125,7 +157,7 @@ class App {
         finalComposer.addPass(finalPass);
         finalComposer.addPass(fxaaPass);
         
-        console.log(fxaaPass)
+        
 
         this._bloomComposer = bloomComposer;
         this._finalComposer = finalComposer;
@@ -140,16 +172,44 @@ class App {
     }
 
     _onPointerDown(event) {
-        this._raycaster._mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this._raycaster._mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        const onPointerDown = ( event ) => {
+			
+			if ( event.isPrimary === false ) return;
+			this.startX = event.clientX
+			this.startY = event.clientY
+			this.pointerYOnPointerDown = event.clientY - window.innerWidth / 2;
+			this.targetRotationOnPointerDown = this.targetRotation;
 
-        this._raycaster.setFromCamera(this._raycaster._mouse, this._camera);
-        const intersects = this._raycaster.intersectObjects(this._scene.children);
+			document.addEventListener( 'pointermove', onPointerMove );
+			document.addEventListener( 'pointerup', onPointerUp );
 
-        if(intersects.length > 0) {
-            const object = intersects[0].object;
-            object.layers.toggle(BLOOM_SCENE);
-        }
+		}
+
+		const onPointerMove = ( event ) => {
+			
+			if ( event.isPrimary === false ) return;
+			this.pointerY = event.clientY - window.innerWidth / 2;
+
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.02;
+			
+
+
+		}
+
+		const onPointerUp = (event) => {
+			
+			if ( event.isPrimary === false ) return;
+			document.removeEventListener( 'pointermove', onPointerMove );
+			document.removeEventListener( 'pointerup', onPointerUp );
+
+		}
+        this.angle = 0;
+		this.targetRotation = 0;
+		this.targetRotationOnPointerDown = 0;
+		this.pointerY = 0;
+		this.pointerYOnPointerDown = 0;
+		this._domWebGL.style.touchAction = 'none';
+		this._domWebGL.addEventListener( 'pointerdown', onPointerDown );
     }
 
     _setupModel() {
@@ -233,7 +293,7 @@ class App {
         plate.children[4].position.set(-bigRad / 5 * 0.25, -lineRad * 2, -3 * depth / 4 * 0.25)
         for(let i = 1; i<5; i++){plate.children[i].layers.enable(BLOOM_SCENE)}
 
-        const stick = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth / 2), basicMat);
+        const stick = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth / 2), whiteMat);
 
 
 
@@ -242,10 +302,10 @@ class App {
         const bodyH = bigRad / 8;
         const bodyFront = new THREE.Object3D();
         bodyFront.add(
-            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyW), blackMat),
-            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyH), blackMat),
-            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,Math.hypot((bodyW - bodySW)/2, bodyH)), blackMat),
-            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,Math.hypot((bodyW - bodySW)/2, bodyH)), blackMat)
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyW), whiteMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyH), whiteMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,Math.hypot((bodyW - bodySW)/2, bodyH)), whiteMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,Math.hypot((bodyW - bodySW)/2, bodyH)), whiteMat)
         )
         bodyFront.children[0].rotation.set(0,0,Math.PI/2);
         bodyFront.children[1].position.set(0,-bodyH/2,0);
@@ -258,7 +318,7 @@ class App {
         const bodySideBulb =new THREE.Mesh(new THREE.BoxGeometry(lineRad * 10 ,Math.hypot((bodyW - bodySW)/2, bodyH) / 2 * 0.8, bodyW* 0.8),basicMat)
         bodySideBulb.name = "bodySideBulb";
         bodySide.add(
-            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyW),blackMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad,lineRad,bodyW),whiteMat),
             bodySideBulb
         )
         bodySide.children[0].position.set(-bodyW/2,0,0)
@@ -268,7 +328,7 @@ class App {
 
         const bodyFloor = new THREE.Object3D();
         bodyFloor.add(
-            new THREE.Mesh(new THREE.BoxGeometry(bodySW, lineRad, bodyW),blackMat)
+            new THREE.Mesh(new THREE.BoxGeometry(bodySW, lineRad, bodyW),whiteMat)
         )
         bodyFloor.children[0].position.set(0,-bodyH,0);
 
@@ -285,8 +345,7 @@ class App {
         car.children[0].position.set(0, - lineRad, 0)
         car.children[1].position.set(0, - depth / 4, 0)
         car.children[2].position.set(0, - depth / 2, 0)
-        
-
+        car.name = "car"
         
         // frame, car cloning
         const tempGroup2 = new THREE.Object3D();
@@ -318,6 +377,7 @@ class App {
                 bodySideBulb.forEach(e=>{e.material = skyblueMat; e.layers.enable(BLOOM_SCENE)})
                 
             }
+            this.carArr = wheel.getObjectsByProperty("name", "car");
             
         }
         
@@ -326,7 +386,7 @@ class App {
         const outerTorusBody = new THREE.Mesh(new THREE.TorusGeometry(bigRad, lineRad * 2, 4,64), basicMat);
         const outerTorusBulb = new THREE.Object3D();
         const outerTorusBulbLen = 16;
-        let step = 0;
+        
         for(let j = 0; j<16; j++){
             for(let i =0;i<outerTorusBulbLen;i++){
                 let bulb;
@@ -370,6 +430,7 @@ class App {
         wheel.add(axis);
         axis.rotation.set(Math.PI/2,0,0)
         this._scene.add(wheel)
+        this.wheel = wheel
 
     }
 
@@ -415,16 +476,17 @@ class App {
 
     _setupCamera() {
         const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 1000);
-        camera.position.set(-50, -50, 100);
-        camera.lookAt(0, 0, 0);
+        camera.position.set(-50,-66, 66);
+        camera.lookAt(-15, 0, 0);
+        camera.zoom = 0.9
         this._camera = camera;
     }
 
     _setupControls() {
-        const controls = new OrbitControls(this._camera, this._renderer.domElement);
-        // controls.maxPolarAngle = Math.PI * 0.5;
-        controls.minDistance = 1;
-        controls.maxDistance = 1000;
+        // const controls = new OrbitControls(this._camera, this._renderer.domElement);
+        
+        // controls.minDistance = 1;
+        // controls.maxDistance = 1000;
     }
 
     _setupLight() {
@@ -435,7 +497,17 @@ class App {
         // this._scene.add(ambientLight);
     }
 
-    update() {}
+    update() {
+        
+        this.angle += ( this.targetRotation - this.angle ) * 0.001;
+        this.wheel.rotation.z = this.angle
+        for(let i = 0; i<16; i++){
+            
+            
+            this.wheel.children[i].children[1].rotation.set(0,0,-Math.PI / 8 * i - this.angle)
+        }
+        
+    }
 
     _renderBloom(mask) {
         if(mask) {
