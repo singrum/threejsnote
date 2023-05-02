@@ -190,7 +190,7 @@ class App {
 			if ( event.isPrimary === false ) return;
 			this.pointerY = event.clientY - window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.02;
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.001;
 			
 
 
@@ -419,7 +419,7 @@ class App {
         const smallAxisLen = depth * 5 / 4
         const bigAxisLen = depth  / 4
         const smallAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad/24, bigRad/24, smallAxisLen, 4), basicMat);
-        const bigAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad / 16,bigRad / 16, bigAxisLen, 32), basicMat);
+        const bigAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad / 16,bigRad / 16, bigAxisLen, 32), whiteMat);
         smallAxis.layers.enable(BLOOM_SCENE)
         bigAxis.layers.enable(BLOOM_SCENE)
         const axis = new THREE.Object3D();
@@ -476,7 +476,7 @@ class App {
 
     _setupCamera() {
         const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 1000);
-        camera.position.set(-50,-66, 66);
+        camera.position.set(-50,-50, 70);
         camera.lookAt(-15, 0, 0);
         camera.zoom = 0.9
         this._camera = camera;
