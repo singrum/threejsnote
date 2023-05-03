@@ -47,7 +47,7 @@ class App {
         this._setupPostprocessing();
         this._setupInteractions();
         this._setupModel();
-        this._setupGUI();
+        // this._setupGUI();
         this._setupControls();
         //this._setupHelper();
 
@@ -428,10 +428,10 @@ class App {
 
 
         
-        const smallAxisLen = depth * 5 / 4
+        const smallAxisLen = depth * 3 / 2
         const bigAxisLen = depth  / 4
         const smallAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad/24, bigRad/24, smallAxisLen, 4), basicMat);
-        const bigAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad / 16,bigRad / 16, bigAxisLen, 32), whiteMat);
+        const bigAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad / 14,bigRad / 14, bigAxisLen, 32), whiteMat);
         // smallAxis.layers.enable(BLOOM_SCENE)
         // bigAxis.layers.enable(BLOOM_SCENE)
         const axis = new THREE.Object3D();
@@ -447,6 +447,42 @@ class App {
         this._scene.add(wheel)
         this.wheel = wheel
 
+
+        // leg
+
+        const leg = new THREE.Object3D();
+        const legW = bigRad / 10;
+        const legH = 100;
+        leg.add(
+            new THREE.Mesh(new THREE.BoxGeometry( legW, legH, lineRad), whiteMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, legW), whiteMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, legH), whiteMat),
+            new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, legH), whiteMat)
+        )
+        leg.children[0].position.set(0,-legH / 2,0);
+        leg.children[1].rotation.set(Math.PI/2, 0,0);
+        leg.children[2].position.set(legW/2, -legH /2,0);
+        leg.children[3].position.set(-legW/2, -legH /2,0);
+        leg.children[1].name = "legBulb"
+        leg.children[2].name = "legBulb"
+        leg.children[3].name = "legBulb"
+        
+        const legSet = new THREE.Object3D();
+        
+        legSet.add(leg.clone(),leg.clone(),leg.clone(),leg.clone())
+        legSet.children[0].position.set(0,0,depth*2/3)
+        legSet.children[0].rotation.set(0,0,Math.PI/6)
+        legSet.children[1].position.set(0,0,depth*2/3)
+        legSet.children[1].rotation.set(0,0,-Math.PI/6)
+        legSet.children[2].position.set(0,0,-depth*2/3)
+        legSet.children[2].rotation.set(0,0,Math.PI/6)
+        legSet.children[3].position.set(0,0,-depth*2/3)
+        legSet.children[3].rotation.set(0,0,-Math.PI/6)
+        
+        
+        this._scene.add(legSet)
+            
+        
         // set bulbs class
         const bulbClass = [];
         for(let i = 0; i<bigRodBulbLen; i++){
@@ -455,10 +491,11 @@ class App {
         for(let i=0; i<outerTorusBulbLen;i++){
             bulbClass.push(this.wheel.getObjectsByProperty("name", `outerTorusBulb${i}`));
         }
-        bulbClass.push([smallAxis,bigAxis1,bigAxis2]);
-        bulbClass.push(this.wheel.getObjectsByProperty("name", "plateBulb"));
-        bulbClass.push(this.wheel.getObjectsByProperty("name", "bodySideBulb"));
+        bulbClass.push([smallAxis,bigAxis1,bigAxis2].concat(legSet.getObjectsByProperty("name", "legBulb")));
+        bulbClass.push(this.wheel.getObjectsByProperty("name", "plateBulb").concat(this.wheel.getObjectsByProperty("name", "bodySideBulb")));
         this.bulbClass = bulbClass
+
+        // bulbClass.forEach(e=>{e.forEach(e=>e.layers.toggle(BLOOM_SCENE))})
 
         
         
@@ -542,30 +579,28 @@ class App {
         this.deltaAngle = this.angle - this.prevAngle;
         this.prevAngle = this.angle
         // console.log(this.deltaAngle)
-        let enableLevel = Math.floor(Math.abs(this.deltaAngle) *this.bulbClass.length / 0.01 - 20);
+        let enableLevel = Math.floor(Math.abs(this.deltaAngle) *this.bulbClass.length / 0.02 - 20);
         if(enableLevel < 0) enableLevel = 0;
         if(enableLevel > this.bulbClass.length) enableLevel = this.bulbClass.length;
         
         
-            if(this.bulbIndex < enableLevel){
-                for(let i = this.bulbIndex; i<enableLevel;i++){
-                    
-                    this.bulbClass[i].forEach(e=>{e.layers.toggle(BLOOM_SCENE)});
-                }
-            }
-            else{
-                for(let i = enableLevel; i<this.bulbIndex;i++){
-                    this.bulbClass[i].forEach(e=>{e.layers.toggle(BLOOM_SCENE)});
-                }
-            }
-            console.log(`${enableLevel}, ${this.bulbIndex}`)
-            this.bulbIndex = enableLevel;
+        // if(this.bulbIndex < enableLevel){
+        //     for(let i = this.bulbIndex; i<enableLevel;i++){
+                
+        //         this.bulbClass[i].forEach(e=>{e.layers.toggle(BLOOM_SCENE)});
+        //     }
+        // }
+        // else{
+        //     for(let i = enableLevel; i<this.bulbIndex;i++){
+        //         this.bulbClass[i].forEach(e=>{e.layers.toggle(BLOOM_SCENE)});
+        //     }
+        // }
+        
+        // this.bulbIndex = enableLevel;
         
         
 
 
-        // this.bulbClass[this.bulbIndex].forEach(e=>{e.layers.enable(BLOOM_SCENE)})
-        // this.bulbIndex++;
         
     }
 
