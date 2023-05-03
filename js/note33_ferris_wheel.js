@@ -292,7 +292,7 @@ class App {
         plate.children[2].position.set(bigRad / 5 * 0.25, -lineRad * 2, -3 * depth / 4 * 0.25)
         plate.children[3].position.set(-bigRad / 5 * 0.25, -lineRad * 2, 3 * depth / 4 * 0.25)
         plate.children[4].position.set(-bigRad / 5 * 0.25, -lineRad * 2, -3 * depth / 4 * 0.25)
-        for(let i = 1; i<5; i++){plate.children[i].layers.enable(BLOOM_SCENE)}
+        // for(let i = 1; i<5; i++){plate.children[i].layers.enable(BLOOM_SCENE)}
 
         const stick = new THREE.Mesh(new THREE.CylinderGeometry(lineRad, lineRad, depth / 2), whiteMat);
 
@@ -370,12 +370,12 @@ class App {
             const bodySideBulb = wheel.children[i].getObjectsByProperty("name", "bodySideBulb");
             if(i % 2 === 0) {
                 plateBulb.forEach(e=>{e.material = purpleMat;})
-                bodySideBulb.forEach(e=>{e.material = purpleMat; e.layers.enable(BLOOM_SCENE)})
+                bodySideBulb.forEach(e=>{e.material = purpleMat;})
                 
             }
             else {
                 plateBulb.forEach(e=>{e.material = skyblueMat})
-                bodySideBulb.forEach(e=>{e.material = skyblueMat; e.layers.enable(BLOOM_SCENE)})
+                bodySideBulb.forEach(e=>{e.material = skyblueMat;})
                 
             }
             this.carArr = wheel.getObjectsByProperty("name", "car");
@@ -423,10 +423,13 @@ class App {
         const bigAxisLen = depth  / 4
         const smallAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad/24, bigRad/24, smallAxisLen, 4), basicMat);
         const bigAxis = new THREE.Mesh(new THREE.CylinderGeometry(bigRad / 16,bigRad / 16, bigAxisLen, 32), whiteMat);
-        smallAxis.layers.enable(BLOOM_SCENE)
-        bigAxis.layers.enable(BLOOM_SCENE)
+        // smallAxis.layers.enable(BLOOM_SCENE)
+        // bigAxis.layers.enable(BLOOM_SCENE)
         const axis = new THREE.Object3D();
-        axis.add(smallAxis, bigAxis.clone(), bigAxis.clone());
+        const bigAxis1 = bigAxis.clone();
+        const bigAxis2 = bigAxis.clone();
+        
+        axis.add(smallAxis, bigAxis1, bigAxis2);
         axis.children[1].position.set(0,smallAxisLen /2 + bigAxisLen /2,0)
         axis.children[2].position.set(0,-smallAxisLen /2 - bigAxisLen /2,0)
         
@@ -438,11 +441,15 @@ class App {
         // set bulbs class
         const bulbClass = [];
         for(let i = 0; i<bigRodBulbLen; i++){
-            bulbClass[i] = this.wheel.getObjectsByProperty("name", `bigRodBulb${i}`);
+            bulbClass.push(this.wheel.getObjectsByProperty("name", `bigRodBulb${i}`));
         }
         for(let i=0; i<outerTorusBulbLen;i++){
-            bulbClass[i + bigRodBulbLen] = this.wheel.getObjectsByProperty("name", `outerTorusBulb${i}`)
+            bulbClass.push(this.wheel.getObjectsByProperty("name", `outerTorusBulb${i}`));
         }
+        bulbClass.push([smallAxis,bigAxis1,bigAxis2]);
+        bulbClass.push(this.wheel.getObjectsByProperty("name", "plateBulb"));
+        bulbClass.push(this.wheel.getObjectsByProperty("name", "bodySideBulb"));
+
         // bulbClass.forEach(b=>{b.forEach(e=>{e.layers.enable(BLOOM_SCENE)})})
         console.log(bulbClass)
 
