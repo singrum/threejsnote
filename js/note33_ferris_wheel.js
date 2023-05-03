@@ -584,19 +584,19 @@ class App {
         if(enableLevel > this.bulbClass.length) enableLevel = this.bulbClass.length;
         
         
-        // if(this.bulbIndex < enableLevel){
-        //     for(let i = this.bulbIndex; i<enableLevel;i++){
+        if(this.bulbIndex < enableLevel){
+            for(let i = this.bulbIndex; i<enableLevel;i++){
                 
-        //         this.bulbClass[i].forEach(e=>{e.layers.toggle(BLOOM_SCENE)});
-        //     }
-        // }
-        // else{
-        //     for(let i = enableLevel; i<this.bulbIndex;i++){
-        //         this.bulbClass[i].forEach(e=>{e.layers.toggle(BLOOM_SCENE)});
-        //     }
-        // }
+                this.bulbClass[i].forEach(e=>{e.layers.toggle(BLOOM_SCENE)});
+            }
+        }
+        else{
+            for(let i = enableLevel; i<this.bulbIndex;i++){
+                this.bulbClass[i].forEach(e=>{e.layers.toggle(BLOOM_SCENE)});
+            }
+        }
         
-        // this.bulbIndex = enableLevel;
+        this.bulbIndex = enableLevel;
         
         
 
