@@ -41,6 +41,7 @@ class App {
         this._materials = {};
         this.prevAngle = 0;
         this.turnOn = false
+        this.bulbIndex = 0;
         this._setupCamera();
         this._setupLight();
         this._setupPostprocessing();
@@ -242,7 +243,7 @@ class App {
         const bigRodBulbLen = 40
         for(let i = 0; i<bigRodBulbLen; i++){
             
-            const bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / bigRodBulbLen * (bigRodBulbLen - i - 1))}, 100%, 50%)`)).mesh
+            const bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / bigRodBulbLen * i)}, 100%, 50%)`)).mesh
             bulb.name = `bigRodBulb${i}`; 
             bigRodBulb.add(bulb)
             bigRodBulb.children[i].position.set(lineRad * 2, bigRad / bigRodBulbLen * (i + 0.5) - bigRad/2,0);
@@ -368,7 +369,7 @@ class App {
             }
             const plateBulb = wheel.children[i].getObjectsByProperty("name", "plateBulb");
             const bodySideBulb = wheel.children[i].getObjectsByProperty("name", "bodySideBulb");
-            if(i % 2 === 0) {
+            if(i % 2 !== 0) {
                 plateBulb.forEach(e=>{e.material = purpleMat;})
                 bodySideBulb.forEach(e=>{e.material = purpleMat;})
                 
@@ -391,14 +392,22 @@ class App {
         for(let j = 0; j<16; j++){
             for(let i =0;i<outerTorusBulbLen;i++){
                 let bulb;
-                if(j % 2 === 0) bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / outerTorusBulbLen * (outerTorusBulbLen - i - 1))}, 100%, 50%)`)).mesh
-                else bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / outerTorusBulbLen * i)}, 100%, 50%)`)).mesh
+                bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / outerTorusBulbLen * i)}, 100%, 50%)`)).mesh
+                
                 
                 bulb.name = `outerTorusBulb${i}`
                 
                 // bulb.layers.enable(BLOOM_SCENE)
-                const theta = Math.PI/8 * j + Math.PI/8 / outerTorusBulbLen * (i + 0.5);
-                bulb.position.set(bigRad * Math.cos(theta), bigRad * Math.sin(theta), lineRad * 2);
+                
+                if(j % 2 === 0){
+                    const theta = Math.PI/8 * j + Math.PI/8 / outerTorusBulbLen * (i + 0.5);
+                    bulb.position.set(bigRad * Math.cos(theta), bigRad * Math.sin(theta), lineRad * 2);
+                }
+                else{
+                    const theta = Math.PI/8 * (j+1) - Math.PI/8 / outerTorusBulbLen * (i + 0.5);
+                    bulb.position.set(bigRad * Math.cos(theta), bigRad * Math.sin(theta), lineRad * 2);
+                }
+                
     
                 outerTorusBulb.add(bulb)
             }
@@ -449,10 +458,10 @@ class App {
         bulbClass.push([smallAxis,bigAxis1,bigAxis2]);
         bulbClass.push(this.wheel.getObjectsByProperty("name", "plateBulb"));
         bulbClass.push(this.wheel.getObjectsByProperty("name", "bodySideBulb"));
+        this.bulbClass = bulbClass
 
-        // bulbClass.forEach(b=>{b.forEach(e=>{e.layers.enable(BLOOM_SCENE)})})
-        console.log(bulbClass)
-
+        
+        
         
 
 
@@ -523,22 +532,40 @@ class App {
 
     update() {
         
-        this.angle += ( this.targetRotation - this.angle ) * 0.001;
+        this.angle += ( this.targetRotation - this.angle ) * 0.01;
         this.wheel.rotation.z = this.angle
         for(let i = 0; i<16; i++){
             
             
             this.wheel.children[i].children[1].rotation.set(0,0,-Math.PI / 8 * i - this.angle)
         }
-        this.deldaAngle = this.angle - this.prevAngle;
+        this.deltaAngle = this.angle - this.prevAngle;
         this.prevAngle = this.angle
+        // console.log(this.deltaAngle)
+        let enableLevel = Math.floor(Math.abs(this.deltaAngle) *this.bulbClass.length / 0.01 - 20);
+        if(enableLevel < 0) enableLevel = 0;
+        if(enableLevel > this.bulbClass.length) enableLevel = this.bulbClass.length;
+        
+        
+            if(this.bulbIndex < enableLevel){
+                for(let i = this.bulbIndex; i<enableLevel;i++){
+                    
+                    this.bulbClass[i].forEach(e=>{e.layers.toggle(BLOOM_SCENE)});
+                }
+            }
+            else{
+                for(let i = enableLevel; i<this.bulbIndex;i++){
+                    this.bulbClass[i].forEach(e=>{e.layers.toggle(BLOOM_SCENE)});
+                }
+            }
+            console.log(`${enableLevel}, ${this.bulbIndex}`)
+            this.bulbIndex = enableLevel;
+        
+        
 
-        if(this.deldaAngle > 0.005){
-            this.turnOn = true;
-        }
-        else{
-            this.turnOn = false;
-        }
+
+        // this.bulbClass[this.bulbIndex].forEach(e=>{e.layers.enable(BLOOM_SCENE)})
+        // this.bulbIndex++;
         
     }
 
