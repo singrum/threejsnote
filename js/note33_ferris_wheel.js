@@ -579,7 +579,7 @@ class App {
         this.deltaAngle = this.angle - this.prevAngle;
         this.prevAngle = this.angle
         // console.log(this.deltaAngle)
-        let enableLevel = Math.floor(Math.abs(this.deltaAngle) *this.bulbClass.length / 0.005 - 20);
+        let enableLevel = Math.floor(Math.abs(this.deltaAngle) *this.bulbClass.length / 0.005 - 10);
         if(enableLevel < 0) enableLevel = 0;
         if(enableLevel > this.bulbClass.length) enableLevel = this.bulbClass.length;
         
