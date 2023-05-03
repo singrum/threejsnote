@@ -76,7 +76,7 @@ class App {
 			if ( event.isPrimary === false ) return;
 			this.pointerY = event.clientY - window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.02;
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.005;
 			
 
 
@@ -569,7 +569,7 @@ class App {
 
     update() {
         
-        this.angle += ( this.targetRotation - this.angle ) * 0.01;
+        this.angle += ( this.targetRotation - this.angle ) * 0.005;
         this.wheel.rotation.z = this.angle
         for(let i = 0; i<16; i++){
             
