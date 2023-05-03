@@ -569,7 +569,7 @@ class App {
 
     update() {
         
-        this.angle += ( this.targetRotation - this.angle ) * 0.005;
+        this.angle += ( this.targetRotation - this.angle ) * 0.001;
         this.wheel.rotation.z = this.angle
         for(let i = 0; i<16; i++){
             
