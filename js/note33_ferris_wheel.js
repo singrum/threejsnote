@@ -39,7 +39,8 @@ class App {
         this._bloomLayer = bloomLayer;
         this._darkMaterial = new THREE.MeshBasicMaterial({ color: "black" });
         this._materials = {};
-
+        this.prevAngle = 0;
+        this.turnOn = false
         this._setupCamera();
         this._setupLight();
         this._setupPostprocessing();
@@ -242,7 +243,7 @@ class App {
         for(let i = 0; i<bigRodBulbLen; i++){
             
             const bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / bigRodBulbLen * (bigRodBulbLen - i - 1))}, 100%, 50%)`)).mesh
-            bulb.layers.enable(BLOOM_SCENE)
+            bulb.name = `bigRodBulb${i}`; 
             bigRodBulb.add(bulb)
             bigRodBulb.children[i].position.set(lineRad * 2, bigRad / bigRodBulbLen * (i + 0.5) - bigRad/2,0);
 
@@ -368,7 +369,7 @@ class App {
             const plateBulb = wheel.children[i].getObjectsByProperty("name", "plateBulb");
             const bodySideBulb = wheel.children[i].getObjectsByProperty("name", "bodySideBulb");
             if(i % 2 === 0) {
-                plateBulb.forEach(e=>{e.material = purpleMat})
+                plateBulb.forEach(e=>{e.material = purpleMat;})
                 bodySideBulb.forEach(e=>{e.material = purpleMat; e.layers.enable(BLOOM_SCENE)})
                 
             }
@@ -393,7 +394,9 @@ class App {
                 if(j % 2 === 0) bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / outerTorusBulbLen * (outerTorusBulbLen - i - 1))}, 100%, 50%)`)).mesh
                 else bulb = new Bulb(lineRad*2, new THREE.Color(`hsl(${Math.floor(360 / outerTorusBulbLen * i)}, 100%, 50%)`)).mesh
                 
-                bulb.layers.enable(BLOOM_SCENE)
+                bulb.name = `outerTorusBulb${i}`
+                
+                // bulb.layers.enable(BLOOM_SCENE)
                 const theta = Math.PI/8 * j + Math.PI/8 / outerTorusBulbLen * (i + 0.5);
                 bulb.position.set(bigRad * Math.cos(theta), bigRad * Math.sin(theta), lineRad * 2);
     
@@ -431,6 +434,20 @@ class App {
         axis.rotation.set(Math.PI/2,0,0)
         this._scene.add(wheel)
         this.wheel = wheel
+
+        // set bulbs class
+        const bulbClass = [];
+        for(let i = 0; i<bigRodBulbLen; i++){
+            bulbClass[i] = this.wheel.getObjectsByProperty("name", `bigRodBulb${i}`);
+        }
+        for(let i=0; i<outerTorusBulbLen;i++){
+            bulbClass[i + bigRodBulbLen] = this.wheel.getObjectsByProperty("name", `outerTorusBulb${i}`)
+        }
+        // bulbClass.forEach(b=>{b.forEach(e=>{e.layers.enable(BLOOM_SCENE)})})
+        console.log(bulbClass)
+
+        
+
 
     }
 
@@ -505,6 +522,15 @@ class App {
             
             
             this.wheel.children[i].children[1].rotation.set(0,0,-Math.PI / 8 * i - this.angle)
+        }
+        this.deldaAngle = this.angle - this.prevAngle;
+        this.prevAngle = this.angle
+
+        if(this.deldaAngle > 0.005){
+            this.turnOn = true;
+        }
+        else{
+            this.turnOn = false;
         }
         
     }
