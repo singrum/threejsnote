@@ -87,8 +87,8 @@ class App {
 			
 			touchendX = e.clientX ?? e.changedTouches[0].clientX
 			checkDirection()
-			document.removeEventListener('touchend', touchEnd)
-			document.removeEventListener('mouseup', touchEnd)
+			if ('ontouchstart' in window) document.removeEventListener('touchend', touchEnd)
+			else document.removeEventListener('mouseup', touchEnd)
 		  }
 		const touchStart = e => {
 			if(!isTouchValid(e)){
@@ -96,11 +96,11 @@ class App {
 			}
 			this._static = false;
 		  	touchstartX = e.clientX ?? e.touches[0].clientX
-			document.addEventListener('touchend', touchEnd)
-			document.addEventListener('mouseup', touchEnd)
+			if ('ontouchstart' in window) document.addEventListener('touchend', touchEnd)
+			else document.addEventListener('mouseup', touchEnd)
 		}
-		document.addEventListener('touchstart',touchStart)
-		document.addEventListener('mousedown',touchStart)
+		if ('ontouchstart' in window) document.addEventListener('touchstart',touchStart)
+		else document.addEventListener('mousedown',touchStart)
 		
 
 

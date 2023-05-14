@@ -43,18 +43,22 @@ class App {
 		this._scene.background = new THREE.Color("#ffffff")
 	}
     _setupControls() {
-        window.addEventListener("touchstart", ()=>{
-            this.isTouch = true;
-        })
-        window.addEventListener("touchend", ()=>{
-            this.isTouch = false;
-        })
-        window.addEventListener("mousedown", ()=>{
-            this.isTouch = true;
-        })
-        window.addEventListener("mouseup", ()=>{
-            this.isTouch = false;
-        })
+        if ('ontouchstart' in window){
+            window.addEventListener("touchstart", ()=>{
+                this.isTouch = true;
+            })
+            window.addEventListener("touchend", ()=>{
+                this.isTouch = false;
+            })
+        }
+        if ('ontouchstart' in window){
+            window.addEventListener("mousedown", ()=>{
+                this.isTouch = true;
+            })
+            window.addEventListener("mouseup", ()=>{
+                this.isTouch = false;
+            })
+        }
     }
 
     _setupModel() {
