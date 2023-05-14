@@ -49,6 +49,12 @@ class App {
         window.addEventListener("touchend", ()=>{
             this.isTouch = false;
         })
+        window.addEventListener("mousedown", ()=>{
+            this.isTouch = true;
+        })
+        window.addEventListener("mouseup", ()=>{
+            this.isTouch = false;
+        })
     }
 
     _setupModel() {

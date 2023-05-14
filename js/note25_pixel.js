@@ -71,9 +71,10 @@ class App {
 			const raycaster = new THREE.Raycaster();
             
 			const pt = {
-				x: (e.touches[0].clientX/ this._divContainer.clientWidth) * 2 - 1,
-				y: - (e.touches[0].clientY / this._divContainer.clientHeight) * 2 + 1
+				x: ((e.clientX ?? e.touches[0].clientX)/ this._divContainer.clientWidth) * 2 - 1,
+				y: - ((e.clientY ?? e.touches[0].clientY) / this._divContainer.clientHeight) * 2 + 1
 			}
+			
 			raycaster.setFromCamera(pt, this._camera)
 			const interObj = raycaster.intersectObject(this._jewelArr[this._currJewelIndex])
 			if(interObj.length === 0){
@@ -83,19 +84,23 @@ class App {
 			return true
 		}
 		const touchEnd = e => {
-			touchendX = e.changedTouches[0].screenX
+			
+			touchendX = e.clientX ?? e.changedTouches[0].clientX
 			checkDirection()
 			document.removeEventListener('touchend', touchEnd)
+			document.removeEventListener('mouseup', touchEnd)
 		  }
-		
-		document.addEventListener('touchstart', e => {
+		const touchStart = e => {
 			if(!isTouchValid(e)){
 				return;
 			}
 			this._static = false;
-		  	touchstartX = e.changedTouches[0].screenX
+		  	touchstartX = e.clientX ?? e.touches[0].clientX
 			document.addEventListener('touchend', touchEnd)
-		})
+			document.addEventListener('mouseup', touchEnd)
+		}
+		document.addEventListener('touchstart',touchStart)
+		document.addEventListener('mousedown',touchStart)
 		
 
 
@@ -110,7 +115,6 @@ class App {
 				
 				gsap.to(nextJewel.position,{duration : 2, x : 0, z : 0,
 					onComplete : ()=>{
-						console.log(1)
 						this._scene.remove(this._jewelArr[this.prevJewelIndex(this._currJewelIndex)])
 						this._static = true;
 					}})

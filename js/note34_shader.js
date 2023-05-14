@@ -3,6 +3,7 @@ import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitCo
 import vertexShader from '../shader/vertex.glsl.js'
 import fragmentShader from '../shader/fragment.glsl.js'
 
+
 class App {
 	constructor() {
 		const divContainer = document.querySelector("#webgl_container");
@@ -49,12 +50,16 @@ class App {
 	}
 
 	_setupModel() {
-		const geometry = new THREE.SphereGeometry( 0.5);
-		const material = new THREE.ShaderMaterial({
+		const geometry = new THREE.TorusGeometry(1.0,0.5);
+		const customMaterial = new THREE.ShaderMaterial({
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
+			
         });
-		const cube = new THREE.Mesh(geometry, material);
+		
+		
+		
+		const cube = new THREE.Mesh(geometry, customMaterial);
 		
 
 

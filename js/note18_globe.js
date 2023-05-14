@@ -34,7 +34,9 @@ class App {
 	}
 	
 	_setupTouch(){
+
 		window.addEventListener("touchstart", ()=>{this._isTouch = true;})
+		window.addEventListener("mousedown", ()=>{this._isTouch = true;})
 	}
 
 	_setupControls(){
