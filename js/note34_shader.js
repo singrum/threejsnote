@@ -1,7 +1,6 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
-import vertexShader from '../shader/vertex.glsl.js'
-import fragmentShader from '../shader/fragment.glsl.js'
+import {PhongShader} from '../shader/PhongShader.js'
 
 
 class App {
@@ -19,7 +18,8 @@ class App {
 		this._scene = scene;
 
 		this._setupCamera();
-		this._setupLight();
+		this._setupBackground();
+		// this._setupLight();
 		this._setupModel();
 		this._setupControls()
 
@@ -29,6 +29,9 @@ class App {
 		requestAnimationFrame(this.render.bind(this));
 	}
 
+	_setupBackground(){
+		this._scene.background = new THREE.Color(0x666666)
+	}
 	_setupControls(){
 		new OrbitControls(this._camera, this._divContainer);
 	}
@@ -37,7 +40,7 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
-		camera.position.z = 2;
+		camera.position.z = 7;
 		this._camera = camera;
 	}
 
@@ -50,12 +53,8 @@ class App {
 	}
 
 	_setupModel() {
-		const geometry = new THREE.TorusGeometry(1.0,0.5);
-		const customMaterial = new THREE.ShaderMaterial({
-            vertexShader: vertexShader,
-            fragmentShader: fragmentShader,
-			
-        });
+		const geometry = new THREE.TorusGeometry(1.0,0.5, 64,64);
+		const customMaterial = new THREE.ShaderMaterial(PhongShader);
 		
 		
 		

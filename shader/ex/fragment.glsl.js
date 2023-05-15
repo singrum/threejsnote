@@ -14,7 +14,7 @@ void main() {
 	vec3 lightDir = normalize(lightPos - vPosition);
 	float brightness = (dot(lightDir, vNormal) + 1.0) / 2.0;
 	vec3 color = mix(color1,color2, vPosition.z) * brightness;
-
+	
 	gl_FragColor = vec4(mix(color1,color2, (vPosition.z+ 0.25) / 0.5), 1.0);
 
 }
