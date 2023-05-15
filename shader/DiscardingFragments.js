@@ -1,10 +1,13 @@
 import {
 	Vector2,
 	Vector3,
-    Vector4
+    Vector4,
+    DoubleSide
 } from '../node_modules/three/build/three.module.js';
 
 const PhongShader = {
+    side: DoubleSide,
+
     uniforms : {
         
         Light : {
@@ -44,11 +47,14 @@ const PhongShader = {
 
         /* out */
         varying vec3 LightIntensity;
+        varying vec3 Color;
+        varying vec2 vUv;
 
         void getCamSpace(out vec3 norm, out vec3 pos){
             norm = normalize(normalMatrix * normal);
             pos = (modelViewMatrix * vec4(position, 1.0)).xyz;
         }
+
 
         vec3 phongModel(vec3 pos, vec3 n){
             vec3 ambient = Light.La * Material.Ka;
@@ -63,22 +69,53 @@ const PhongShader = {
             }
             return ambient + diffuse + spec;
         }
+
+
         void main() {
+            vUv = uv;
             vec3 camNorm, camPosition;
             getCamSpace(camNorm, camPosition);
+            vec3 v = normalize(-camPosition.xyz);
+            float vDotN = dot(v, camNorm);
 
-            LightIntensity = phongModel(camPosition, camNorm);
+            if(vDotN >= 0.0){
+                Color = phongModel(camPosition, camNorm);
+            } else{
+                Color = phongModel(camPosition, -camNorm);
+                
+            }
+
+
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
+
+
+
     `,
+
+
+
     fragmentShader : /* glsl */`
+
+
+
         varying vec3 LightIntensity;
+        varying vec3 Color;
+        varying vec2 vUv;
+
+        
 
         void main() {
-            
-            gl_FragColor = vec4(LightIntensity, 1.0);
+            const float scale = 5.0;
+            bvec2 toDiscard = greaterThan(fract(vUv * scale), vec2(0.2,0.2));
+            if(all(toDiscard)) discard;
+
+            gl_FragColor = vec4(Color, 1.0);
 
         }
+
+
+
     `
 }
 export {PhongShader};

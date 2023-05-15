@@ -1,6 +1,8 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
-import {PhongShader} from '../shader/PhongShader.js'
+import {TeapotGeometry} from '../node_modules/three/examples/jsm/geometries/TeapotGeometry.js'
+import {PhongShader} from '../shader/DiscardingFragments.js'
+
 
 
 class App {
@@ -53,7 +55,7 @@ class App {
 	}
 
 	_setupModel() {
-		const geometry = new THREE.TorusGeometry(1.0,0.5, 64,64);
+		const geometry = new TeapotGeometry(0.7, 32, true, false)
 		const customMaterial = new THREE.ShaderMaterial(PhongShader);
 		
 		
