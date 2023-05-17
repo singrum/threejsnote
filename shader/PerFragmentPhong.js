@@ -26,9 +26,32 @@ const PhongShader = {
 
 
     },
+
+
     vertexShader : /* glsl */`
         
 
+
+
+        /* out */
+        varying vec3 camNorm;
+        varying vec3 camPosition;
+        void getCamSpace(out vec3 norm, out vec3 pos){
+            norm = normalize(normalMatrix * normal);
+            pos = (modelViewMatrix * vec4(position, 1.0)).xyz;
+        }
+
+        void main() {
+            vec3 camNorm, camPosition;
+            
+            varying vec3 LightIntensity;
+            getCamSpace(camNorm, camPosition);
+            LightIntensity = phongModel(camPosition, camNorm);
+            
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader : /* glsl */`
         uniform struct LightInfo {
             vec4 Position;
             vec3 La;
@@ -42,13 +65,9 @@ const PhongShader = {
             float Shininess;
         } Material;
 
-        /* out */
+        varying vec3 camNorm;
+        varying vec3 camPosition;
         varying vec3 LightIntensity;
-
-        void getCamSpace(out vec3 norm, out vec3 pos){
-            norm = normalize(normalMatrix * normal);
-            pos = (modelViewMatrix * vec4(position, 1.0)).xyz;
-        }
 
         vec3 phongModel(vec3 pos, vec3 n){
             vec3 ambient = Light.La * Material.Ka;
@@ -63,19 +82,9 @@ const PhongShader = {
             }
             return ambient + diffuse + spec;
         }
-        void main() {
-            vec3 camNorm, camPosition;
-            getCamSpace(camNorm, camPosition);
 
-            LightIntensity = phongModel(camPosition, camNorm);
+        void main() {
             
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-    `,
-    fragmentShader : /* glsl */`
-        varying vec3 LightIntensity;
-
-        void main() {
             
             gl_FragColor = vec4(LightIntensity, 1.0);
 
