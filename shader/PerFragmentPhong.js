@@ -36,6 +36,7 @@ const PhongShader = {
         /* out */
         varying vec3 camNorm;
         varying vec3 camPosition;
+        
         void getCamSpace(out vec3 norm, out vec3 pos){
             norm = normalize(normalMatrix * normal);
             pos = (modelViewMatrix * vec4(position, 1.0)).xyz;
@@ -44,9 +45,9 @@ const PhongShader = {
         void main() {
             vec3 camNorm, camPosition;
             
-            varying vec3 LightIntensity;
+            
             getCamSpace(camNorm, camPosition);
-            LightIntensity = phongModel(camPosition, camNorm);
+            
             
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
@@ -67,7 +68,7 @@ const PhongShader = {
 
         varying vec3 camNorm;
         varying vec3 camPosition;
-        varying vec3 LightIntensity;
+        
 
         vec3 phongModel(vec3 pos, vec3 n){
             vec3 ambient = Light.La * Material.Ka;
@@ -86,7 +87,7 @@ const PhongShader = {
         void main() {
             
             
-            gl_FragColor = vec4(LightIntensity, 1.0);
+            gl_FragColor = vec4(phongModel(camPosition, camNorm), 1.0);
 
         }
     `
