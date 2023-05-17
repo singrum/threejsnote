@@ -1,7 +1,7 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import {TeapotGeometry} from '../node_modules/three/examples/jsm/geometries/TeapotGeometry.js'
-import {PhongShader} from '../shader/multiplePositionalLight.js'
+import {PhongShader} from '../shader/directionalPhong.js'
 
 
 
