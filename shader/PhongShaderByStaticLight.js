@@ -9,7 +9,7 @@ const PhongShader = {
         
         Light : {
             value :{
-                Position : new Vector4(15,2,10),
+                Position : new Vector4(10,0,10),
                 La : new Vector3(1,1,1),
                 Ld : new Vector3(1,1,1),
                 Ls : new Vector3(1,1,1),
@@ -48,34 +48,6 @@ const PhongShader = {
         varying vec3 vNormal;
         varying vec2 vUv;
 
-
-        void main() {
-            vPosition = position;
-            vNormal = normal;
-            vUv = uv;
-            
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-    `,
-    fragmentShader : /* glsl */`
-
-        uniform struct LightInfo {
-            vec4 Position;
-            vec3 La;
-            vec3 Ld;
-            vec3 Ls;
-        } Light;
-        uniform struct MaterialInfo{
-            vec3 Ka;
-            vec3 Kd;
-            vec3 Ks;
-            float Shininess;
-        } Material;
-
-        varying vec3 LightIntensity;
-        varying vec3 vPosition;
-        varying vec3 vNormal;
-        varying vec2 vUv;
         vec3 phongModel(vec3 pos, vec3 n){
             vec3 ambient = Light.La * Material.Ka;
             vec3 s = normalize(Light.Position.xyz - pos);
@@ -90,8 +62,23 @@ const PhongShader = {
             return ambient + diffuse + spec;
         }
         void main() {
+            vPosition = position;
+            vNormal = normal;
+            vUv = uv;
+            LightIntensity = phongModel(vPosition, vNormal);
             
-            gl_FragColor = vec4(phongModel(vPosition, vNormal), 1.0);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader : /* glsl */`
+        varying vec3 LightIntensity;
+        varying vec3 vPosition;
+        varying vec3 vNormal;
+        varying vec2 vUv;
+
+        void main() {
+            
+            gl_FragColor = vec4(LightIntensity, 1.0);
 
         }
     `

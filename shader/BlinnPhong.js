@@ -11,7 +11,7 @@ const PhongShader = {
             value :{
                 Position : new Vector4(15,2,10),
                 La : new Vector3(1,1,1),
-                Ld : new Vector3(1,1,1),
+                Ld : new Vector3(0.9,0.9,0.9),
                 Ls : new Vector3(1,1,1),
             }
         },
@@ -84,8 +84,8 @@ const PhongShader = {
             vec3 spec = vec3(0.0);
             if(sDotN > 0.0){
                 vec3 v = normalize(cameraPosition+pos.xyz);
-                vec3 r = reflect(-s,n);
-                spec = Light.Ls * Material.Ks * pow(max(dot(r,v), 0.0), Material.Shininess);
+                vec3 h = normalize(v+s);
+                spec = Light.Ls * Material.Ks * pow(max(dot(h,n), 0.0), Material.Shininess);
             }
             return ambient + diffuse + spec;
         }
