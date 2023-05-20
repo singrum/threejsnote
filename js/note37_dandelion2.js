@@ -40,6 +40,12 @@ class App {
 	}
 	_setupGUI(){
 		const gui = new GUI();
+		var guiElement = gui.domElement;
+		console.log(guiElement)
+		guiElement.style.position = 'absolute';  // 절대 위치 설정
+		guiElement.style.top = '0';          // 원하는 상단 위치
+		guiElement.style.right = '0';   
+		guiElement.style.margin = '0';
 		gui.addColor( this, 'seedColor1' )
 		.onChange( ()=> {
 			this.attachedSeeds.forEach((e,i,arr)=>{
@@ -50,24 +56,41 @@ class App {
 				})
 			})
 		} );
+
 		gui.addColor( this, 'seedColor2' )
 		.onChange( () => {
+			
 			this.attachedSeeds.forEach((e,i,arr)=>{
 				e.traverse(line=>{
+					
 					const color = this.gradientFit(i / arr.length, new THREE.Color(this.seedColor1), new THREE.Color(this.seedColor2));
 					line.material.color = color
 					
 				})
 			})
-		} );
-		gui.addColor( this, 'backgroundColor' )
-		.onChange( () => {
-			this._scene.background.set(this.backgroundColor)
+		} )
+		.domElement.addEventListener('touchstart', function(event) {
+			event.stopPropagation();
+		});
+
+		gui.addColor( {backgroundColor : 0xcae2f5}, 'backgroundColor' )
+		.onChange( value => {
+			this._scene.background.set(value)
 		} );
 
+		gui.addColor( {stemColor : 0xBAFFB4}, 'stemColor' )
+		.onChange( value => {
+			this.stemMaterial.color = new THREE.Color(value);
+			
+		} );
+		gui.addColor({coreColor : 0x8D7B68}, 'coreColor' )
+		.onChange( value => {
+			this.dandelionCoreMate.color = new THREE.Color(value);
+			
+		} );
 	}
     _setupBackground(){
-		this.backgroundColor = 0x888888
+		this.backgroundColor = 0xcae2f5
         this._scene.background = new THREE.Color(this.backgroundColor);
 		this._scene.fog = new THREE.Fog( 0xcccccc, 10, 100 );
     }
@@ -122,7 +145,7 @@ class App {
 		const aspectRatio = window.innerWidth / window.innerHeight;
 		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 		
-		camera.position.set(0,0,20)
+		camera.position.set(0,0,18)
 		camera.lookAt(0,0,0)
 		// camera.zoom = 0.1
 		this._camera = camera;
@@ -187,7 +210,8 @@ class App {
 		const dandelionSeedStem = new THREE.Line( new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0, seedLen)] ), new THREE.LineBasicMaterial({color : seedColor}) );
 
 		const dandelionCoreGeom = new THREE.IcosahedronGeometry(coreRad, 1);
-		const dandelionCore = new THREE.Mesh(dandelionCoreGeom, new THREE.MeshPhysicalMaterial({color : 0x8D7B68, flatShading : true}))
+		this.dandelionCoreMate = new THREE.MeshPhysicalMaterial({color : 0x8D7B68, flatShading : true});
+		const dandelionCore = new THREE.Mesh(dandelionCoreGeom, this.dandelionCoreMate);
 
 		const hairs = new THREE.Object3D();
 		for(let i = 0 ; i< dandelionSeedHelperGeom.positionVectors.length; i++){
@@ -232,13 +256,14 @@ class App {
 		this.seedColor2 = 0xDFFFD8;
 		this.attachedSeeds.forEach((e,i,arr)=>{
 			e.traverse(line=>{
-				const color = this.gradientFit(i / arr.length, new THREE.Color(this.seedColor1), new THREE.Color(this.seedColor2));
+				const color = this.gradientFit(i / (arr.length), new THREE.Color(this.seedColor1), new THREE.Color(this.seedColor2));
 				line.material = new THREE.LineBasicMaterial({color : color	})
 				
 			})
 		})
-	
-		const stemMaterial = new THREE.MeshPhysicalMaterial( { color: 0xBAFFB4,flatShading : false} );
+		this.stemColor = 0xbaffb4
+		const stemMaterial = new THREE.MeshPhysicalMaterial( { color: this.stemColor, flatShading : false} );
+		this.stemMaterial = stemMaterial;
 		// const stem = new THREE.Mesh( stemGeometry, stemMaterial );
 		const stem = new THREE.Mesh( new THREE.CylinderGeometry(0.1,0.1,20,32), stemMaterial );
 		stem.position.set(0,-10,0)
