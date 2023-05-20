@@ -9,7 +9,7 @@ const Filter1 = {
     uniforms: {
 
         renderTex: { value: null },  // 입력 텍스처
-        Weight: {value: []},
+        Weight: {value: null},
         PixOffset : {value : [0,1,2,3,4]}
 
     },

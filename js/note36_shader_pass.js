@@ -5,6 +5,7 @@ import {TeapotGeometry} from '../node_modules/three/examples/jsm/geometries/Teap
 import { EffectComposer } from '../node_modules/three/examples/jsm/postprocessing/EffectComposer.js';
 import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
 import { RenderPass } from '../node_modules/three/examples/jsm/postprocessing/RenderPass.js';
+import { Filter } from '../shader/EdgeDetectionfilter.js';
 import { Filter1 } from '../shader/GaussianBlur1.js';
 import { Filter2 } from '../shader/GaussianBlur2.js';
 
@@ -48,32 +49,35 @@ class App {
 
         const renderPass = new RenderPass(this._scene, this._camera);
         let weight = Array(5);
-        weight[0] = this.gaussian(0, 1);
+        weight[0] = this.gaussian(0, 10);
         
         let sum = weight[0];
         for(let i = 1; i<5; i ++){
-            weight[i] = this.gaussian(i, 1);
+            weight[i] = this.gaussian(i, 10);
             sum += 2 * weight[i];
         }
         for(let i=0; i<5; i++){
             weight[i] /= sum;
         }        
-        
+        console.log(weight)
         Filter1.uniforms.Weight.value = weight;
         Filter2.uniforms.Weight.value = weight;
         
         
-        
-        const filterPass1 = new ShaderPass( Filter1 );
-        const filterPass2 = new ShaderPass( Filter2 );
-        
-        this._composer.addPass(renderPass);
-        filterPass1.uniforms.renderTex.value = this._composer.renderTarget1.texture;
-        filterPass2.uniforms.renderTex.value = this._composer.renderTarget1.texture;
+		this._composer.addPass(renderPass);
 
+		const filterPass1 = new ShaderPass( Filter1 );
+		filterPass1.uniforms.renderTex.value = this._composer.renderTarget1.texture;
+		this._composer.addPass( filterPass1 );
+
+
+        const filterPass2 = new ShaderPass( Filter2 );
+		filterPass2.uniforms.renderTex.value = this._composer.renderTarget2.texture;
+		this._composer.addPass( filterPass2 );
+		
         
-        this._composer.addPass( filterPass1 );
-        this._composer.addPass( filterPass2 );
+
+		console.log(this._composer)
     }
 	_setupBackground(){
 		this._scene.background = new THREE.Color(0x666666)
