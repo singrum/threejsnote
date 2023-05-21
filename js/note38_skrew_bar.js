@@ -24,7 +24,8 @@ class App {
 		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 		this.time = 0;
-		
+		this.angle = 0;
+
 		this.prevTime = performance.now()
 
 		this._setupCamera();
@@ -134,8 +135,8 @@ class App {
         const barGeometry = new THREE.ExtrudeGeometry( barShape, extrudeSettings );
         const barMaterial = new THREE.MeshPhysicalMaterial({color : 0x444444, wireframe: true});
         const bar = new THREE.Mesh(barGeometry, barMaterial);
-        bar.rotation.set(Math.PI/2, 0, 0);
-        bar.position.set(0,barLen/2,0)
+        bar.rotation.set(-Math.PI/2, 0, 0);
+        bar.position.set(0,-barLen/2,0)
 
 
         const stickLen = 8;
@@ -146,7 +147,7 @@ class App {
 
         const group = new THREE.Object3D();
         group.add(bar, stick);
-        // this._scene.add(group);
+        this._scene.add(group);
         group.rotation.set(0,0,-Math.PI/4);
 
         
@@ -158,41 +159,26 @@ class App {
 		console.log(this.count)
 		//600 + 612 * 20씩 증가
 
-		this.indexPartition = [[],[]];
-		for(let i = 0; i< barStep + 10; i++){
-			this.indexPartition.push([]);
-		}
-		for (let i = 0; i < 300; i++) {
-			this.indexPartition[0].push(i);
-		}
-		for(let i = 300; i<600; i++){
-			this.indexPartition[1].push(i);
-		}
-		let index = 0;
-		for(let i = index; i<this.count; i++){
-			// console.log(this.positionClone[i]);
+		// this.indexPartition = [[],[]];
+		// for(let i = 0; i< barStep + 10; i++){
+		// 	this.indexPartition.push([]);
+		// }
+		// for (let i = 0; i < 300; i++) {
+		// 	this.indexPartition[0].push(i);
+		// }
+		// for(let i = 300; i<600; i++){
+		// 	this.indexPartition[1].push(i);
+		// }
+		// let index = 0;
+		// for(let i = index; i<this.count; i++){
+		// 	// console.log(this.positionClone[i]);
 			
-		}
-		// console.log(this.indexPartition)
+		// }
+		// // console.log(this.indexPartition)
 
 
 
-		for (let idx = 0;idx < this.count/2;idx++) {
-			const ix = idx * 3;
-			const iy = idx * 3 + 1;
-			const iz = idx * 3 + 2;
-			const x = this.positionClone[ix];
-			const y = this.positionClone[iy];
-			const z = this.positionClone[iz];
-			for(let i = 0; i<20;i++) {
-				if(z < 0.5 * (i + 1)){
-					this.indexPartition[0].push(idx);
-					break;
-				}
-			}
-			
-		}
-		console.log(this.indexPartition)
+
 		
 	}
 
@@ -219,21 +205,28 @@ class App {
 
 	update() {
         this.angle += 0.01
+		// console.log(this.angle)
 		this.time += 1;
-        
-		const ix = this.time* 3;
-		const iy = this.time * 3 + 1;
-		const iz = this.time * 3 + 2;
-		const x = this.positionClone[ix];
-		const y = this.positionClone[iy];
-		const z = this.positionClone[iz];
-        
-		// this.debugPoint(x,y,z)
-            
-        // }
-        // this.bowArr[j].geometry.computeVertexNormals();
-        // this.bowArr[j].geometry.attributes.position.needsUpdate = true;
-    }
+        const cos = Math.cos(this.angle);
+		const sin = Math.sin(this.angle);
+		for (let i = 0;i < this.count;i++) {
+			const ix = i * 3;
+			const iy = i * 3 + 1;
+			const iz = i * 3 + 2;
+			const x = this.positionClone[ix];
+			const y = this.positionClone[iy];
+			const z = this.positionClone[iz];
+			
+			this.bar.geometry.attributes.position.setX(i, x * Math.cos(this.angle * z/10) - y * Math.sin(this.angle * z/10));
+			this.bar.geometry.attributes.position.setY(i, x * Math.sin(this.angle * z/10) + y * Math.cos(this.angle * z/10));
+			this.bar.geometry.attributes.position.setZ(i, z);
+			// this.bar.geometry.attributes.position.setX(i, this.angle);
+			
+		}           
+		this.bar.geometry.computeVertexNormals();
+		this.bar.geometry.attributes.position.needsUpdate = true;
+	}
+		
 }
 
 window.onload = function () {
