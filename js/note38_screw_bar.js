@@ -68,7 +68,7 @@ class App {
 		console.log(this._composer)
     }
     _setupBackground(){
-        this._scene.background = new THREE.Color(1,1,1);
+        this._scene.background = new THREE.Color(0,0,0);
 
     }
 	_setupControls(){ 
@@ -122,9 +122,9 @@ class App {
 		const aspectRatio = window.innerWidth / window.innerHeight;
 		const camera = new THREE.OrthographicCamera( -aspectRatio * width / 2, aspectRatio * width / 2, width / 2, -width /2, 0.000001, 100000 );
 		
-		camera.position.set(8,10,35)
+		camera.position.set(7,10,35)
 		camera.zoom = 6.5
-				camera.lookAt(-1,0,0)
+				camera.lookAt(-2,0,0)
 		// camera.zoom = 0.1
 		this._camera = camera;
         this._scene.add(this._camera)

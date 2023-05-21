@@ -27,7 +27,7 @@ const Filter = {
         varying vec2 vUv;
     
         uniform sampler2D renderTex;
-        const float strength = 0.05;
+        const float strength = 0.1;
         float rand(vec2 co) {
             return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
         }
