@@ -1,8 +1,8 @@
 
 import * as THREE from '../node_modules/three/build/three.module.js';
+import {BarShader, StickShader} from '../shader/note38_Shader.js'
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
-import {GLTFLoader} from "../node_modules/three/examples/jsm/loaders/GLTFLoader.js"
-import {VertexNormalsHelper} from "../node_modules/three/examples/jsm/helpers/VertexNormalsHelper.js";
+
 
 // https://sketchfab.com
 
@@ -44,31 +44,57 @@ class App {
 
     }
 	_setupControls(){ 
-        new OrbitControls(this._camera, this._divContainer);
-		let idx = 600;
-		// window.addEventListener("click",()=>{
+        // new OrbitControls(this._camera, this._divContainer);
+        const onPointerDown = ( event ) => {
+			
+			if ( event.isPrimary === false ) return;
+			this.startX = event.clientX
+			this.startY = event.clientY
+			this.pointerYOnPointerDown = event.clientY - window.innerWidth / 2;
+			this.targetRotationOnPointerDown = this.targetRotation;
 
-		// 		const ix = idx * 3;
-		// 		const iy = idx * 3 + 1;
-		// 		const iz = idx * 3 + 2;
-		// 		const x = this.positionClone[ix];
-		// 		const y = this.positionClone[iy];
-		// 		const z = this.positionClone[iz];
-		// 		console.log(x,y,z)
-		// 		this.debugPoint(x,y,z)
-		// 		idx ++;
-		// })
+			document.addEventListener( 'pointermove', onPointerMove );
+			document.addEventListener( 'pointerup', onPointerUp );
+
+		}
+
+		const onPointerMove = ( event ) => {
+			
+			if ( event.isPrimary === false ) return;
+			this.pointerY = event.clientY - window.innerWidth / 2;
+
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.02;
+			
+
+
+		}
+
+		const onPointerUp = (event) => {
+			
+			if ( event.isPrimary === false ) return;
+			document.removeEventListener( 'pointermove', onPointerMove );
+			document.removeEventListener( 'pointerup', onPointerUp );
+
+		}
+		this.targetRotation = 0;
+		this.targetRotationOnPointerDown = 0;
+		this.pointerY = 0;
+		this.pointerYOnPointerDown = 0;
+		this._divContainer.style.touchAction = 'none';
+		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
 
 	}
 
 	_setupCamera() {
-		const width = this._divContainer.clientWidth;
+		const width = 400;
+		
 		const height = this._divContainer.clientHeight;
 		const aspectRatio = window.innerWidth / window.innerHeight;
-		const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+		const camera = new THREE.OrthographicCamera( -aspectRatio * width / 2, aspectRatio * width / 2, width / 2, -width /2, 0.000001, 100000 );
 		
-		camera.position.set(5,10,50)
-		camera.lookAt(0,0,0)
+		camera.position.set(8,10,35)
+		camera.zoom = 6
+				camera.lookAt(-1,0,0)
 		// camera.zoom = 0.1
 		this._camera = camera;
         this._scene.add(this._camera)
@@ -112,28 +138,38 @@ class App {
 	_setupModel() {
 		const barShape = new THREE.Shape();
         barShape.moveTo(1,3);
+		
         barShape.arc(2,0,2, Math.PI, Math.PI * 1.5);
-        barShape.lineTo(3,-1);
+		for(let i= 0; i < 20; i++){
+			barShape.lineTo(3,1 - 0.1 * (i+1));	
+		}    
         barShape.arc(0,-2,2, Math.PI *0.5, Math.PI);
-		barShape.lineTo(-1,-3);
+		for(let i= 0; i < 20; i++){
+			barShape.lineTo(1 - 0.1 * (i+1), -3);	
+		}    
         barShape.arc(-2,0,2, 0,Math.PI *0.5);
-        barShape.lineTo(-3,1);
+		for(let i= 0; i < 20; i++){
+			barShape.lineTo(-3, -1 + 0.1 * (i+1));	
+		}    
+        
         barShape.arc(0,2,2, Math.PI * 1.5, Math.PI * 2);
-        barShape.lineTo(-1,3)
+		for(let i= 0; i < 20; i++){
+			barShape.lineTo(-1 + 0.1 * (i+1),3);	
+		}    
         
         const barLen = 20
-		const barStep = 20;
+		const barStep = 40;
         const extrudeSettings ={
+			curveSegments : 10,
             steps: barStep,
             depth: barLen,
             bevelEnabled: false,
-            // bevelThickness: 0.5,
-            // bevelSize: 0.3,
-            // bevelOffset: 0,
-            // bevelSegments: 10
+            bevelThickness: 0.5,
+            bevelSize: 0.3,
+            bevelSegments: 10
         }
         const barGeometry = new THREE.ExtrudeGeometry( barShape, extrudeSettings );
-        const barMaterial = new THREE.MeshPhysicalMaterial({color : 0x444444, wireframe: true});
+        const barMaterial = new THREE.ShaderMaterial(BarShader);
         const bar = new THREE.Mesh(barGeometry, barMaterial);
         bar.rotation.set(-Math.PI/2, 0, 0);
         bar.position.set(0,-barLen/2,0)
@@ -141,7 +177,7 @@ class App {
 
         const stickLen = 8;
         const stickGeometry = new THREE.CylinderGeometry(0.6,0.6,stickLen, 16);
-        const stickMaterial = new THREE.MeshPhysicalMaterial({color : 0x222222})
+        const stickMaterial = new THREE.ShaderMaterial(StickShader)
         const stick = new THREE.Mesh(stickGeometry, stickMaterial)
         stick.position.set(0,-barLen / 2 - stickLen / 2,0);
 
@@ -153,28 +189,10 @@ class App {
         
 
         this.bar = bar;
-        this.count = this.bar.geometry.attributes.position.count;
-        this.positionClone = JSON.parse(JSON.stringify(this.bar.geometry.attributes.position.array))
+		this.vPos = bar.geometry.attributes.position;
         
-		console.log(this.count)
-		//600 + 612 * 20씩 증가
+        this.positionClone = JSON.parse(JSON.stringify(this.vPos.array))
 
-		// this.indexPartition = [[],[]];
-		// for(let i = 0; i< barStep + 10; i++){
-		// 	this.indexPartition.push([]);
-		// }
-		// for (let i = 0; i < 300; i++) {
-		// 	this.indexPartition[0].push(i);
-		// }
-		// for(let i = 300; i<600; i++){
-		// 	this.indexPartition[1].push(i);
-		// }
-		// let index = 0;
-		// for(let i = index; i<this.count; i++){
-		// 	// console.log(this.positionClone[i]);
-			
-		// }
-		// // console.log(this.indexPartition)
 
 
 
@@ -204,12 +222,12 @@ class App {
 	}
 
 	update() {
-        this.angle += 0.01
+        // this.angle += 0.01
 		// console.log(this.angle)
 		this.time += 1;
         const cos = Math.cos(this.angle);
 		const sin = Math.sin(this.angle);
-		for (let i = 0;i < this.count;i++) {
+		for (let i = 0;i < this.vPos.count;i++) {
 			const ix = i * 3;
 			const iy = i * 3 + 1;
 			const iz = i * 3 + 2;
@@ -217,16 +235,17 @@ class App {
 			const y = this.positionClone[iy];
 			const z = this.positionClone[iz];
 			
-			this.bar.geometry.attributes.position.setX(i, x * Math.cos(this.angle * z/10) - y * Math.sin(this.angle * z/10));
-			this.bar.geometry.attributes.position.setY(i, x * Math.sin(this.angle * z/10) + y * Math.cos(this.angle * z/10));
-			this.bar.geometry.attributes.position.setZ(i, z);
-			// this.bar.geometry.attributes.position.setX(i, this.angle);
+			this.vPos.setX(i, x * Math.cos(this.angle * z/10) - y * Math.sin(this.angle * z/10));
+			this.vPos.setY(i, x * Math.sin(this.angle * z/10) + y * Math.cos(this.angle * z/10));
+			this.vPos.setZ(i, z);
+			// this.vPos.setX(i, this.angle);
 			
 		}           
 		this.bar.geometry.computeVertexNormals();
-		this.bar.geometry.attributes.position.needsUpdate = true;
+		this.vPos.needsUpdate = true;
+		this.angle += ( this.targetRotation - this.angle ) * 0.05;
 	}
-		
+	
 }
 
 window.onload = function () {
