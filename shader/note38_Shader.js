@@ -10,7 +10,7 @@ const BarShader = {
         Light : {
             value :{
                 Position : new Vector4(-10,-5,25),
-                La : new Vector3(0.4,0.4,0.4),
+                La : new Vector3(0.6,0.6,0.6),
                 Ld : new Vector3(1,1,1),
                 Ls : new Vector3(1,1,1),
             }
@@ -185,17 +185,17 @@ const BarShader = {
         
 
         vec3 gradient(vec3 color1, vec3 color2){
-            return mix(color1, color2, vPosition.z/15.0);
+            return mix(color1, color2, vPosition.z/22.0);
+            // return smoothstep(color1, color2, vec3(1.0));
         }
 
         void main() {
             vec3 fragColor;
-            fragColor = vec3(1,0.57,0.8);
             // mainImage(fragColor);
             
-            fragColor = gradient(vec3(1, 0.765, 0), vec3(1, 0.494, 1));
+            fragColor = gradient(vec3(1, 0.765, 0), vec3(1, 0.494, 1.0));
             fragColor = phongModel(fragColor);
-            fragColor = grain(fragColor);
+            // fragColor = grain(fragColor);
             
 
             gl_FragColor = vec4(fragColor,1.0);
@@ -229,9 +229,9 @@ const StickShader = {
         
         Light : {
             value :{
-                Position : new Vector4(-10,10,5),
+                Position : new Vector4(-10,0,5),
                 La : new Vector3(1,1,1),
-                Ld : new Vector3(0.1,0.1,0.1),
+                Ld : new Vector3(0.5,0.5,0.5),
                 Ls : new Vector3(1,1,1),
             }
         },
@@ -249,18 +249,6 @@ const StickShader = {
     vertexShader : /* glsl */`
         
 
-        uniform struct LightInfo {
-            vec4 Position;
-            vec3 La;
-            vec3 Ld;
-            vec3 Ls;
-        } Light;
-        uniform struct MaterialInfo{
-            vec3 Ka;
-            vec3 Kd;
-            vec3 Ks;
-            float Shininess;
-        } Material;
 
         /* out */
         varying vec3 LightIntensity;
@@ -296,22 +284,34 @@ const StickShader = {
         varying vec3 vPosition;
         varying vec3 vNormal;
         varying vec2 vUv;
-        vec3 phongModel(vec3 pos, vec3 n){
-            vec3 ambient = Light.La * Material.Ka;
-            vec3 s = normalize(Light.Position.xyz - pos);
-            float sDotN = max(dot(s,n), 0.0);
-            vec3 diffuse = Light.Ld * Material.Kd * sDotN;
-            // vec3 spec = vec3(0.0);
-            // if(sDotN > 0.0){
-            //     vec3 v = normalize(cameraPosition+pos.xyz);
-            //     vec3 r = reflect(-s,n);
-            //     spec = Light.Ls * Material.Ks * pow(max(dot(r,v), 0.0), Material.Shininess);
-            // }
+        vec3 phongModel(vec3 color){
+            vec3 ambient = Light.La * color;
+            vec3 s = normalize(Light.Position.xyz - vPosition);
+            float sDotN = max(dot(s,vNormal), 0.0);
+            vec3 diffuse = Light.Ld * color * sDotN;
             return ambient + diffuse;
         }
-        void main() {
+
+        const float strength = 0.03;
+        float rand(vec2 co) {
+            return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+        vec3 grain(vec3 color){
+            float grain = rand(vUv.xy) * 2.0 - 1.0;
+            vec3 co = color + grain * strength;
+            return co;
             
-            gl_FragColor = vec4(phongModel(vPosition, vNormal), 1.0);
+        }
+        vec3 gradient(vec3 color1, vec3 color2){
+            return mix(color1, color2, (vPosition.y + 4.0)/8.0);
+        }
+        void main() {
+            vec3 fragColor;
+            fragColor = gradient(vec3(0.639, 0.58, 0.443),vec3(0.388, 0.353, 0.271));
+            
+            fragColor = phongModel(fragColor);
+            // fragColor = grain(fragColor);
+            gl_FragColor = vec4(fragColor, 1.0);
 
         }
     `

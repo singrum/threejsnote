@@ -2,7 +2,11 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import {BarShader, StickShader} from '../shader/note38_Shader.js'
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
-
+import { EffectComposer } from '../node_modules/three/examples/jsm/postprocessing/EffectComposer.js';
+import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
+import { RenderPass } from '../node_modules/three/examples/jsm/postprocessing/RenderPass.js';
+import { Filter } from '../shader/note38_Pass.js';
+import { FXAAShader } from '../node_modules/three/examples/jsm/shaders/FXAAShader.js';
 
 // https://sketchfab.com
 
@@ -32,6 +36,7 @@ class App {
 		this._setupModel();
 		this._setupControls();
 		this._setupBackground();
+		this._setupComposer();
 
 		window.onresize = this.resize.bind(this);
 		this.resize();
@@ -39,8 +44,31 @@ class App {
 		this.prevTime = performance.now();
 		requestAnimationFrame(this.render.bind(this));
 	}
+
+	_setupComposer(){
+        this._composer = new EffectComposer( this._renderer );
+        
+        this._composer.setSize(window.innerWidth, window.innerHeight);
+
+        const renderPass = new RenderPass(this._scene, this._camera);
+		this._composer.addPass(renderPass);
+		const fxaaPass = new ShaderPass(FXAAShader);
+        
+        fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+		this._composer.addPass(fxaaPass);
+
+		const filterPass = new ShaderPass( Filter );
+		filterPass.uniforms.renderTex.value = this._composer.renderTarget1.texture;
+		this._composer.addPass( filterPass);
+
+
+		
+        
+
+		console.log(this._composer)
+    }
     _setupBackground(){
-        this._scene.background = new THREE.Color(0xD6CDA4);
+        this._scene.background = new THREE.Color(1,1,1);
 
     }
 	_setupControls(){ 
@@ -51,8 +79,10 @@ class App {
 			this.startX = event.clientX
 			this.startY = event.clientY
 			this.pointerYOnPointerDown = event.clientY - window.innerWidth / 2;
+			
+			
 			this.targetRotationOnPointerDown = this.targetRotation;
-
+			
 			document.addEventListener( 'pointermove', onPointerMove );
 			document.addEventListener( 'pointerup', onPointerUp );
 
@@ -93,7 +123,7 @@ class App {
 		const camera = new THREE.OrthographicCamera( -aspectRatio * width / 2, aspectRatio * width / 2, width / 2, -width /2, 0.000001, 100000 );
 		
 		camera.position.set(8,10,35)
-		camera.zoom = 6
+		camera.zoom = 6.5
 				camera.lookAt(-1,0,0)
 		// camera.zoom = 0.1
 		this._camera = camera;
@@ -157,7 +187,7 @@ class App {
 			barShape.lineTo(-1 + 0.1 * (i+1),3);	
 		}    
         
-        const barLen = 20
+        const barLen = 22
 		const barStep = 40;
         const extrudeSettings ={
 			curveSegments : 10,
@@ -191,7 +221,7 @@ class App {
 
         this.bar = bar;
 		this.vPos = bar.geometry.attributes.position;
-        
+        // console.log(this.vPos)
         this.positionClone = JSON.parse(JSON.stringify(this.vPos.array))
 		
 
@@ -214,10 +244,12 @@ class App {
 		this._camera.updateProjectionMatrix();
 
 		this._renderer.setSize(width, height);
+		this._composer.setSize(width, height);
 	}
 
 	render() {
-		this._renderer.render(this._scene, this._camera);
+		// this._renderer.render(this._scene, this._camera);
+		this._composer.render()
 		this.update();
 		this.timeUpdate();
 		requestAnimationFrame(this.render.bind(this));
@@ -227,6 +259,7 @@ class App {
 		const deltaTime = (currentTime - this.prevTime) / 1000;
 		this.prevTime = currentTime;
 		this.time += deltaTime;
+		BarShader.uniforms.iTime.value = this.time;
 	}
 	update() {
         // this.angle += 0.01
@@ -251,7 +284,16 @@ class App {
 		this.bar.geometry.computeVertexNormals();
 		this.vPos.needsUpdate = true;
 		this.angle += ( this.targetRotation - this.angle ) * 0.05;
-		
+		// this.angle = Math.max( -Math.PI/4, Math.min( Math.PI/4, this.angle ) )
+		if(this.angle < -Math.PI/3){
+			this.targetRotation = -Math.PI/3
+			this.angle = -Math.PI/3
+		}
+		if(this.angle > Math.PI/3){
+			this.targetRotation = Math.PI/3
+			this.angle = Math.PI/3
+		}
+
 	}
 	
 }
