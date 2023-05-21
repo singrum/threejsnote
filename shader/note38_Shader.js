@@ -174,7 +174,7 @@ const BarShader = {
             return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
         }
 
-        const float strength = 0.1;
+        const float strength = 0.06;
 
         vec3 grain(vec3 color){
             float grain = rand(vUv.xy) * 2.0 - 1.0;
@@ -193,7 +193,7 @@ const BarShader = {
             fragColor = vec3(1,0.57,0.8);
             // mainImage(fragColor);
             
-            fragColor = gradient(vec3(1, 0.765, 0), vec3(0.996, 0.094, 1));
+            fragColor = gradient(vec3(1, 0.765, 0), vec3(1, 0.494, 1));
             fragColor = phongModel(fragColor);
             fragColor = grain(fragColor);
             
