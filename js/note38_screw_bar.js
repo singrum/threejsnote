@@ -55,7 +55,7 @@ class App {
 		const fxaaPass = new ShaderPass(FXAAShader);
         
         fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
-		this._composer.addPass(fxaaPass);
+		// this._composer.addPass(fxaaPass);
 
 		const filterPass = new ShaderPass( Filter );
 		filterPass.uniforms.renderTex.value = this._composer.renderTarget1.texture;
