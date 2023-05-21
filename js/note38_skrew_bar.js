@@ -44,8 +44,19 @@ class App {
     }
 	_setupControls(){ 
         new OrbitControls(this._camera, this._divContainer);
+		let idx = 600;
+		// window.addEventListener("click",()=>{
 
-
+		// 		const ix = idx * 3;
+		// 		const iy = idx * 3 + 1;
+		// 		const iz = idx * 3 + 2;
+		// 		const x = this.positionClone[ix];
+		// 		const y = this.positionClone[iy];
+		// 		const z = this.positionClone[iz];
+		// 		console.log(x,y,z)
+		// 		this.debugPoint(x,y,z)
+		// 		idx ++;
+		// })
 
 	}
 
@@ -110,8 +121,9 @@ class App {
         barShape.lineTo(-1,3)
         
         const barLen = 20
+		const barStep = 20;
         const extrudeSettings ={
-            steps: 20,
+            steps: barStep,
             depth: barLen,
             bevelEnabled: false,
             // bevelThickness: 0.5,
@@ -134,7 +146,7 @@ class App {
 
         const group = new THREE.Object3D();
         group.add(bar, stick);
-        this._scene.add(group);
+        // this._scene.add(group);
         group.rotation.set(0,0,-Math.PI/4);
 
         
@@ -142,9 +154,49 @@ class App {
         this.bar = bar;
         this.count = this.bar.geometry.attributes.position.count;
         this.positionClone = JSON.parse(JSON.stringify(this.bar.geometry.attributes.position.array))
-        console.log(this.positionClone)
         
+		console.log(this.count)
+		//600 + 612 * 20씩 증가
+
+		this.indexPartition = [[],[]];
+		for(let i = 0; i< barStep + 10; i++){
+			this.indexPartition.push([]);
+		}
+		for (let i = 0; i < 300; i++) {
+			this.indexPartition[0].push(i);
+		}
+		for(let i = 300; i<600; i++){
+			this.indexPartition[1].push(i);
+		}
+		let index = 0;
+		for(let i = index; i<this.count; i++){
+			// console.log(this.positionClone[i]);
+			
+		}
+		// console.log(this.indexPartition)
+
+
+
+		for (let idx = 0;idx < this.count/2;idx++) {
+			const ix = idx * 3;
+			const iy = idx * 3 + 1;
+			const iz = idx * 3 + 2;
+			const x = this.positionClone[ix];
+			const y = this.positionClone[iy];
+			const z = this.positionClone[iz];
+			for(let i = 0; i<20;i++) {
+				if(z < 0.5 * (i + 1)){
+					this.indexPartition[0].push(idx);
+					break;
+				}
+			}
+			
+		}
+		console.log(this.indexPartition)
+		
 	}
+
+
 
 	randRange(a,b){
 		return Math.random() * (b - a) + a;
@@ -167,23 +219,20 @@ class App {
 
 	update() {
         this.angle += 0.01
-        for(let i = 0; i< this.count; i++){
-            const ix = i* 3;
-            const iy = i * 3 + 1;
-            const iz = i * 3 + 2;
-            const x = this.positionClone[ix];
-            const y = this.positionClone[iy];
-            const z = this.positionClone[iz];
-            const lenFromZaxis = Math.hypot(x, y);
-            const temp1 = lenFromZaxis + this.rotRad * Math.sin(time)
-            this.bowArr[j].geometry.attributes.position.setX(i, temp1 * x / lenFromZaxis);
-            this.bowArr[j].geometry.attributes.position.setY(i, temp1 * y / lenFromZaxis);
-            this.bowArr[j].geometry.attributes.position.setZ(i, (z + this.rotRad * Math.cos(time)));
-
+		this.time += 1;
+        
+		const ix = this.time* 3;
+		const iy = this.time * 3 + 1;
+		const iz = this.time * 3 + 2;
+		const x = this.positionClone[ix];
+		const y = this.positionClone[iy];
+		const z = this.positionClone[iz];
+        
+		// this.debugPoint(x,y,z)
             
-        }
-        this.bowArr[j].geometry.computeVertexNormals();
-        this.bowArr[j].geometry.attributes.position.needsUpdate = true;
+        // }
+        // this.bowArr[j].geometry.computeVertexNormals();
+        // this.bowArr[j].geometry.attributes.position.needsUpdate = true;
     }
 }
 
