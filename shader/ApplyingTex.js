@@ -86,7 +86,7 @@ const PhongShader = {
         const float strength = 0.05;
 
         void main() {
-            float grain = rand(vUv.xy) * 2.0 - 1.0;
+
             vec3 texColor = blinnPhong(vPosition, vNormal);
             texColor.rgb += grain * strength;
             

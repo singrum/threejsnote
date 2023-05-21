@@ -23,11 +23,10 @@ class App {
 		renderer.shadowMap.enabled = true;
 		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-		this.time = 0;
 		this.angle = 0;
 
 		this.prevTime = performance.now()
-
+		this.time = 0;
 		this._setupCamera();
 		this._setupLight();
 		this._setupModel();
@@ -36,7 +35,8 @@ class App {
 
 		window.onresize = this.resize.bind(this);
 		this.resize();
-		this.temp = 0;
+		
+		this.prevTime = performance.now();
 		requestAnimationFrame(this.render.bind(this));
 	}
     _setupBackground(){
@@ -170,6 +170,7 @@ class App {
         }
         const barGeometry = new THREE.ExtrudeGeometry( barShape, extrudeSettings );
         const barMaterial = new THREE.ShaderMaterial(BarShader);
+		BarShader.uniforms.iTime.value = this.time;
         const bar = new THREE.Mesh(barGeometry, barMaterial);
         bar.rotation.set(-Math.PI/2, 0, 0);
         bar.position.set(0,-barLen/2,0)
@@ -192,7 +193,7 @@ class App {
 		this.vPos = bar.geometry.attributes.position;
         
         this.positionClone = JSON.parse(JSON.stringify(this.vPos.array))
-
+		
 
 
 
@@ -218,13 +219,19 @@ class App {
 	render() {
 		this._renderer.render(this._scene, this._camera);
 		this.update();
+		this.timeUpdate();
 		requestAnimationFrame(this.render.bind(this));
 	}
-
+	timeUpdate(){
+		const currentTime = performance.now();
+		const deltaTime = (currentTime - this.prevTime) / 1000;
+		this.prevTime = currentTime;
+		this.time += deltaTime;
+	}
 	update() {
         // this.angle += 0.01
 		// console.log(this.angle)
-		this.time += 1;
+		
         const cos = Math.cos(this.angle);
 		const sin = Math.sin(this.angle);
 		for (let i = 0;i < this.vPos.count;i++) {
@@ -244,6 +251,7 @@ class App {
 		this.bar.geometry.computeVertexNormals();
 		this.vPos.needsUpdate = true;
 		this.angle += ( this.targetRotation - this.angle ) * 0.05;
+		
 	}
 	
 }
