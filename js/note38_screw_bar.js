@@ -68,7 +68,7 @@ class App {
 		console.log(this._composer)
     }
     _setupBackground(){
-        this._scene.background = new THREE.Color(0,0,0);
+        this._scene.background = new THREE.Color(0x111111);
 
     }
 	_setupControls(){ 

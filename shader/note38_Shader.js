@@ -11,7 +11,7 @@ const BarShader = {
             value :{
                 Position : new Vector4(-13,-10,27),
                 La : new Vector3(0.6,0.6,0.6),
-                Ld : new Vector3(1,1,1),
+                Ld : new Vector3(0.8,0.8,0.8),
                 Ls : new Vector3(1,1,1),
             }
         },
@@ -195,7 +195,7 @@ const BarShader = {
             return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
         }
 
-        const float strength = 0.06;
+        const float strength = 0.04;
 
         vec3 grain(vec3 color){
             float grain = rand(vUv.xy) * 2.0 - 1.0;
@@ -222,7 +222,7 @@ const BarShader = {
             // fragColor = normalMap(fragColor);
             // fragColor = applyTex();
             fragColor = phongModel(fragColor);
-            // fragColor = grain(fragColor);
+            fragColor = grain(fragColor);
             
 
             gl_FragColor = vec4(fragColor,1.0);
