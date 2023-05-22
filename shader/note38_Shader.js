@@ -165,7 +165,7 @@ const BarShader = {
             // Wave warp with sin
             float frequency = 5.;
             float amplitude = 30.;
-            float speed = iTime * 2.;
+            float speed = iTime * 6.;
             tuv.x += sin(tuv.y*frequency+speed)/amplitude;
             tuv.y += sin(tuv.x*frequency*1.5+speed)/(amplitude*.5);
             
