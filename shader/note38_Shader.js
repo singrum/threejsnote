@@ -113,7 +113,7 @@ const BarShader = {
                 vec3 r = reflect(-s,vNormal);
                 spec = Light.Ls * Material.Ks * pow(max(dot(r,v), 0.0), Material.Shininess);
             }
-            return ambient + diffuse + spec;
+            return ambient + diffuse ;
         }
 
 

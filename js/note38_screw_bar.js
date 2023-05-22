@@ -212,7 +212,7 @@ class App {
 		const textureLoader = new THREE.TextureLoader();
 		const normalMap = textureLoader.load('../data/Blue_Ice_001_NORM.jpg');
 		const uvMap = textureLoader.load('../data/uv_grid2.jpg');
-		BarShader.uniforms.normalMap = { type: 't', value: normalMap }
+		// BarShader.uniforms.NormalMap = { type: 't', value: normalMap }
 		BarShader.uniforms.uvMap = { type: 't', value: uvMap }
 
 
