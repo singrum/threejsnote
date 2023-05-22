@@ -198,15 +198,32 @@ class App {
             bevelSize: 0.3,
             bevelSegments: 10
         }
-        const barGeometry = new THREE.ExtrudeGeometry( barShape, extrudeSettings );
+        let barGeometry = new THREE.ExtrudeGeometry( barShape, extrudeSettings );
+		
+
+
+
+
+
+
+
         const barMaterial = new THREE.ShaderMaterial(BarShader);
 		BarShader.uniforms.iTime.value = this.time;
+		const textureLoader = new THREE.TextureLoader();
+		const normalMap = textureLoader.load('../data/Blue_Ice_001_NORM.jpg');
+		const uvMap = textureLoader.load('../data/uv_grid2.jpg');
+		BarShader.uniforms.normalMap = { type: 't', value: normalMap }
+		BarShader.uniforms.uvMap = { type: 't', value: uvMap }
+
+
+
+
         const bar = new THREE.Mesh(barGeometry, barMaterial);
         bar.rotation.set(-Math.PI/2, 0, 0);
         bar.position.set(0,-barLen/2,0)
 
 
-        const stickLen = 8;
+        const stickLen = 9;
         const stickGeometry = new THREE.CylinderGeometry(0.6,0.6,stickLen, 16);
         const stickMaterial = new THREE.ShaderMaterial(StickShader)
         const stick = new THREE.Mesh(stickGeometry, stickMaterial)
@@ -248,11 +265,16 @@ class App {
 	}
 
 	render() {
-		// this._renderer.render(this._scene, this._camera);
-		this._composer.render()
+		this._renderer.render(this._scene, this._camera);
+		// this._composer.render()
 		this.update();
 		this.timeUpdate();
+		this.colorUpdate();
 		requestAnimationFrame(this.render.bind(this));
+	}
+
+	colorUpdate(){
+			
 	}
 	timeUpdate(){
 		const currentTime = performance.now();

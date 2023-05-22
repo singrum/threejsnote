@@ -17,10 +17,10 @@ const PhongShader = {
         },
         Material : {
             value :{
-                Ka : new Vector3(0.1,0.1,0.1),
+                Ka : new Vector3(0.2,0.2,0.2),
                 Kd : new Vector3(1,1,1),
                 Ks : new Vector3(1,1,1),
-                Shininess : 100,
+                Shininess : 30,
             }
         },
 
