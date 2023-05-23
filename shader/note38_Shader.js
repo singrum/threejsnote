@@ -12,7 +12,7 @@ const BarShader = {
                 Position : new Vector4(-13,-10,27),
                 La : new Vector3(0.6,0.6,0.6),
                 Ld : new Vector3(1.0,1.0,1.0),
-                Ls : new Vector3(1,1,1),
+                Ls : new Vector3(1.0,1.0,1.0),
             }
         },
         Material : {
@@ -50,15 +50,13 @@ const BarShader = {
             vPosition = position;
             vNormal = normal;
             vUv = uv;
-            
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition, 1.0);
         }
     `,
     fragmentShader : /* glsl */`
 
         #define S(a,b,t) smoothstep(a,b,t)
         #define PI 3.1415926535
-
 
 
         uniform struct LightInfo {
@@ -142,76 +140,76 @@ const BarShader = {
         }
 
 
-        // mat2 Rot(float a)
-        // {
-        //     float s = sin(a);
-        //     float c = cos(a);
-        //     return mat2(c, -s, s, c);
-        // }
+        mat2 Rot(float a)
+        {
+            float s = sin(a);
+            float c = cos(a);
+            return mat2(c, -s, s, c);
+        }
 
 
-        // // Created by inigo quilez - iq/2014
-        // // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-        // vec2 hash( vec2 p )
-        // {
-        //     p = vec2( dot(p,vec2(2127.1,81.17)), dot(p,vec2(1269.5,283.37)) );
-        //     return fract(sin(p)*43758.5453);
-        // }
+        // Created by inigo quilez - iq/2014
+        // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+        vec2 hash( vec2 p )
+        {
+            p = vec2( dot(p,vec2(2127.1,81.17)), dot(p,vec2(1269.5,283.37)) );
+            return fract(sin(p)*43758.5453);
+        }
 
-        // float noise( in vec2 p )
-        // {
-        //     vec2 i = floor( p );
-        //     vec2 f = fract( p );
+        float noise( in vec2 p )
+        {
+            vec2 i = floor( p );
+            vec2 f = fract( p );
             
-        //     vec2 u = f*f*(3.0-2.0*f);
+            vec2 u = f*f*(3.0-2.0*f);
 
-        //     float n = mix( mix( dot( -1.0+2.0*hash( i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ), 
-        //                         dot( -1.0+2.0*hash( i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),
-        //                 mix( dot( -1.0+2.0*hash( i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ), 
-        //                         dot( -1.0+2.0*hash( i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);
-        //     return 0.5 + 0.5*n;
-        // }
+            float n = mix( mix( dot( -1.0+2.0*hash( i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ), 
+                                dot( -1.0+2.0*hash( i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),
+                        mix( dot( -1.0+2.0*hash( i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ), 
+                                dot( -1.0+2.0*hash( i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);
+            return 0.5 + 0.5*n;
+        }
 
 
-        // void mainImage( out vec3 fragColor)
-        // {
-        //     float ratio = 1.0;
-        //     vec2 tuv = vec2((abs(atan(vPosition.y,vPosition.x)))/ 3.14, vPosition.z / 22.0);
-        //     tuv -= .5;
+        void mainImage( out vec3 fragColor)
+        {
+            float ratio = 1.0;
+            vec2 tuv = vec2((abs(atan(vPosition.y,vPosition.x)))/ 3.14, vPosition.z / 22.0);
+            tuv -= .5;
 
-        //     // rotate with Noise
-        //     float degree = noise(vec2(iTime*.1, tuv.x*tuv.y));
+            // rotate with Noise
+            float degree = noise(vec2(iTime*.1, tuv.x*tuv.y));
 
-        //     tuv.y *= 1./ratio;
-        //     tuv *= Rot(radians((degree-.5)*720.+180.));
-        //     tuv.y *= ratio;
+            tuv.y *= 1./ratio;
+            tuv *= Rot(radians((degree-.5)*720.+180.));
+            tuv.y *= ratio;
 
             
-        //     // Wave warp with sin
-        //     float frequency = 5.;
-        //     float amplitude = 30.;
-        //     float speed = iTime * 6.;
-        //     tuv.x += sin(tuv.y*frequency+speed)/amplitude;
-        //     tuv.y += sin(tuv.x*frequency*1.5+speed)/(amplitude*.5);
+            // Wave warp with sin
+            float frequency = 5.;
+            float amplitude = 30.;
+            float speed = iTime * 6.;
+            tuv.x += sin(tuv.y*frequency+speed)/amplitude;
+            tuv.y += sin(tuv.x*frequency*1.5+speed)/(amplitude*.5);
             
             
-        //     // draw the image
-        //     // vec3 colorYellow = vec3(0.718, 0.6, 1);
-        //     // vec3 colorDeepBlue = vec3(0.675, 0.737, 1);
-        //     vec3 colorYellow = vec3(1, 0.333, 0.733);
-        //     vec3 colorDeepBlue = vec3(1, 0.827, 0.639);
-        //     vec3 layer1 = mix(colorYellow, colorDeepBlue, S(-.3, .2, (tuv*Rot(radians(-5.))).x));
+            // draw the image
+            // vec3 colorYellow = vec3(0.718, 0.6, 1);
+            // vec3 colorDeepBlue = vec3(0.675, 0.737, 1);
+            vec3 colorYellow = vec3(1, 0.255, 0.804);
+            vec3 colorDeepBlue = vec3(0.784, 0, 1);
+            vec3 layer1 = mix(colorYellow, colorDeepBlue, S(-.3, .2, (tuv*Rot(radians(-5.))).x));
             
-        //     vec3 colorRed = vec3(0.988, 1, 0.698);
-        //     vec3 colorBlue = vec3(0.714, 0.918, 0.98);
-        //     vec3 layer2 = mix(colorRed, colorBlue, S(-.3, .2, (tuv*Rot(radians(-5.))).x));
+            vec3 colorRed = vec3(0.996, 1, 0);
+            vec3 colorBlue = vec3(1, 0.616, 0);
+            vec3 layer2 = mix(colorRed, colorBlue, S(-.3, .2, (tuv*Rot(radians(-5.))).x));
             
-        //     vec3 finalComp = mix(layer1, layer2, S(.5, -.3, tuv.y));
+            vec3 finalComp = mix(layer1, layer2, S(.5, -.3, tuv.y));
             
-        //     vec3 col = finalComp;
+            vec3 col = finalComp;
             
-        //     fragColor = col;
-        // }
+            fragColor = col;
+        }
 
 
 
@@ -251,8 +249,8 @@ const BarShader = {
             vec3 fragColor;
             // mainImage(fragColor);
             vec2 psuv = vec2(atan(vPosition.y,vPosition.x)/ (2.0 * PI) + 0.5, vPosition.z / 22.0);
-            
-            fragColor = wave( vec3(0.996, 0.949, 0.957),vec3(1, 0.325, 0.439), psuv.y + seamless_noise(psuv - iTime / 10.0, vec2(4.0,4.0)));
+            fragColor = vec3(1, 0.325, 0.439);
+            fragColor = wave( vec3(0.996, 0.949, 0.957),fragColor, psuv.y + seamless_noise(psuv - iTime / 10.0, vec2(4.0,4.0)));
             
             fragColor = phongModel(fragColor);
             // fragColor = grain(fragColor);
