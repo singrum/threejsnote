@@ -167,29 +167,32 @@ class App {
 	}
 	_setupModel() {
 		const barShape = new THREE.Shape();
-        barShape.moveTo(1,3);
 		
+		const lineSeg = 30;
+
+		barShape.moveTo(-3,-1)
+		for(let i= 0; i < lineSeg; i++){
+			barShape.lineTo(-3, -1 + 2 / lineSeg * (i+1));	
+		}    
+        barShape.arc(0,2,2, Math.PI * 1.5, Math.PI * 2);
+		for(let i= 0; i < lineSeg; i++){
+			barShape.lineTo(-1 + 2 / lineSeg * (i+1),3);	
+		}    
         barShape.arc(2,0,2, Math.PI, Math.PI * 1.5);
-		for(let i= 0; i < 20; i++){
-			barShape.lineTo(3,1 - 0.1 * (i+1));	
+		for(let i= 0; i < lineSeg; i++){
+			barShape.lineTo(3,1 - 2 / lineSeg * (i+1));	
 		}    
         barShape.arc(0,-2,2, Math.PI *0.5, Math.PI);
-		for(let i= 0; i < 20; i++){
-			barShape.lineTo(1 - 0.1 * (i+1), -3);	
+		for(let i= 0; i < lineSeg; i++){
+			barShape.lineTo(1 - 2 / lineSeg * (i+1), -3);	
 		}    
         barShape.arc(-2,0,2, 0,Math.PI *0.5);
-		for(let i= 0; i < 20; i++){
-			barShape.lineTo(-3, -1 + 0.1 * (i+1));	
-		}    
-        
-        barShape.arc(0,2,2, Math.PI * 1.5, Math.PI * 2);
-		for(let i= 0; i < 20; i++){
-			barShape.lineTo(-1 + 0.1 * (i+1),3);	
-		}    
+
+		
 		// barShape.closePath();
         
         const barLen = 22
-		const barStep = 40;
+		const barStep = 20;
         const extrudeSettings ={
 			curveSegments : 10,
             steps: barStep,
@@ -199,25 +202,26 @@ class App {
             bevelSize: 0.3,
             bevelSegments: 10
         }
-        let barGeometry = new THREE.ExtrudeGeometry( barShape, extrudeSettings );
+        const barGeometry = new THREE.ExtrudeGeometry( barShape, extrudeSettings );
 		
 
 		let uvArr = [];
 		const count = barGeometry.attributes.position.count;
-		const debug = [];
+		
 		for(let i = 0; i < count; i++){
 		  const x = barGeometry.attributes.position.array[3 * i] ;
 		  const y = barGeometry.attributes.position.array[3 * i + 1];
 		  const z = barGeometry.attributes.position.array[3 * i + 2];
 		
 		  uvArr.push(Math.atan2(y, x) / (2.0 * Math.PI) + 0.5, z / 22.0);
-		  debug.push(Math.atan2(y, x))
+		  
 		}
 		
 		barGeometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvArr), 2));
-		console.log(barGeometry.attributes)
+		
 		barGeometry.attributes.uv.needsUpdate = true;
 
+		console.log(barGeometry.getIndex())
 		
 
 
