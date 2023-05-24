@@ -56,7 +56,7 @@ const BarShader = {
     fragmentShader : /* glsl */`
 
         #define S(a,b,t) smoothstep(a,b,t)
-        #define PI 3.1415926535
+        #define PI 3.1415926536
 
 
         uniform struct LightInfo {
@@ -174,7 +174,7 @@ const BarShader = {
         void mainImage( out vec3 fragColor)
         {
             float ratio = 1.0;
-            vec2 tuv = vec2((abs(atan(vPosition.y,vPosition.x)))/ 3.14, vPosition.z / 22.0);
+            vec2 tuv = vUv;
             tuv -= .5;
 
             // rotate with Noise
@@ -234,7 +234,7 @@ const BarShader = {
         }
 
         vec3 applyTex(){
-            return texture2D(uvMap, vec2((atan(vPosition.y / vPosition.x) * 1.5 + 1.0 ), vPosition.z / 22.0)).xyz;
+            return texture2D(uvMap, vUv).xyz;
         }
 
 
@@ -248,13 +248,16 @@ const BarShader = {
         void main() {
             vec3 fragColor;
             // mainImage(fragColor);
-            vec2 psuv = vec2(atan(vPosition.y,vPosition.x)/ (2.0 * PI) + 0.5, vPosition.z / 22.0);
-            fragColor = vec3(1, 0.325, 0.439);
-            fragColor = wave( vec3(0.996, 0.949, 0.957),fragColor, psuv.y + seamless_noise(psuv - iTime / 10.0, vec2(4.0,4.0)));
             
+            fragColor = vec3(1, 0.325, 0.439);
+            fragColor = wave( vec3(0.996, 0.949, 0.957),fragColor, vUv.y + seamless_noise(vUv - iTime / 10.0, vec2(4.0,4.0)));
+            // fragColor = applyTex();
+            // fragColor =  vec3(vUv.xyx);
             fragColor = phongModel(fragColor);
             // fragColor = grain(fragColor);
-            
+            if(vUv.x > 0.5 && vUv.x < 0.6){
+                fragColor = vec3(0.0);
+            }
 
             gl_FragColor = vec4(fragColor,1.0);
         }

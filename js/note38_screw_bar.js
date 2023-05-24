@@ -65,7 +65,7 @@ class App {
 		
         
 
-		console.log(this._composer)
+		
     }
     _setupBackground(){
         this._scene.background = new THREE.Color(0x111111);
@@ -186,6 +186,7 @@ class App {
 		for(let i= 0; i < 20; i++){
 			barShape.lineTo(-1 + 0.1 * (i+1),3);	
 		}    
+		// barShape.closePath();
         
         const barLen = 22
 		const barStep = 40;
@@ -201,8 +202,23 @@ class App {
         let barGeometry = new THREE.ExtrudeGeometry( barShape, extrudeSettings );
 		
 
+		let uvArr = [];
+		const count = barGeometry.attributes.position.count;
+		const debug = [];
+		for(let i = 0; i < count; i++){
+		  const x = barGeometry.attributes.position.array[3 * i] ;
+		  const y = barGeometry.attributes.position.array[3 * i + 1];
+		  const z = barGeometry.attributes.position.array[3 * i + 2];
+		
+		  uvArr.push(Math.atan2(y, x) / (2.0 * Math.PI) + 0.5, z / 22.0);
+		  debug.push(Math.atan2(y, x))
+		}
+		
+		barGeometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvArr), 2));
+		console.log(barGeometry.attributes.position)
+		barGeometry.attributes.uv.needsUpdate = true;
 
-
+		
 
 
 
