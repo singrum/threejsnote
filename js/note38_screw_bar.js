@@ -168,7 +168,7 @@ class App {
 	_setupModel() {
 		const barShape = new THREE.Shape();
 		
-		const lineSeg = 30;
+		const lineSeg = 40;
 
 		barShape.moveTo(-3,-1)
 		for(let i= 0; i < lineSeg; i++){
