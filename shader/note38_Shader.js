@@ -255,9 +255,7 @@ const BarShader = {
             // fragColor =  vec3(vUv.xyx);
             fragColor = phongModel(fragColor);
             // fragColor = grain(fragColor);
-            if(vUv.x > 0.5 && vUv.x < 0.6){
-                fragColor = vec3(0.0);
-            }
+            // fragColor = vec3(vUv.x, vUv.y, 1.0);
 
             gl_FragColor = vec4(fragColor,1.0);
         }
