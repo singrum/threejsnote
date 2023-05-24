@@ -215,7 +215,7 @@ class App {
 		}
 		
 		barGeometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvArr), 2));
-		console.log(barGeometry.attributes.position)
+		console.log(barGeometry.attributes)
 		barGeometry.attributes.uv.needsUpdate = true;
 
 		
