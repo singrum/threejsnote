@@ -1,6 +1,6 @@
 
 import * as THREE from '../node_modules/three/build/three.module.js';
-import {BarShader, StickShader} from '../shader/note38_Shader.js'
+import {Shader} from '../shader/note39_Shader.js'
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from '../node_modules/three/examples/jsm/postprocessing/EffectComposer.js';
 import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
@@ -72,7 +72,7 @@ class App {
 
     }
 	_setupControls(){ 
-        // new OrbitControls(this._camera, this._divContainer);
+        new OrbitControls(this._camera, this._divContainer);
         const onPointerDown = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
@@ -122,9 +122,8 @@ class App {
 		const aspectRatio = window.innerWidth / window.innerHeight;
 		const camera = new THREE.OrthographicCamera( -aspectRatio * width / 2, aspectRatio * width / 2, width / 2, -width /2, 0.000001, 100000 );
 		
-		camera.position.set(7,10,35)
+		camera.position.set(0,0,35)
 		camera.zoom = 6.5
-				camera.lookAt(-2,0,0)
 		// camera.zoom = 0.1
 		this._camera = camera;
         this._scene.add(this._camera)
@@ -166,105 +165,10 @@ class App {
 		this._scene.add(points)
 	}
 	_setupModel() {
-		const barShape = new THREE.Shape();
-		
-		const lineSeg = 20;
-		barShape.moveTo(-3,-1);
-		for(let i= 0; i < lineSeg/2 - 1; i++){
-			barShape.lineTo(-3, -1 + 2 / lineSeg * (i+1));	
-		}    
-		barShape.lineTo(-3,-0.0000001);
-		barShape.lineTo(-3,0.0000001);
-		for(let i= lineSeg/2 + 1; i < lineSeg; i++){
-			barShape.lineTo(-3, -1 + 2 / lineSeg * (i+1));	
-		}    
-        barShape.arc(0,2,2, Math.PI * 1.5, Math.PI * 2);
-		for(let i= 0; i < lineSeg; i++){
-			barShape.lineTo(-1 + 2 / lineSeg * (i+1),3);	
-		}    
-        barShape.arc(2,0,2, Math.PI, Math.PI * 1.5);
-		for(let i= 0; i < lineSeg; i++){
-			barShape.lineTo(3,1 - 2 / lineSeg * (i+1));	
-		}    
-        barShape.arc(0,-2,2, Math.PI *0.5, Math.PI);
-		for(let i= 0; i < lineSeg; i++){
-			barShape.lineTo(1 - 2 / lineSeg * (i+1), -3);	
-		}    
-        barShape.arc(-2,0,2, 0,Math.PI *0.5);
-
-		
-		// barShape.closePath();
-        
-        const barLen = 22
-		const barStep = 20;
-        const extrudeSettings ={
-			curveSegments : 10,
-            steps: barStep,
-            depth: barLen,
-            bevelEnabled: false,
-            bevelThickness: 0.5,
-            bevelSize: 0.3,
-            bevelSegments: 10
-        }
-        const barGeometry = new THREE.ExtrudeGeometry( barShape, extrudeSettings );
-		
-
-		let uvArr = [];
-		const count = barGeometry.attributes.position.count;
-		
-		for (let i = 0; i < count; i++) {
-			const x = barGeometry.attributes.position.array[3 * i];
-			const y = barGeometry.attributes.position.array[3 * i + 1];
-			const z = barGeometry.attributes.position.array[3 * i + 2];
-			let uvx = Math.atan2(y,x) / (2.0 * Math.PI) + 0.5
-			
-			uvArr.push(uvx, z / 22.0);
-
-		}
-		
-		barGeometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvArr), 2));
-		
-		barGeometry.attributes.uv.needsUpdate = true;
-		
-		
-
-
-
-
-        const barMaterial = new THREE.ShaderMaterial(BarShader);
-		BarShader.uniforms.iTime.value = this.time;
-		const textureLoader = new THREE.TextureLoader();
-		// const normalMap = textureLoader.load('../data/Blue_Ice_001_NORM.jpg');
-		// const uvMap = textureLoader.load('../data/uv_grid2.jpg');
-		// BarShader.uniforms.NormalMap = { type: 't', value: normalMap }
-		// BarShader.uniforms.uvMap = { type: 't', value: uvMap }
-
-
-
-
-        const bar = new THREE.Mesh(barGeometry, barMaterial);
-        bar.rotation.set(-Math.PI/2, 0, 0);
-        bar.position.set(0,-barLen/2,0)
-
-
-        const stickLen = 9;
-        const stickGeometry = new THREE.CylinderGeometry(0.6,0.6,stickLen, 16);
-        const stickMaterial = new THREE.ShaderMaterial(StickShader)
-        const stick = new THREE.Mesh(stickGeometry, stickMaterial)
-        stick.position.set(0,-barLen / 2 - stickLen / 2,0);
-
-        const group = new THREE.Object3D();
-        group.add(bar, stick);
-        this._scene.add(group);
-        group.rotation.set(0,0,-Math.PI/4);
-
-        
-
-        this.bar = bar;
-		this.vPos = bar.geometry.attributes.position;
-        // console.log(this.vPos)
-        this.positionClone = JSON.parse(JSON.stringify(this.vPos.array))
-		
+        const geom = new THREE.PlaneGeometry(20,20);
+        const mate = new THREE.ShaderMaterial(Shader);
+		const mesh = new THREE.Mesh(geom, mate)
+		this._scene.add(mesh)
 
 
 
@@ -285,7 +189,6 @@ class App {
 		this._camera.updateProjectionMatrix();
 
 		this._renderer.setSize(width, height);
-		// this._composer.setSize(width, height);
 	}
 
 	render() {
@@ -305,40 +208,10 @@ class App {
 		const deltaTime = (currentTime - this.prevTime) / 1000;
 		this.prevTime = currentTime;
 		this.time += deltaTime;
-		BarShader.uniforms.iTime.value = this.time;
+		Shader.uniforms.iTime.value = this.time;
 	}
 	update() {
-        // this.angle += 0.01
-		// console.log(this.angle)
-		
-        const cos = Math.cos(this.angle);
-		const sin = Math.sin(this.angle);
-		for (let i = 0;i < this.vPos.count;i++) {
-			const ix = i * 3;
-			const iy = i * 3 + 1;
-			const iz = i * 3 + 2;
-			const x = this.positionClone[ix];
-			const y = this.positionClone[iy];
-			const z = this.positionClone[iz];
-			
-			this.vPos.setX(i, x * Math.cos(this.angle * z/10) - y * Math.sin(this.angle * z/10));
-			this.vPos.setY(i, x * Math.sin(this.angle * z/10) + y * Math.cos(this.angle * z/10));
-			this.vPos.setZ(i, z);
-			// this.vPos.setX(i, this.angle);
-			
-		}           
-		this.bar.geometry.computeVertexNormals();
-		this.vPos.needsUpdate = true;
-		this.angle += ( this.targetRotation - this.angle ) * 0.05;
-		// this.angle = Math.max( -Math.PI/4, Math.min( Math.PI/4, this.angle ) )
-		if(this.angle < -Math.PI/3){
-			this.targetRotation = -Math.PI/3
-			this.angle = -Math.PI/3
-		}
-		if(this.angle > Math.PI/3){
-			this.targetRotation = Math.PI/3
-			this.angle = Math.PI/3
-		}
+
 
 	}
 	
