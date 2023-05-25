@@ -72,7 +72,7 @@ class App {
 
     }
 	_setupControls(){ 
-        new OrbitControls(this._camera, this._divContainer);
+        // new OrbitControls(this._camera, this._divContainer);
         const onPointerDown = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
