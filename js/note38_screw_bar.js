@@ -72,7 +72,7 @@ class App {
 
     }
 	_setupControls(){ 
-        // new OrbitControls(this._camera, this._divContainer);
+        new OrbitControls(this._camera, this._divContainer);
         const onPointerDown = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
@@ -168,10 +168,14 @@ class App {
 	_setupModel() {
 		const barShape = new THREE.Shape();
 		
-		const lineSeg = 40;
-
-		barShape.moveTo(-3,-1)
-		for(let i= 0; i < lineSeg; i++){
+		const lineSeg = 20;
+		barShape.moveTo(-3,-1);
+		for(let i= 0; i < lineSeg/2 - 1; i++){
+			barShape.lineTo(-3, -1 + 2 / lineSeg * (i+1));	
+		}    
+		barShape.lineTo(-3,-0.00001);
+		barShape.lineTo(-3,0.00001);
+		for(let i= lineSeg/2 + 1; i < lineSeg; i++){
 			barShape.lineTo(-3, -1 + 2 / lineSeg * (i+1));	
 		}    
         barShape.arc(0,2,2, Math.PI * 1.5, Math.PI * 2);
@@ -208,20 +212,24 @@ class App {
 		let uvArr = [];
 		const count = barGeometry.attributes.position.count;
 		
-		for(let i = 0; i < count; i++){
-		  const x = barGeometry.attributes.position.array[3 * i] ;
-		  const y = barGeometry.attributes.position.array[3 * i + 1];
-		  const z = barGeometry.attributes.position.array[3 * i + 2];
-		
-		  uvArr.push(Math.atan2(y, x) / (2.0 * Math.PI) + 0.5, z / 22.0);
-		  
+		for (let i = 0; i < count; i++) {
+			const x = barGeometry.attributes.position.array[3 * i];
+			const y = barGeometry.attributes.position.array[3 * i + 1];
+			const z = barGeometry.attributes.position.array[3 * i + 2];
+			let uvx = Math.atan2(y,x) / (2.0 * Math.PI) + 0.5
+			if (uvx <0.1) {
+				// uvx = 1;
+				console.log(uvx)
+			}
+			uvArr.push(uvx, z / 22.0);
+
 		}
 		
 		barGeometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvArr), 2));
 		
 		barGeometry.attributes.uv.needsUpdate = true;
-
-		console.log(barGeometry.getIndex())
+		console.log()
+		
 		
 
 
