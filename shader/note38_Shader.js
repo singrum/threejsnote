@@ -188,7 +188,7 @@ const BarShader = {
             // mainImage(fragColor);
             
             fragColor = vec3(1, 0.325, 0.439);
-            fragColor = wave( vec3(0.996, 0.949, 0.957),fragColor, vUv.y + seamless_noise(vUv - iTime / 10.0, vec2(4.0,4.0)));
+            fragColor = wave( vec3(0.996, 0.949, 0.957),fragColor, vUv.y + seamless_noise(vUv - iTime / 15.0, vec2(4.0,4.0)));
             // fragColor = applyTex();
             // fragColor =  vec3(vUv.xyx);
             fragColor = phongModel(fragColor);
