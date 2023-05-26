@@ -52,12 +52,6 @@ class App {
 
         const renderPass = new RenderPass(this._scene, this._camera);
 		this._composer.addPass(renderPass);
-		// const fxaaPass = new ShaderPass(FXAAShader);
-        
-        // fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
-		// this._composer.addPass(fxaaPass);
-
-		const canvas = this._renderer.domElement;
 		
 
 
@@ -68,7 +62,9 @@ class App {
 		this.filterPass = filterPass
 		this._composer.addPass( filterPass);
 
-
+		const fxaaPass = new ShaderPass(FXAAShader);
+        fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+		this._composer.addPass(fxaaPass);
 		
         
 
