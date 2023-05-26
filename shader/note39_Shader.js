@@ -212,17 +212,15 @@ const Shader = {
             return color;
         }
 
+        const float freq = 2.0;
+        const float amp = 0.8;
+
         void main() {
             vec3 fragColor;
-            vec2 coord = vUv;
-            // coord.y += iTime;
-            coord.x = noise(vec3(coord.xy, iTime));
-            // coord.y = noise(vec3(coord.xy, 1.0));
-
-            float dist = sqrt(pow(coord.x - 0.5,2.0) + pow(coord.y - 0.5,2.0));
-            fragColor = gradient( vec3(0.996, 0.949, 0.957),fragColor, dist);
-            // fragColor = applyTex();
-            // fragColor = phongModel(fragColor);
+            vec2 coord = vUv - vec2(0.5,0.5);
+            float dist = length(coord);
+            float t = dist + noise(vec3(coord.xy * freq, iTime)) * amp;
+            fragColor = gradient( vec3(0.996, 0.949, 0.957),fragColor, t);
 
             gl_FragColor = vec4(fragColor,1.0);
         }

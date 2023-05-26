@@ -27,7 +27,7 @@ class App {
 		renderer.shadowMap.enabled = true;
 		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-		this.angle = 0;
+		this.screwAngle = 0;
 
 		this.prevTime = performance.now()
 		this.time = 0;
@@ -36,7 +36,7 @@ class App {
 		this._setupModel();
 		this._setupControls();
 		this._setupBackground();
-		// this._setupComposer();
+		this._setupComposer();
 
 		window.onresize = this.resize.bind(this);
 		this.resize();
@@ -52,13 +52,20 @@ class App {
 
         const renderPass = new RenderPass(this._scene, this._camera);
 		this._composer.addPass(renderPass);
-		const fxaaPass = new ShaderPass(FXAAShader);
+		// const fxaaPass = new ShaderPass(FXAAShader);
         
-        fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+        // fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
 		// this._composer.addPass(fxaaPass);
 
+		const canvas = this._renderer.domElement;
+		
+
+
+
 		const filterPass = new ShaderPass( Filter );
-		filterPass.uniforms.renderTex.value = this._composer.renderTarget1.texture;
+		filterPass.uniforms.renderTex.value = this._composer.renderTarget2.texture;
+		filterPass.uniforms.ratio.value = window.innerWidth / window.innerHeight;
+		this.filterPass = filterPass
 		this._composer.addPass( filterPass);
 
 
@@ -68,7 +75,7 @@ class App {
 		
     }
     _setupBackground(){
-        this._scene.background = new THREE.Color(0x111111);
+        this._scene.background = new THREE.Color(0xffff00);
 
     }
 	_setupControls(){ 
@@ -285,12 +292,12 @@ class App {
 		this._camera.updateProjectionMatrix();
 
 		this._renderer.setSize(width, height);
-		// this._composer.setSize(width, height);
+		this._composer.setSize(width, height);
 	}
 
 	render() {
-		this._renderer.render(this._scene, this._camera);
-		// this._composer.render()
+		// this._renderer.render(this._scene, this._camera);
+		this._composer.render()
 		this.update();
 		this.timeUpdate();
 		this.colorUpdate();
@@ -306,13 +313,14 @@ class App {
 		this.prevTime = currentTime;
 		this.time += deltaTime;
 		BarShader.uniforms.iTime.value = this.time;
+		this.filterPass.uniforms.iTime.value = this.time;
 	}
 	update() {
-        // this.angle += 0.01
-		// console.log(this.angle)
+        // this.screwAngle += 0.01
+		// console.log(this.screwAngle)
 		
-        const cos = Math.cos(this.angle);
-		const sin = Math.sin(this.angle);
+        const cos = Math.cos(this.screwAngle);
+		const sin = Math.sin(this.screwAngle);
 		for (let i = 0;i < this.vPos.count;i++) {
 			const ix = i * 3;
 			const iy = i * 3 + 1;
@@ -321,23 +329,23 @@ class App {
 			const y = this.positionClone[iy];
 			const z = this.positionClone[iz];
 			
-			this.vPos.setX(i, x * Math.cos(this.angle * z/10) - y * Math.sin(this.angle * z/10));
-			this.vPos.setY(i, x * Math.sin(this.angle * z/10) + y * Math.cos(this.angle * z/10));
+			this.vPos.setX(i, x * Math.cos(this.screwAngle * z/10) - y * Math.sin(this.screwAngle * z/10));
+			this.vPos.setY(i, x * Math.sin(this.screwAngle * z/10) + y * Math.cos(this.screwAngle * z/10));
 			this.vPos.setZ(i, z);
-			// this.vPos.setX(i, this.angle);
+			// this.vPos.setX(i, this.screwAngle);
 			
 		}           
 		this.bar.geometry.computeVertexNormals();
 		this.vPos.needsUpdate = true;
-		this.angle += ( this.targetRotation - this.angle ) * 0.05;
-		// this.angle = Math.max( -Math.PI/4, Math.min( Math.PI/4, this.angle ) )
-		if(this.angle < -Math.PI/3){
+		this.screwAngle += ( this.targetRotation - this.screwAngle ) * 0.05;
+		// this.screwAngle = Math.max( -Math.PI/4, Math.min( Math.PI/4, this.screwAngle ) )
+		if(this.screwAngle < -Math.PI/3){
 			this.targetRotation = -Math.PI/3
-			this.angle = -Math.PI/3
+			this.screwAngle = -Math.PI/3
 		}
-		if(this.angle > Math.PI/3){
+		if(this.screwAngle > Math.PI/3){
 			this.targetRotation = Math.PI/3
-			this.angle = Math.PI/3
+			this.screwAngle = Math.PI/3
 		}
 
 	}
