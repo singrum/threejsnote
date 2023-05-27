@@ -7,7 +7,7 @@ import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/Sh
 import { RenderPass } from '../node_modules/three/examples/jsm/postprocessing/RenderPass.js';
 import { Filter } from '../shader/note38_Pass.js';
 import { FXAAShader } from '../node_modules/three/examples/jsm/shaders/FXAAShader.js';
-
+import { SMAAPass } from '../node_modules/three/examples/jsm/postprocessing/SMAAPass.js';
 // https://sketchfab.com
 
 
@@ -47,7 +47,7 @@ class App {
 
 	_setupComposer(){
         this._composer = new EffectComposer( this._renderer );
-        
+        console.log(this._composer)
         this._composer.setSize(window.innerWidth, window.innerHeight);
 
         const renderPass = new RenderPass(this._scene, this._camera);
@@ -62,9 +62,9 @@ class App {
 		this.filterPass = filterPass
 		this._composer.addPass( filterPass);
 
-		const fxaaPass = new ShaderPass(FXAAShader);
-        fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
-		this._composer.addPass(fxaaPass);
+		// const smaaPass = new SMAAPass( window.innerWidth * this._renderer.getPixelRatio(), window.innerHeight * this._renderer.getPixelRatio() );
+        
+		// this._composer.addPass(smaaPass);
 		
         
 
