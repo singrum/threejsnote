@@ -32,6 +32,7 @@ class App {
 
 		this.prevTime = performance.now()
 		this.time = 0;
+		this.torsion = 0;
 		this._setupCamera();
 		this._setupLight();
 		this._setupModel();
@@ -50,7 +51,7 @@ class App {
         this._composer = new EffectComposer( this._renderer );
         
         this._composer.setSize(window.innerWidth, window.innerHeight);
-
+		this._composer.setPixelRatio( window.devicePixelRatio )
         const renderPass = new RenderPass(this._scene, this._camera);
 		this._composer.addPass(renderPass);
 		const fxaaPass = new ShaderPass(FXAAShader);
@@ -73,17 +74,15 @@ class App {
 
     }
 	_setupControls(){ 
-        new OrbitControls(this._camera, this._divContainer);
-        const onPointerDown = ( event ) => {
+        // new OrbitControls(this._camera, this._divContainer);
+		const onPointerDown = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
 			this.startX = event.clientX
 			this.startY = event.clientY
-			this.pointerYOnPointerDown = event.clientY - window.innerWidth / 2;
-			
-			
+			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
 			this.targetRotationOnPointerDown = this.targetRotation;
-			
+
 			document.addEventListener( 'pointermove', onPointerMove );
 			document.addEventListener( 'pointerup', onPointerUp );
 
@@ -92,25 +91,27 @@ class App {
 		const onPointerMove = ( event ) => {
 			
 			if ( event.isPrimary === false ) return;
-			this.pointerY = event.clientY - window.innerWidth / 2;
+			this.pointerX = event.clientX - window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerY - this.pointerYOnPointerDown ) * 0.02;
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
 			
-
 
 		}
 
 		const onPointerUp = (event) => {
 			
 			if ( event.isPrimary === false ) return;
+			
+			
 			document.removeEventListener( 'pointermove', onPointerMove );
 			document.removeEventListener( 'pointerup', onPointerUp );
 
 		}
+		this.rotationY = 0;
 		this.targetRotation = 0;
 		this.targetRotationOnPointerDown = 0;
-		this.pointerY = 0;
-		this.pointerYOnPointerDown = 0;
+		this.pointerX = 0;
+		this.pointerXOnPointerDown = 0;
 		this._divContainer.style.touchAction = 'none';
 		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
 
@@ -171,7 +172,10 @@ class App {
 		Shader.uniforms.uvMap.value = new THREE.TextureLoader().load("../../data/uv_grid2.jpg")
 		const mesh = new THREE.Mesh(geom, mate)
 		this._scene.add(mesh)
-
+		
+		this.planet = mesh;
+		this.planet.rotation.order = 'ZYX'
+		this.planet.rotation.z = 0.2;
 
 
 
@@ -211,10 +215,13 @@ class App {
 		this.prevTime = currentTime;
 		this.time += deltaTime;
 		Shader.uniforms.iTime.value = this.time;
+		Shader.uniforms.torsion.value = this.torsion;
 	}
 	update() {
-
-
+		this.angle += ( this.targetRotation - this.angle ) * 0.05;
+		this.planet.rotation.y =this.angle;
+		this.torsion = Math.abs(this.targetRotation - this.angle);
+		console.log(this.torsion)
 	}
 	
 }

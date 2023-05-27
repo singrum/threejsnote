@@ -10,7 +10,7 @@ const Shader = {
         Light : {
             value :{
                 Position : new Vector4(10,10,10),
-                La : new Vector3(0.6,0.6,0.6),
+                La : new Vector3(0.8,0.8,0.8),
                 Ld : new Vector3(1.0,1.0,1.0),
                 Ls : new Vector3(1.0,1.0,1.0),
             }
@@ -23,16 +23,35 @@ const Shader = {
                 Shininess : 100,
             }
         },
-        iResolution : {
-            value : {
-                x : window.innerWidth,
-                y : window.innerHeight
-            }
-        },
         iTime : {value : null},
-        normalMap : {value : null},
         uvMap : {value : null},
-
+        torsion : {value : null},
+        bigWave : {value : {
+            coord : [
+                0.0,
+                0.17,
+                0.21,
+                0.48,
+                0.52,
+                0.65,
+                0.69,
+                0.79,
+                0.83,
+                1.0
+            ],
+            color : [
+                new Vector3(0.788, 0.576, 0.082),
+                new Vector3(0.788, 0.576, 0.082),
+                new Vector3(0.878, 0.471, 0.2),
+                new Vector3(0.878, 0.471, 0.2),
+                new Vector3(0.769, 1, 0.988),
+                new Vector3(0.769, 1, 0.988),
+                new Vector3(0.788, 0.576, 0.082),
+                new Vector3(0.788, 0.576, 0.082),
+                new Vector3(0.878, 0.471, 0.2),
+                new Vector3(0.878, 0.471, 0.2),
+            ],
+        }},
 
 
     },
@@ -55,7 +74,7 @@ const Shader = {
     `,
     fragmentShader : /* glsl */`
         #define PI 3.1415926536
-
+        #define LENGTH 10
 
         uniform struct LightInfo {
             vec4 Position;
@@ -69,6 +88,13 @@ const Shader = {
             vec3 Ks;
             float Shininess;
         } Material;
+
+        uniform struct MultiGradient{
+            float[LENGTH] coord;
+            vec3[LENGTH] color;
+        } bigWave;
+
+
         uniform float iTime;
 
         varying vec3 LightIntensity;
@@ -77,7 +103,7 @@ const Shader = {
         varying vec2 vUv;
         uniform sampler2D NormalMap;
         uniform sampler2D uvMap;
-
+        uniform float torsion;
 
 
 
@@ -166,7 +192,7 @@ const Shader = {
                 vec3 r = reflect(-s,vNormal);
                 spec = Light.Ls * Material.Ks * pow(max(dot(r,v), 0.0), Material.Shininess);
             }
-            return ambient + diffuse ;
+            return ambient + diffuse + spec;
         }
 
 
@@ -191,6 +217,18 @@ const Shader = {
             return mix(color1, color2, vPosition.z/22.0);
             // return smoothstep(color1, color2, vec3(1.0));
         }
+        
+        vec3 multiGradient(float coordArr[LENGTH], vec3 colorArr[LENGTH], float coord){
+            
+            
+            for(int i = 0; i < LENGTH; i++){
+                if(coord < coordArr[i + 1]){
+                    return mix(colorArr[i], colorArr[i + 1], (coord - coordArr[i])/(coordArr[i + 1] - coordArr[i]));
+                }
+            }
+            
+
+        }
 
         vec3 applyTex(){
             return texture2D(uvMap, vUv).xyz;
@@ -211,15 +249,20 @@ const Shader = {
             return color;
         }
 
-        const float freq = 4.0;
-        const float amp = 0.06;
+        
+        
+        
 
         void main() {
+            float amp = 0.1;
+            float freq = 1.0;
             vec3 fragColor;
             vec3 coord = vNormal;
             
-            float t = coord.y + 2.0 * (noise(vec3(vNormal.xz * freq, 1.0)) - 0.5) * amp;
-            fragColor = wave( vec3(0.0,0.0,0.0),vec3(1.0,1.0,1.0), t);
+            float t = (coord.y + 1.0) / 2.0 + 2.0 * (noise(vec3(vNormal.xz * freq, iTime/5.0)) - 0.5) * exp(-torsion / 1.0)/20.0;
+            // float t = (coord.y + 1.0) / 2.0;
+            
+            fragColor = multiGradient(bigWave.coord,bigWave.color,t);
             fragColor = phongModel(fragColor);
             gl_FragColor = vec4(fragColor,1.0);
         }
