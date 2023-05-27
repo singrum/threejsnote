@@ -49,7 +49,7 @@ class App {
         this._composer = new EffectComposer( this._renderer );
         console.log(this._composer)
         this._composer.setSize(window.innerWidth, window.innerHeight);
-
+		this._composer.setPixelRatio(window.devicePixelRatio )
         const renderPass = new RenderPass(this._scene, this._camera);
 		this._composer.addPass(renderPass);
 		
