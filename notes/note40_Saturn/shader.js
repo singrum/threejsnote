@@ -431,7 +431,7 @@ const RingShader = {
             // float grain = rand(vUv.xy) * 2.0 - 1.0;
             // vec3 co = color + grain * strength;
             // return co;
-            if(noise(vec3(vUv.xy,iTime * 0.01) * 100.0) < clamp(4.0 - torsion,-1.0,0.0)){
+            if(noise(vec3(vUv.xy,iTime * 0.01) * 100.0) < clamp(3.0 - torsion,-1.0,0.0)){
                 discard;
             }
         }
