@@ -221,7 +221,7 @@ class App {
 		this.angle += ( this.targetRotation - this.angle ) * 0.05;
 		this.planet.rotation.y =this.angle;
 		this.torsion = Math.abs(this.targetRotation - this.angle);
-		console.log(this.torsion)
+		// console.log(this.torsion)
 	}
 	
 }

@@ -10,7 +10,7 @@ const Shader = {
         Light : {
             value :{
                 Position : new Vector4(10,10,10),
-                La : new Vector3(0.8,0.8,0.8),
+                La : new Vector3(1.0,1.0,1.0),
                 Ld : new Vector3(1.0,1.0,1.0),
                 Ls : new Vector3(1.0,1.0,1.0),
             }
@@ -26,35 +26,66 @@ const Shader = {
         iTime : {value : null},
         uvMap : {value : null},
         torsion : {value : null},
-        bigWave : {value : {
-            coord : [
-                0.0,
-                0.17,
-                0.21,
-                0.48,
-                0.52,
-                0.65,
-                0.69,
-                0.79,
-                0.83,
-                1.0
-            ],
-            color : [
-                new Vector3(0.788, 0.576, 0.082),
-                new Vector3(0.788, 0.576, 0.082),
-                new Vector3(0.878, 0.471, 0.2),
-                new Vector3(0.878, 0.471, 0.2),
-                new Vector3(0.769, 1, 0.988),
-                new Vector3(0.769, 1, 0.988),
-                new Vector3(0.788, 0.576, 0.082),
-                new Vector3(0.788, 0.576, 0.082),
-                new Vector3(0.878, 0.471, 0.2),
-                new Vector3(0.878, 0.471, 0.2),
-            ],
-        }},
+        // bigWave : {value : {
+        //     coord : [
+        //         0.0,
+        //         0.17,
+        //         0.21,
+        //         0.48,
+        //         0.52,
+        //         0.65,
+        //         0.69,
+        //         0.79,
+        //         0.83,
+        //         1.0
+        //     ],
+        //     color : [
+        //         new Vector3(0.788, 0.576, 0.082),
+        //         new Vector3(0.788, 0.576, 0.082),
+        //         new Vector3(0.878, 0.471, 0.2),
+        //         new Vector3(0.878, 0.471, 0.2),
+        //         new Vector3(0.769, 1, 0.988),
+        //         new Vector3(0.769, 1, 0.988),
+        //         new Vector3(0.788, 0.576, 0.082),
+        //         new Vector3(0.788, 0.576, 0.082),
+        //         new Vector3(0.878, 0.471, 0.2),
+        //         new Vector3(0.878, 0.471, 0.2),
+        //     ],
+        // }},
+        // smallWave : {
+        //     value : [
+        //         {
+        //             coord : [
+                        
+        //             ]
+        //         }
+        //     ]
+        // }
 
+        wave : {
+            value : {
+                coord : [
+                    0.0, 0.16, 0.20, 0.32, 0.36 ,0.48, 0.53 ,0.64, 0.68, 0.84
+                ],
+
+                color : [
+                    new Vector3(0.741, 0.427, 0.208), new Vector3(0.922, 0.659, 0.475),
+                    new Vector3(0.341, 0.588, 0.82), new Vector3(0.98, 0.933, 0.788),
+                    new Vector3(0.788, 0.89, 0.98), new Vector3(0.635, 0.776, 0.902),
+                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1),
+                    new Vector3(1, 0.741, 0), new Vector3(0.388, 0.29, 0),
+                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1),
+                    new Vector3(1, 0.741, 0), new Vector3(0.388, 0.29, 0),
+                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1),
+                    new Vector3(1, 0.741, 0), new Vector3(0.388, 0.29, 0),
+                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1)
+                ]
+            }
+        }
 
     },
+
+
     vertexShader : /* glsl */`
         
 
@@ -72,6 +103,9 @@ const Shader = {
             gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition, 1.0);
         }
     `,
+
+
+
     fragmentShader : /* glsl */`
         #define PI 3.1415926536
         #define LENGTH 10
@@ -89,10 +123,10 @@ const Shader = {
             float Shininess;
         } Material;
 
-        uniform struct MultiGradient{
-            float[LENGTH] coord;
-            vec3[LENGTH] color;
-        } bigWave;
+        uniform struct Wave {
+            float coord[LENGTH];
+            vec3 color[LENGTH * 2];
+        } wave;
 
 
         uniform float iTime;
@@ -104,7 +138,6 @@ const Shader = {
         uniform sampler2D NormalMap;
         uniform sampler2D uvMap;
         uniform float torsion;
-
 
 
 
@@ -181,6 +214,18 @@ const Shader = {
           return 2.2 * n_xyz;
         }
 
+
+
+
+        float mapLinear(float value, float inMin, float inMax, float outMin, float outMax) {
+            return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
+        }
+
+
+
+
+
+
         vec3 phongModel(vec3 color){
             vec3 ambient = Light.La * color;
             vec3 s = normalize(Light.Position.xyz - vPosition);
@@ -192,7 +237,7 @@ const Shader = {
                 vec3 r = reflect(-s,vNormal);
                 spec = Light.Ls * Material.Ks * pow(max(dot(r,v), 0.0), Material.Shininess);
             }
-            return ambient + diffuse + spec;
+            return ambient;
         }
 
 
@@ -203,66 +248,55 @@ const Shader = {
             return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
         }
 
-        const float strength = 0.04;
 
-        vec3 grain(vec3 color){
-            float grain = rand(vUv.xy) * 2.0 - 1.0;
-            vec3 co = color + grain * strength;
-            return co;
-            
-        }
-        
+        // 0<coord<1
+        vec3 saturnColor(float coord){
+            float amp = 20.0;
+            float freq = 10.0;
+            float t;
 
-        vec3 gradient(vec3 color1, vec3 color2){
-            return mix(color1, color2, vPosition.z/22.0);
-            // return smoothstep(color1, color2, vec3(1.0));
-        }
-        
-        vec3 multiGradient(float coordArr[LENGTH], vec3 colorArr[LENGTH], float coord){
-            
-            
-            for(int i = 0; i < LENGTH; i++){
-                if(coord < coordArr[i + 1]){
-                    return mix(colorArr[i], colorArr[i + 1], (coord - coordArr[i])/(coordArr[i + 1] - coordArr[i]));
+            int i; 
+            for(i = 0; i < LENGTH; i++){
+                if(coord < wave.coord[i + 1]){
+                    break;
                 }
             }
+
+            float fitCoord = mapLinear(coord, wave.coord[i], wave.coord[i+1],0.0,1.0);
+
+            t = fitCoord + (noise(vec3(vNormal.xz * freq, iTime/5.0)) - 0.5) * exp(-torsion / 1.0)/20.0 * amp;
+            float dist = wave.coord[i + 1] - wave.coord[i];
+            t = rand(vec2(floor(t * dist * 100.0), 0.0));
+            vec3 fragColor = mix(wave.color[2 * i], wave.color[2 * i + 1], t);
+            return fragColor;
+
             
 
-        }
-
-        vec3 applyTex(){
-            return texture2D(uvMap, vUv).xyz;
-        }
 
 
-        vec3 wave (vec3 color1, vec3 color2, float coord){
-            float t = 1.0 - abs(fract(coord * 8.0) * 2.0 - 1.0);
-            t = smoothstep(0.3,0.6,t);
-            vec3 color = mix(color1, color2, t);
-            return color;
         }
 
-        vec3 gradient(vec3 color1, vec3 color2, float coord){
-            float t = smoothstep(0.4,0.4,coord);
-            
-            vec3 color = mix(color1, color2, t);
-            return color;
-        }
 
         
         
         
 
         void main() {
-            float amp = 0.1;
-            float freq = 1.0;
             vec3 fragColor;
             vec3 coord = vNormal;
+            float t;
+            // t = (coord.y + 1.0) / 2.0 + (noise(vec3(vNormal.xz * freq, iTime/5.0)) - 0.5) * exp(-torsion / 1.0)/20.0 * amp;
             
-            float t = (coord.y + 1.0) / 2.0 + 2.0 * (noise(vec3(vNormal.xz * freq, iTime/5.0)) - 0.5) * exp(-torsion / 1.0)/20.0;
-            // float t = (coord.y + 1.0) / 2.0;
+            // t = 1.0 - abs(fract(t * 10.0) * 2.0 - 1.0);
+            // t = smoothstep(0.2,0.8,t); 
             
-            fragColor = multiGradient(bigWave.coord,bigWave.color,t);
+
+            fragColor = saturnColor((coord.y + 1.0) / 2.0);
+
+            
+            
+            // fragColor = multiGradient(wave, t);
+            // fragColor = mix(vec3(0.0,0.0,0.0), vec3(1.0,1.0,1.0), t);
             fragColor = phongModel(fragColor);
             gl_FragColor = vec4(fragColor,1.0);
         }
