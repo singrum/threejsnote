@@ -201,8 +201,8 @@ const Shader = {
             
             t = rand(vec2(floor(t* 100.0), 0.0));
 
-            vec3 grad = wave(vec3(0.816, 0.384, 0.141), vec3(0.655, 0.824, 0.796), coord + noise(vec3(vPosition.xz, iTime) * 0.05) * exp(-torsion / 1.0)/20.0 * amp * 0.1);
-            // vec3 grad = mix(vec3(0.816, 0.384, 0.141), vec3(0.655, 0.824, 0.796),smoothstep(0.8, 0.9, wave(vec3(0.816, 0.384, 0.141), vec3(0.655, 0.824, 0.796), coord) + noise(vec3(vPosition.xz, iTime) * 0.1) / 10.0));
+            vec3 grad = wave(vec3(0.988, 0.161, 0.278), vec3(0.655, 0.824, 0.796), coord + noise(vec3(vPosition.xz, iTime) * 1.0) * exp(-torsion / 1.0)/20.0 * amp * 0.1);
+            
 
 
             vec3 fragColor = mix(grad, vec3(0.98, 0.89, 0.851), t);
@@ -416,10 +416,10 @@ const RingShader = {
             float t;
             t = coord;
             
-            t = rand(vec2(floor(t* 400.0), 0.0));
+            t = rand(vec2(floor(t* 300.0), 0.0));
             
 
-            vec3 fragColor = mix(vec3(0.216, 0.2, 0.192), vec3(0.91, 0.918, 0.631), t);
+            vec3 fragColor = mix(vec3(0.0,0.0,0.0), vec3(0.98, 0.941, 0.792), t);
             
             return fragColor;
         }
@@ -431,7 +431,7 @@ const RingShader = {
             // float grain = rand(vUv.xy) * 2.0 - 1.0;
             // vec3 co = color + grain * strength;
             // return co;
-            if(rand(vUv.xy) > clamp(torsion / 1.0,0.7,1.0)){
+            if(noise(vec3(vUv.xy,iTime * 0.01) * 100.0) > clamp(torsion / 1.0,0.3,1.0)){
                 discard;
             }
         }
