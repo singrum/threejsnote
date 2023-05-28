@@ -93,7 +93,7 @@ class App {
 			if ( event.isPrimary === false ) return;
 			this.pointerX = event.clientX - window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.03;
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.05;
 			
 
 		}
@@ -234,7 +234,7 @@ class App {
 	update() {
 		this.angle += ( this.targetRotation - this.angle ) * 0.02;
 		this.sphere.rotation.y =this.angle;
-		this.torsion = Math.abs(this.targetRotation - this.angle) * 0.5;
+		this.torsion = Math.abs(this.targetRotation - this.angle) * 0.2;
 		// console.log(this.torsion)
 	}
 	

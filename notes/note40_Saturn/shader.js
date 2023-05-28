@@ -283,7 +283,7 @@ const Shader = {
             t = coord + (noise(vec3(vNormal.xz * freq, iTime/5.0)) - 0.5) * exp(-torsion / 1.0)/20.0 * amp;
             
             t = rand(vec2(floor(t* 100.0), 0.0));
-            vec3 fragColor = mix(vec3(0.659, 0.557, 0.322), vec3(1, 0.847, 0.51), t);
+            vec3 fragColor = mix(vec3(0.49, 0.376, 0.047), vec3(1, 0.953, 0.812), t);
             return fragColor;
         }
 
@@ -603,7 +603,7 @@ const RingShader = {
             // float grain = rand(vUv.xy) * 2.0 - 1.0;
             // vec3 co = color + grain * strength;
             // return co;
-            if(rand(vUv.xy) > clamp(torsion / 3.0,0.7,1.0)){
+            if(rand(vUv.xy) > clamp(torsion / 1.0,0.5,1.0)){
                 discard;
             }
         }
