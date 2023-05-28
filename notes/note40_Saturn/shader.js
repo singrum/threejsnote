@@ -24,64 +24,8 @@ const Shader = {
             }
         },
         iTime : {value : null},
-        uvMap : {value : null},
         torsion : {value : null},
-        // bigWave : {value : {
-        //     coord : [
-        //         0.0,
-        //         0.17,
-        //         0.21,
-        //         0.48,
-        //         0.52,
-        //         0.65,
-        //         0.69,
-        //         0.79,
-        //         0.83,
-        //         1.0
-        //     ],
-        //     color : [
-        //         new Vector3(0.788, 0.576, 0.082),
-        //         new Vector3(0.788, 0.576, 0.082),
-        //         new Vector3(0.878, 0.471, 0.2),
-        //         new Vector3(0.878, 0.471, 0.2),
-        //         new Vector3(0.769, 1, 0.988),
-        //         new Vector3(0.769, 1, 0.988),
-        //         new Vector3(0.788, 0.576, 0.082),
-        //         new Vector3(0.788, 0.576, 0.082),
-        //         new Vector3(0.878, 0.471, 0.2),
-        //         new Vector3(0.878, 0.471, 0.2),
-        //     ],
-        // }},
-        // smallWave : {
-        //     value : [
-        //         {
-        //             coord : [
-                        
-        //             ]
-        //         }
-        //     ]
-        // }
 
-        wave : {
-            value : {
-                coord : [
-                    0.0, 0.16, 0.20, 0.32, 0.36 ,0.48, 0.53 ,0.64, 0.68, 0.84
-                ],
-
-                color : [
-                    new Vector3(0.741, 0.427, 0.208), new Vector3(0.922, 0.659, 0.475),
-                    new Vector3(0.341, 0.588, 0.82), new Vector3(0.98, 0.933, 0.788),
-                    new Vector3(0.788, 0.89, 0.98), new Vector3(0.635, 0.776, 0.902),
-                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1),
-                    new Vector3(1, 0.741, 0), new Vector3(0.388, 0.29, 0),
-                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1),
-                    new Vector3(1, 0.741, 0), new Vector3(0.388, 0.29, 0),
-                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1),
-                    new Vector3(1, 0.741, 0), new Vector3(0.388, 0.29, 0),
-                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1)
-                ]
-            }
-        }
 
     },
 
@@ -123,11 +67,6 @@ const Shader = {
             float Shininess;
         } Material;
 
-        uniform struct Wave {
-            float coord[LENGTH];
-            vec3 color[LENGTH * 2];
-        } wave;
-
 
         uniform float iTime;
 
@@ -135,8 +74,6 @@ const Shader = {
         varying vec3 vPosition;
         varying vec3 vNormal;
         varying vec2 vUv;
-        uniform sampler2D NormalMap;
-        uniform sampler2D uvMap;
         uniform float torsion;
 
 
@@ -249,32 +186,6 @@ const Shader = {
         }
 
 
-        // 0<coord<1
-        vec3 saturnColor(float coord){
-            float amp = 20.0;
-            float freq = 10.0;
-            float t;
-
-            int i; 
-            for(i = 0; i < LENGTH; i++){
-                if(coord < wave.coord[i + 1]){
-                    break;
-                }
-            }
-
-            float fitCoord = mapLinear(coord, wave.coord[i], wave.coord[i+1],0.0,1.0);
-
-            t = fitCoord + (noise(vec3(vNormal.xz * freq, iTime/5.0)) - 0.5) * exp(-torsion / 1.0)/20.0 * amp;
-            float dist = wave.coord[i + 1] - wave.coord[i];
-            t = rand(vec2(floor(t * dist * 100.0), 0.0));
-            vec3 fragColor = mix(wave.color[2 * i], wave.color[2 * i + 1], t);
-            return fragColor;
-
-            
-
-
-
-        }
 
         vec3 monoSaturnColor(float coord){
             float amp = 5.0;
@@ -296,18 +207,10 @@ const Shader = {
             vec3 fragColor;
             vec3 coord = vNormal;
             float t;
-            // t = (coord.y + 1.0) / 2.0 + (noise(vec3(vNormal.xz * freq, iTime/5.0)) - 0.5) * exp(-torsion / 1.0)/20.0 * amp;
-            
-            // t = 1.0 - abs(fract(t * 10.0) * 2.0 - 1.0);
-            // t = smoothstep(0.2,0.8,t); 
             
 
             fragColor = monoSaturnColor((coord.y + 1.0) / 2.0);
 
-            
-            
-            // fragColor = multiGradient(wave, t);
-            // fragColor = mix(vec3(0.0,0.0,0.0), vec3(1.0,1.0,1.0), t);
             fragColor = phongModel(fragColor);
             gl_FragColor = vec4(fragColor,1.0);
         }
@@ -333,64 +236,8 @@ const RingShader = {
             }
         },
         iTime : {value : null},
-        uvMap : {value : null},
         torsion : {value : null},
-        // bigWave : {value : {
-        //     coord : [
-        //         0.0,
-        //         0.17,
-        //         0.21,
-        //         0.48,
-        //         0.52,
-        //         0.65,
-        //         0.69,
-        //         0.79,
-        //         0.83,
-        //         1.0
-        //     ],
-        //     color : [
-        //         new Vector3(0.788, 0.576, 0.082),
-        //         new Vector3(0.788, 0.576, 0.082),
-        //         new Vector3(0.878, 0.471, 0.2),
-        //         new Vector3(0.878, 0.471, 0.2),
-        //         new Vector3(0.769, 1, 0.988),
-        //         new Vector3(0.769, 1, 0.988),
-        //         new Vector3(0.788, 0.576, 0.082),
-        //         new Vector3(0.788, 0.576, 0.082),
-        //         new Vector3(0.878, 0.471, 0.2),
-        //         new Vector3(0.878, 0.471, 0.2),
-        //     ],
-        // }},
-        // smallWave : {
-        //     value : [
-        //         {
-        //             coord : [
-                        
-        //             ]
-        //         }
-        //     ]
-        // }
 
-        wave : {
-            value : {
-                coord : [
-                    0.0, 0.16, 0.20, 0.32, 0.36 ,0.48, 0.53 ,0.64, 0.68, 0.84
-                ],
-
-                color : [
-                    new Vector3(0.741, 0.427, 0.208), new Vector3(0.922, 0.659, 0.475),
-                    new Vector3(0.341, 0.588, 0.82), new Vector3(0.98, 0.933, 0.788),
-                    new Vector3(0.788, 0.89, 0.98), new Vector3(0.635, 0.776, 0.902),
-                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1),
-                    new Vector3(1, 0.741, 0), new Vector3(0.388, 0.29, 0),
-                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1),
-                    new Vector3(1, 0.741, 0), new Vector3(0.388, 0.29, 0),
-                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1),
-                    new Vector3(1, 0.741, 0), new Vector3(0.388, 0.29, 0),
-                    new Vector3(0.514, 0.98, 1), new Vector3(0.871, 0.996, 1)
-                ]
-            }
-        }
 
     },
 
@@ -432,11 +279,6 @@ const RingShader = {
             float Shininess;
         } Material;
 
-        uniform struct Wave {
-            float coord[LENGTH];
-            vec3 color[LENGTH * 2];
-        } wave;
-
 
         uniform float iTime;
 
@@ -444,8 +286,6 @@ const RingShader = {
         varying vec3 vPosition;
         varying vec3 vNormal;
         varying vec2 vUv;
-        uniform sampler2D NormalMap;
-        uniform sampler2D uvMap;
         uniform float torsion;
 
 
@@ -558,32 +398,6 @@ const RingShader = {
         }
 
 
-        // 0<coord<1
-        vec3 saturnColor(float coord){
-            float amp = 20.0;
-            float freq = 10.0;
-            float t;
-
-            int i; 
-            for(i = 0; i < LENGTH; i++){
-                if(coord < wave.coord[i + 1]){
-                    break;
-                }
-            }
-
-            float fitCoord = mapLinear(coord, wave.coord[i], wave.coord[i+1],0.0,1.0);
-
-            t = fitCoord + (noise(vec3(vNormal.xz * freq, iTime/5.0)) - 0.5) * exp(-torsion / 1.0)/20.0 * amp;
-            float dist = wave.coord[i + 1] - wave.coord[i];
-            t = rand(vec2(floor(t * dist * 100.0), 0.0));
-            vec3 fragColor = mix(wave.color[2 * i], wave.color[2 * i + 1], t);
-            return fragColor;
-
-            
-
-
-
-        }
 
         vec3 monoSaturnColor(float coord){
             float amp = 0.0;

@@ -170,7 +170,6 @@ class App {
 	_setupModel() {
         const geom = new THREE.IcosahedronGeometry(10,20);
         const mate = new THREE.ShaderMaterial(Shader);
-		Shader.uniforms.uvMap.value = new THREE.TextureLoader().load("../../data/uv_grid2.jpg")
 		const mesh = new THREE.Mesh(geom, mate)
 		
 
@@ -233,7 +232,7 @@ class App {
 	}
 	update() {
 		this.angle += ( this.targetRotation - this.angle ) * 0.01;
-		this.sphere.rotation.y =this.angle;
+		this.planet.rotation.y =this.angle;
 		this.torsion = Math.abs(this.targetRotation - this.angle) * 0.1;
 		// console.log(this.torsion)
 	}
