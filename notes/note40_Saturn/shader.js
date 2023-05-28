@@ -186,6 +186,12 @@ const Shader = {
         }
 
 
+        vec3 wave (vec3 color1, vec3 color2, float coord){
+            float t = 1.0 - abs(fract(coord * 4.0) * 2.0 - 1.0);
+            t = smoothstep(0.5,0.8,t);
+            vec3 color = mix(color1, color2, t);
+            return color;
+        }
 
         vec3 monoSaturnColor(float coord){
             float amp = 5.0;
@@ -194,7 +200,12 @@ const Shader = {
             t = coord + (noise(vec3(vNormal.xz * freq, iTime/5.0)) - 0.5) * exp(-torsion / 1.0)/20.0 * amp;
             
             t = rand(vec2(floor(t* 100.0), 0.0));
-            vec3 fragColor = mix(vec3(0.816, 0.384, 0.141), vec3(0.98, 0.89, 0.851), t);
+
+            vec3 grad = wave(vec3(0.816, 0.384, 0.141), vec3(0.655, 0.824, 0.796), coord + noise(vec3(vPosition.xz, iTime) * 0.05) * exp(-torsion / 1.0)/20.0 * amp * 0.1);
+            // vec3 grad = mix(vec3(0.816, 0.384, 0.141), vec3(0.655, 0.824, 0.796),smoothstep(0.8, 0.9, wave(vec3(0.816, 0.384, 0.141), vec3(0.655, 0.824, 0.796), coord) + noise(vec3(vPosition.xz, iTime) * 0.1) / 10.0));
+
+
+            vec3 fragColor = mix(grad, vec3(0.98, 0.89, 0.851), t);
             return fragColor;
         }
 
@@ -403,10 +414,13 @@ const RingShader = {
             float amp = 0.0;
             float freq = 0.2;
             float t;
-            t = coord + (noise(vec3(vPosition.xy * freq, 0.0)) - 0.5) * amp;
+            t = coord;
             
             t = rand(vec2(floor(t* 400.0), 0.0));
+            
+
             vec3 fragColor = mix(vec3(0.216, 0.2, 0.192), vec3(0.91, 0.918, 0.631), t);
+            
             return fragColor;
         }
 
