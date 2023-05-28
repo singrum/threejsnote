@@ -1,7 +1,13 @@
-https://rgbcolorpicker.com/0-1
+
 https://polyhaven.com/
 https://sketchfab.com
 https://https://www.mixamo.com/#/
 https://www.humus.name
 https://threejs.org/examples
 https://3dtextures.me/
+
+
+
+Color 
+https://rgbcolorpicker.com/0-1
+https://imagecolorpicker.com/
