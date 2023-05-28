@@ -6,7 +6,7 @@ import { EffectComposer } from '../../node_modules/three/examples/jsm/postproces
 import { ShaderPass } from '../../node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
 import { RenderPass } from '../../node_modules/three/examples/jsm/postprocessing/RenderPass.js';
 import { Filter } from './pass.js';
-import {Shader} from './shader.js'
+import {Shader, RingShader} from './shader.js'
 import { FXAAShader } from '../../node_modules/three/examples/jsm/shaders/FXAAShader.js';
 
 // https://sketchfab.com
@@ -93,7 +93,7 @@ class App {
 			if ( event.isPrimary === false ) return;
 			this.pointerX = event.clientX - window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.02;
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.03;
 			
 
 		}
@@ -122,11 +122,12 @@ class App {
 		
 		const height = this._divContainer.clientHeight;
 		const aspectRatio = window.innerWidth / window.innerHeight;
-		const camera = new THREE.OrthographicCamera( -aspectRatio * width / 2, aspectRatio * width / 2, width / 2, -width /2, 0.000001, 100000 );
+		const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 1000);
 		
-		camera.position.set(0,0,35)
-		camera.zoom = 6.5
+		camera.position.set(0,30,100)
+		camera.zoom = 1.0
 		// camera.zoom = 0.1
+		camera.lookAt(0,0,0)
 		this._camera = camera;
         this._scene.add(this._camera)
 	}
@@ -171,9 +172,19 @@ class App {
         const mate = new THREE.ShaderMaterial(Shader);
 		Shader.uniforms.uvMap.value = new THREE.TextureLoader().load("../../data/uv_grid2.jpg")
 		const mesh = new THREE.Mesh(geom, mate)
-		this._scene.add(mesh)
 		
-		this.planet = mesh;
+
+		const ringGeom = new THREE.RingGeometry(12, 23,100);
+		const ringMate = new THREE.ShaderMaterial(RingShader);
+		const ring = new THREE.Mesh(ringGeom, ringMate);
+		ring.rotation.set(-Math.PI/2, 0,0)
+
+		const planet = new THREE.Object3D();
+		planet.add(mesh, ring);
+		this.sphere = mesh;
+		this._scene.add(planet)
+		
+		this.planet = planet;
 		this.planet.rotation.order = 'ZYX'
 		this.planet.rotation.z = 0.2;
 
@@ -215,12 +226,15 @@ class App {
 		this.prevTime = currentTime;
 		this.time += deltaTime;
 		Shader.uniforms.iTime.value = this.time;
+		RingShader.uniforms.iTime.value = this.time;
 		Shader.uniforms.torsion.value = this.torsion;
+		RingShader.uniforms.torsion.value = this.torsion;
+		
 	}
 	update() {
-		this.angle += ( this.targetRotation - this.angle ) * 0.05;
-		this.planet.rotation.y =this.angle;
-		this.torsion = Math.abs(this.targetRotation - this.angle);
+		this.angle += ( this.targetRotation - this.angle ) * 0.02;
+		this.sphere.rotation.y =this.angle;
+		this.torsion = Math.abs(this.targetRotation - this.angle) * 0.5;
 		// console.log(this.torsion)
 	}
 	
