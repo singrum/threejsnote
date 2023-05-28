@@ -10,7 +10,7 @@ const Shader = {
         Light : {
             value :{
                 Position : new Vector4(10,10,10),
-                La : new Vector3(1.0,1.0,1.0),
+                La : new Vector3(0,0,0.0,0.0),
                 Ld : new Vector3(1.0,1.0,1.0),
                 Ls : new Vector3(1.0,1.0,1.0),
             }
@@ -165,7 +165,7 @@ const Shader = {
 
         vec3 phongModel(vec3 color){
             vec3 ambient = Light.La * color;
-            vec3 s = normalize(Light.Position.xyz - vPosition);
+            vec3 s = normalize(Light.Position.xyz);
             float sDotN = max(dot(s,vNormal), 0.0);
             vec3 diffuse = Light.Ld * color * sDotN;
             vec3 spec = vec3(0.0);
@@ -174,7 +174,7 @@ const Shader = {
                 vec3 r = reflect(-s,vNormal);
                 spec = Light.Ls * Material.Ks * pow(max(dot(r,v), 0.0), Material.Shininess);
             }
-            return ambient;
+            return ambient + diffuse;
         }
 
 
@@ -194,7 +194,7 @@ const Shader = {
             t = coord + (noise(vec3(vNormal.xz * freq, iTime/5.0)) - 0.5) * exp(-torsion / 1.0)/20.0 * amp;
             
             t = rand(vec2(floor(t* 100.0), 0.0));
-            vec3 fragColor = mix(vec3(0.49, 0.376, 0.047), vec3(1, 0.953, 0.812), t);
+            vec3 fragColor = mix(vec3(0.816, 0.384, 0.141), vec3(0.98, 0.89, 0.851), t);
             return fragColor;
         }
 
@@ -222,7 +222,7 @@ const RingShader = {
         Light : {
             value :{
                 Position : new Vector4(10,10,10),
-                La : new Vector3(1.0,1.0,1.0),
+                La : new Vector3(0.0,0.0,0.0),
                 Ld : new Vector3(1.0,1.0,1.0),
                 Ls : new Vector3(1.0,1.0,1.0),
             }
@@ -377,7 +377,7 @@ const RingShader = {
 
         vec3 phongModel(vec3 color){
             vec3 ambient = Light.La * color;
-            vec3 s = normalize(Light.Position.xyz - vPosition);
+            vec3 s = normalize(Light.Position.xyz);
             float sDotN = max(dot(s,vNormal), 0.0);
             vec3 diffuse = Light.Ld * color * sDotN;
             vec3 spec = vec3(0.0);
@@ -386,7 +386,7 @@ const RingShader = {
                 vec3 r = reflect(-s,vNormal);
                 spec = Light.Ls * Material.Ks * pow(max(dot(r,v), 0.0), Material.Shininess);
             }
-            return ambient;
+            return ambient + diffuse;
         }
 
 
@@ -406,7 +406,7 @@ const RingShader = {
             t = coord + (noise(vec3(vPosition.xy * freq, 0.0)) - 0.5) * amp;
             
             t = rand(vec2(floor(t* 400.0), 0.0));
-            vec3 fragColor = mix(vec3(0.855, 0.969, 0.949), vec3(0.016, 0.259, 0.216), t);
+            vec3 fragColor = mix(vec3(0.216, 0.2, 0.192), vec3(0.91, 0.918, 0.631), t);
             return fragColor;
         }
 
@@ -417,7 +417,7 @@ const RingShader = {
             // float grain = rand(vUv.xy) * 2.0 - 1.0;
             // vec3 co = color + grain * strength;
             // return co;
-            if(rand(vUv.xy) > clamp(torsion / 1.0,0.5,1.0)){
+            if(rand(vUv.xy) > clamp(torsion / 1.0,0.7,1.0)){
                 discard;
             }
         }
