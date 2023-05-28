@@ -93,7 +93,7 @@ class App {
 			if ( event.isPrimary === false ) return;
 			this.pointerX = event.clientX - window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.5;
+			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.05;
 			
 
 		}
@@ -231,11 +231,11 @@ class App {
 		
 	}
 	update() {
-		this.angle += ( this.targetRotation - this.angle ) * 0.01;
+		this.angle += ( this.targetRotation - this.angle ) * 0.005;
 		this.sphere.rotation.y =this.angle;
 		Shader.uniforms.Light.value.Position = new THREE.Vector3(10 * Math.cos(Math.PI / 4 + this.angle),10,10 * Math.sin(Math.PI / 4 + this.angle))
 		this.torsion = Math.abs(this.targetRotation - this.angle) * 0.1;
-		// console.log(this.torsion)
+		console.log(this.torsion)
 	}
 	
 }
