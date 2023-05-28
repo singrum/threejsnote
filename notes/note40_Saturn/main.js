@@ -232,10 +232,10 @@ class App {
 	}
 	update() {
 		this.angle += ( this.targetRotation - this.angle ) * 0.005;
-		this.sphere.rotation.y =this.angle;
+		this.planet.rotation.y =this.angle;
 		Shader.uniforms.Light.value.Position = new THREE.Vector3(10 * Math.cos(Math.PI / 4 + this.angle),10,10 * Math.sin(Math.PI / 4 + this.angle))
-		this.torsion = Math.abs(this.targetRotation - this.angle) * 0.1;
-		console.log(this.torsion)
+		this.torsion = Math.abs(this.targetRotation - this.angle) * 0.2;
+		
 	}
 	
 }
