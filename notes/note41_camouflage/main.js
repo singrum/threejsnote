@@ -29,6 +29,7 @@ class App {
 		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 		this.angle = 0;
+		this.isTouch = false;
 
 		this.prevTime = performance.now()
 		this.time = 0;
@@ -72,60 +73,76 @@ class App {
         this._scene.background = new THREE.Color(0x000000);
 
     }
+	screenToPlane(point){
+		const raycaster = new THREE.Raycaster();
+		
+		const pt = {
+			x: (point[0] / this._divContainer.clientWidth) * 2 - 1,
+			y: - (point[1] / this._divContainer.clientHeight) * 2 + 1
+		}
+		raycaster.setFromCamera(pt, this._camera)
+		const interObj = raycaster.intersectObject(this._plane)
+		if(interObj.length === 0){
+			return;
+		}
+		console.log([interObj[0].uv.x, interObj[0].uv.y])
+		return [interObj[0].uv.x, interObj[0].uv.y]
+	}
 	_setupControls(){ 
         // new OrbitControls(this._camera, this._divContainer);
-		const onPointerDown = ( event ) => {
+
+        
+        const touchstartEvent = evt=>{
+			this.isTouch = true;
+			this.currPoint = new THREE.Vector2(...this.screenToPlane([evt.clientX ?? evt.touches[0].clientX, evt.clientY ?? evt.touches[0].clientY]));
+            if ('ontouchstart' in window){
+            this._divContainer.addEventListener("touchmove", touchmoveEvent, false);
+            
+            }
+            else{
+            this._divContainer.addEventListener("mousemove", touchmoveEvent, false);
+            }
+
+            
 			
-			if ( event.isPrimary === false ) return;
-			this.startX = event.clientX
-			this.startY = event.clientY
-			this.pointerXOnPointerDown = event.clientX - window.innerWidth / 2;
-			this.targetRotationOnPointerDown = this.targetRotation;
+        }
 
-			document.addEventListener( 'pointermove', onPointerMove );
-			document.addEventListener( 'pointerup', onPointerUp );
+        const touchmoveEvent = evt=>{
+			this.currPoint = new THREE.Vector2(...this.screenToPlane([evt.clientX ?? evt.touches[0].clientX, evt.clientY ?? evt.touches[0].clientY]));
+        }
+		const mouseUpEvent = ()=>{
+            this.isTouch = false;
+			if ('ontouchstart' in window){
+                this._divContainer.removeEventListener("touchmove", touchmoveEvent, false);
+                
+            }
+            else{
+            	this._divContainer.removeEventListener("mousemove", touchmoveEvent, false);
+            
+            }
 
+        }
+		if ('ontouchstart' in window){
+			this._divContainer.addEventListener("touchstart", touchstartEvent, false);
+			this._divContainer.addEventListener("touchend", mouseUpEvent, false);
+		}
+		else{
+			this._divContainer.addEventListener("mousedown", touchstartEvent, false);
+			this._divContainer.addEventListener("mouseup", mouseUpEvent, false);
 		}
 
-		const onPointerMove = ( event ) => {
-			
-			if ( event.isPrimary === false ) return;
-			this.pointerX = event.clientX - window.innerWidth / 2;
 
-			this.targetRotation = this.targetRotationOnPointerDown + ( this.pointerX - this.pointerXOnPointerDown ) * 0.05;
-			
 
-		}
-
-		const onPointerUp = (event) => {
-			
-			if ( event.isPrimary === false ) return;
-			
-			
-			document.removeEventListener( 'pointermove', onPointerMove );
-			document.removeEventListener( 'pointerup', onPointerUp );
-
-		}
-		this.rotationY = 0;
-		this.targetRotation = 0;
-		this.targetRotationOnPointerDown = 0;
-		this.pointerX = 0;
-		this.pointerXOnPointerDown = 0;
-		this._divContainer.style.touchAction = 'none';
-		this._divContainer.addEventListener( 'pointerdown', onPointerDown );
 
 	}
 
 	_setupCamera() {
 		const width = 400;
-		
-		const height = this._divContainer.clientHeight;
 		const aspectRatio = window.innerWidth / window.innerHeight;
-		const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 1000);
+		const camera = new THREE.OrthographicCamera( -aspectRatio * width / 2, aspectRatio * width / 2, width / 2, -width /2, 0.1, 100 );
 		
-		camera.position.set(0,0,5)
-		camera.zoom = 1.0
-		// camera.zoom = 0.1
+		camera.position.set(0,0,10)
+		camera.zoom = 100.0
 		camera.lookAt(0,0,0)
 		this._camera = camera;
         this._scene.add(this._camera)
@@ -148,12 +165,12 @@ class App {
 		this._scene.add(points)
 	}
 	_setupModel() {
-        const geom = new THREE.PlaneGeometry(2,2,32,32);
+        const geom = new THREE.PlaneGeometry(2,2,128,128);
         const mate = new THREE.ShaderMaterial(Shader);
 		const mesh = new THREE.Mesh(geom, mate)
 		
 		this._scene.add(mesh);
-
+		this._plane =mesh;
 
 
 		
@@ -195,7 +212,12 @@ class App {
 		
 	}
 	update() {
-
+		if(this.isTouch === true){
+			Shader.uniforms.center.value = this.currPoint;
+		}
+		else{
+			
+		}
 		
 	}
 	
