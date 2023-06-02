@@ -28,7 +28,7 @@ const Shader = {
         /* out */
         varying vec3 vPosition;
         varying vec3 vNormal;
-        flat varying vec2 vUv;
+        varying vec2 vUv;
 
 
         void main() {
@@ -48,7 +48,7 @@ const Shader = {
 
         varying vec3 vPosition;
         varying vec3 vNormal;
-        flat varying vec2 vUv;
+        varying vec2 vUv;
 
 
 
@@ -139,15 +139,19 @@ const Shader = {
         vec3 camo(){
             float t;
             vec3 color;
-            float noiseAmp = 0.1;
+            float minRad = 0.1;
+            float maxRad = 0.2;
             float noiseFreq = 10.0;
-            float radius = 0.1;
+            
             t = length(vUv - vec2(0.5));
-            t -= noise(vec3(vUv.xy * noiseFreq,iTime)) * noiseAmp;
-            t = smoothstep(radius,radius,t);
+            t -= noise(vec3(vUv.xy * noiseFreq,iTime)) * (maxRad - minRad);
+            t = step(minRad,t);
             
             color = vec3(t);
-
+            if(length(vUv - vec2(0.5)) < minRad){
+                color = vec3(1.0,0.0,1.0);
+            }
+            
             return color;
         }
         
