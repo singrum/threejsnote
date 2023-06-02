@@ -148,7 +148,7 @@ class App {
 		this._scene.add(points)
 	}
 	_setupModel() {
-        const geom = new THREE.PlaneGeometry(2,2);
+        const geom = new THREE.PlaneGeometry(2,2,32,32);
         const mate = new THREE.ShaderMaterial(Shader);
 		const mesh = new THREE.Mesh(geom, mate)
 		
