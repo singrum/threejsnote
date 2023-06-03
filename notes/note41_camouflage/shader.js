@@ -9,10 +9,10 @@ const Shader = {
         
         camoColors : {
             value :[
-                new Vector3(0,0,0),
-                new Vector3(0.25,0.25,0.25),
-                new Vector3(0.5,0.5,0.5),
-                new Vector3(0.75,0.75,0.75),
+                new Vector3(0.384, 0.431, 0.384),
+                new Vector3(0.31, 0.196, 0.22),
+                new Vector3(0.8, 0.788, 0.788),
+                new Vector3(0.141, 0.165, 0.224),
             ]
         },
         center : {value : new Vector2(0.5,0.5)},
@@ -149,8 +149,9 @@ const Shader = {
             t = length(vUv - center);
             t -= noise(vec3(vUv.xy * noiseFreq,iTime)) * (maxRad - minRad);
             t = step(minRad,t);
+            if(t == 1.0) color = camoColors[0];
+            if(t == 0.0) color = camoColors[1];
             
-            color = vec3(t);
             // if(minRad - 0.001<length(vUv - center) &&length(vUv - center) < minRad + 0.001){
             //     color = vec3(1.0,0.0,1.0);
             // }
