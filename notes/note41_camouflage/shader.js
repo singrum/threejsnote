@@ -16,6 +16,7 @@ const Shader = {
             ]
         },
         center : {value : new Vector2(0.5,0.5)},
+        duration : {value : 0},
         iTime : {value : null},
         torsion : {value : null},
 
@@ -47,6 +48,7 @@ const Shader = {
         uniform vec3 camoColors[4];
         uniform float iTime;
         uniform vec2 center;
+        uniform float duration;
 
         varying vec3 vPosition;
         varying vec3 vNormal;
@@ -143,7 +145,7 @@ const Shader = {
             float t;
             vec3 color;
             float minRad = 0.02;
-            float maxRad = 0.2;
+            float maxRad = duration;
             float noiseFreq = 40.0;
             
             t = length(vUv - center);
@@ -151,13 +153,6 @@ const Shader = {
             t = step(minRad,t);
             if(t == 1.0) color = camoColors[0];
             if(t == 0.0) color = camoColors[1];
-            
-            // if(minRad - 0.001<length(vUv - center) &&length(vUv - center) < minRad + 0.001){
-            //     color = vec3(1.0,0.0,1.0);
-            // }
-            // if(maxRad - 0.001<length(vUv - center) &&length(vUv - center) < maxRad + 0.001){
-            //     color = vec3(1.0,0.0,1.0);
-            // }
             
             return color;
         }

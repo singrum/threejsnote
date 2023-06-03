@@ -12,6 +12,7 @@ import {Shader} from './shader.js'
 // https://sketchfab.com
 
 
+
 class App {
 	constructor() {
 		const divContainer = document.querySelector("#webgl_container");
@@ -30,9 +31,13 @@ class App {
 
 		this.angle = 0;
 		this.isTouch = false;
+		this.duration = 0;
 
 		this.prevTime = performance.now()
 		this.time = 0;
+
+		this.camoData = [];
+
 		this._setupCamera();
 		// this._setupLight();
 		this._setupModel();
@@ -73,28 +78,37 @@ class App {
         this._scene.background = new THREE.Color(0x000000);
 
     }
-	screenToPlane(point){
-		const raycaster = new THREE.Raycaster();
-		
-		const pt = {
-			x: (point[0] / this._divContainer.clientWidth) * 2 - 1,
-			y: - (point[1] / this._divContainer.clientHeight) * 2 + 1
-		}
-		raycaster.setFromCamera(pt, this._camera)
-		const interObj = raycaster.intersectObject(this._plane)
-		if(interObj.length === 0){
-			return;
-		}
-		console.log([interObj[0].uv.x, interObj[0].uv.y])
-		return [interObj[0].uv.x, interObj[0].uv.y]
-	}
+
 	_setupControls(){ 
         // new OrbitControls(this._camera, this._divContainer);
-
+		const screenToPlane = point => {
+			const raycaster = new THREE.Raycaster();
+			
+			const pt = {
+				x: (point[0] / this._divContainer.clientWidth) * 2 - 1,
+				y: - (point[1] / this._divContainer.clientHeight) * 2 + 1
+			}
+			raycaster.setFromCamera(pt, this._camera)
+			const interObj = raycaster.intersectObject(this._plane)
+			if(interObj.length === 0){
+				return;
+			}
+			
+			return [Math.round(interObj[0].uv.x * this.pixelDiv) / this.pixelDiv, Math.round(interObj[0].uv.y * this.pixelDiv) / this.pixelDiv]
+		}
+		const getPlaneCoord = evt => {
+			return [evt.clientX ?? evt.touches[0].clientX, evt.clientY ?? evt.touches[0].clientY]
+		}
         
         const touchstartEvent = evt=>{
 			this.isTouch = true;
-			this.currPoint = new THREE.Vector2(...this.screenToPlane([evt.clientX ?? evt.touches[0].clientX, evt.clientY ?? evt.touches[0].clientY]));
+			this.isSameCoord = true;
+			this.duration = 0;
+			this.currCoord = screenToPlane(getPlaneCoord(evt));
+			Shader.uniforms.center.value = new THREE.Vector2(...this.currCoord);
+
+
+
             if ('ontouchstart' in window){
             this._divContainer.addEventListener("touchmove", touchmoveEvent, false);
             
@@ -103,25 +117,57 @@ class App {
             this._divContainer.addEventListener("mousemove", touchmoveEvent, false);
             }
 
+
             
 			
         }
 
         const touchmoveEvent = evt=>{
-			this.currPoint = new THREE.Vector2(...this.screenToPlane([evt.clientX ?? evt.touches[0].clientX, evt.clientY ?? evt.touches[0].clientY]));
-        }
-		const mouseUpEvent = ()=>{
-            this.isTouch = false;
-			if ('ontouchstart' in window){
-                this._divContainer.removeEventListener("touchmove", touchmoveEvent, false);
-                
-            }
-            else{
-            	this._divContainer.removeEventListener("mousemove", touchmoveEvent, false);
-            
-            }
+			function areArraysEqual(array1, array2) {
+				return array1[0] === array2[0] && array1[1] === array2[1];
+			}
+			const newCoord = screenToPlane(getPlaneCoord(evt));
+			if(areArraysEqual(this.currCoord, newCoord)){
+				this.isSameCoord = true;
+				return;
+			}
+			this.isSameCoord = false;
+			this.camoData.push(
+				{
+					pos : this.currCoord,
+					duration : this.duration
+				}
+			)
+
+			this.currCoord = newCoord;
+			this.duration = 0;
+			Shader.uniforms.center.value = new THREE.Vector2(...this.currCoord);
 
         }
+		const mouseUpEvent = ()=>{
+			this.isSameCoord = false;
+			this.camoData.push(
+				{
+					pos : this.currCoord,
+					duration : this.duration
+				}
+			)
+			this.duration = 0;
+
+
+
+
+            if ('ontouchstart' in window){
+				this._divContainer.removeEventListener("touchmove", touchmoveEvent, false);
+				
+				}
+				else{
+				this._divContainer.removeEventListener("mousemove", touchmoveEvent, false);
+			}
+			console.log(this.camoData)
+        }
+
+
 		if ('ontouchstart' in window){
 			this._divContainer.addEventListener("touchstart", touchstartEvent, false);
 			this._divContainer.addEventListener("touchend", mouseUpEvent, false);
@@ -165,12 +211,13 @@ class App {
 		this._scene.add(points)
 	}
 	_setupModel() {
-        const geom = new THREE.PlaneGeometry(2,2,64,64);
+		this.pixelDiv = 32;
+        const geom = new THREE.PlaneGeometry(2,2,this.pixelDiv, this.pixelDiv);
         const mate = new THREE.ShaderMaterial(Shader);
 		const mesh = new THREE.Mesh(geom, mate)
 		
 		this._scene.add(mesh);
-		this._plane =mesh;
+		this._plane = mesh;
 
 
 		
@@ -208,16 +255,17 @@ class App {
 		const deltaTime = (currentTime - this.prevTime) / 1000;
 		this.prevTime = currentTime;
 		this.time += deltaTime;
+		if(this.isSameCoord){
+			this.duration += deltaTime;
+			
+		}
+		console.log(this.duaration)
 		Shader.uniforms.iTime.value = this.time;
+		Shader.uniforms.duration.value = this.duration;
 		
 	}
 	update() {
-		if(this.isTouch === true){
-			Shader.uniforms.center.value = this.currPoint;
-		}
-		else{
-			
-		}
+		
 		
 	}
 	
