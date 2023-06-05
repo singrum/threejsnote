@@ -162,7 +162,7 @@ const Shader = {
         void main() {
             vec3 fragColor = camo();
 
-            gl_FragColor = vec4(fragColor,1.0);
+            gl_FragColor = vec4(vec3(1.0,0.0,0.0),1.0);
         }
     `
 }

@@ -40,10 +40,10 @@ class App {
 
 		this._setupCamera();
 		// this._setupLight();
-		this._setupModel();
+		// this._setupModel();
 		this._setupControls();
 		this._setupBackground();
-		// this._setupComposer();
+		this._setupComposer();
 
 		window.onresize = this.resize.bind(this);
 		this.resize();
@@ -59,13 +59,16 @@ class App {
 		this._composer.setPixelRatio( window.devicePixelRatio )
         const renderPass = new RenderPass(this._scene, this._camera);
 		this._composer.addPass(renderPass);
-		const fxaaPass = new ShaderPass(FXAAShader);
-        
-        fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
-		// this._composer.addPass(fxaaPass);
+
+
+		this.pixelDiv = 32;
+		
+		
+
+
 
 		const filterPass = new ShaderPass( Filter );
-		filterPass.uniforms.renderTex.value = this._composer.renderTarget1.texture;
+		
 		this._composer.addPass( filterPass);
 
 
@@ -105,7 +108,7 @@ class App {
 			this.isSameCoord = true;
 			this.duration = 0;
 			this.currCoord = screenToPlane(getPlaneCoord(evt));
-			Shader.uniforms.center.value = new THREE.Vector2(...this.currCoord);
+			Filter.uniforms.center.value = new THREE.Vector2(...this.currCoord);
 
 
 
@@ -141,7 +144,7 @@ class App {
 
 			this.currCoord = newCoord;
 			this.duration = 0;
-			Shader.uniforms.center.value = new THREE.Vector2(...this.currCoord);
+			Filter.uniforms.center.value = new THREE.Vector2(...this.currCoord);
 
         }
 		const mouseUpEvent = ()=>{
@@ -211,13 +214,7 @@ class App {
 		this._scene.add(points)
 	}
 	_setupModel() {
-		this.pixelDiv = 32;
-        const geom = new THREE.PlaneGeometry(2,2,this.pixelDiv, this.pixelDiv);
-        const mate = new THREE.ShaderMaterial(Shader);
-		const mesh = new THREE.Mesh(geom, mate)
-		
-		this._scene.add(mesh);
-		this._plane = mesh;
+
 
 
 		
@@ -239,8 +236,8 @@ class App {
 	}
 
 	render() {
-		this._renderer.render(this._scene, this._camera);
-		// this._composer.render()
+		// this._renderer.render(this._scene, this._camera);
+		this._composer.render()
 		this.update();
 		this.timeUpdate();
 		this.colorUpdate();
@@ -260,8 +257,8 @@ class App {
 			
 		}
 		console.log(this.duaration)
-		Shader.uniforms.iTime.value = this.time;
-		Shader.uniforms.duration.value = this.duration;
+		Filter.uniforms.iTime.value = this.time;
+		Filter.uniforms.duration.value = this.duration;
 		
 	}
 	update() {
