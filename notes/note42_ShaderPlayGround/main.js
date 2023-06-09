@@ -52,6 +52,8 @@ class App {
 
 		const filterPass = new ShaderPass( Filter );
 		filterPass.uniforms.renderTex.value = this._composer.renderTarget1.texture;
+		filterPass.uniforms.ratio.value = window.innerWidth/ window.innerHeight
+		this.filterPass = filterPass
 		this._composer.addPass( filterPass);
 		
 
@@ -73,6 +75,7 @@ class App {
 		
 		const height = this._divContainer.clientHeight;
 		const aspectRatio = window.innerWidth / window.innerHeight;
+
 		const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 1000);
 		
 		camera.position.set(0,30,100)
@@ -98,7 +101,7 @@ class App {
 	resize() {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
-
+		this.filterPass.uniforms.ratio.value = window.innerWidth/ window.innerHeight
 		// this._camera.aspect = width / height;
 		// this._camera.updateProjectionMatrix();
 
@@ -121,6 +124,8 @@ class App {
 		const deltaTime = (currentTime - this.prevTime) / 1000;
 		this.prevTime = currentTime;
 		this.time += deltaTime;
+		this.filterPass.uniforms.iTime.value = this.time;
+		
 		
 	}
 	update() {

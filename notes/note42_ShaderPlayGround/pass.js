@@ -36,6 +36,9 @@ const Filter = {
 
 
         vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+        vec3 permute(vec3 x) {
+            return mod((34.0 * x + 1.0) * x, 289.0);
+          }
         vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
         vec3 fade(vec3 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
         
@@ -140,6 +143,49 @@ const Filter = {
             return co;
             
         }
+
+
+        vec2 cellular(vec2 P) {
+            #define K 0.142857142857 // 1/7
+            #define Ko 0.428571428571 // 3/7
+            #define jitter 1.0 // Less gives more regular pattern
+            vec2 Pi = mod(floor(P), 289.0);
+             vec2 Pf = fract(P);
+            vec3 oi = vec3(-1.0, 0.0, 1.0);
+            vec3 of = vec3(-0.5, 0.5, 1.5);
+            vec3 px = permute(Pi.x + oi);
+            vec3 p = permute(px.x + Pi.y + oi); // p11, p12, p13
+            vec3 ox = fract(p*K) - Ko;
+            vec3 oy = mod(floor(p*K),7.0)*K - Ko;
+            vec3 dx = Pf.x + 0.5 + jitter*ox;
+            vec3 dy = Pf.y - of + jitter*oy;
+            vec3 d1 = dx * dx + dy * dy; // d11, d12 and d13, squared
+            p = permute(px.y + Pi.y + oi); // p21, p22, p23
+            ox = fract(p*K) - Ko;
+            oy = mod(floor(p*K),7.0)*K - Ko;
+            dx = Pf.x - 0.5 + jitter*ox;
+            dy = Pf.y - of + jitter*oy;
+            vec3 d2 = dx * dx + dy * dy; // d21, d22 and d23, squared
+            p = permute(px.z + Pi.y + oi); // p31, p32, p33
+            ox = fract(p*K) - Ko;
+            oy = mod(floor(p*K),7.0)*K - Ko;
+            dx = Pf.x - 1.5 + jitter*ox;
+            dy = Pf.y - of + jitter*oy;
+            vec3 d3 = dx * dx + dy * dy; // d31, d32 and d33, squared
+            // Sort out the two smallest distances (F1, F2)
+            vec3 d1a = min(d1, d2);
+            d2 = max(d1, d2); // Swap to keep candidates for F2
+            d2 = min(d2, d3); // neither F1 nor F2 are now in d3
+            d1 = min(d1a, d2); // F1 is now in d1
+            d2 = max(d1a, d2); // Swap to keep candidates for F2
+            d1.xy = (d1.x < d1.y) ? d1.xy : d1.yx; // Swap if smaller
+            d1.xz = (d1.x < d1.z) ? d1.xz : d1.zx; // F1 is in d1.x
+            d1.yz = min(d1.yz, d2.yz); // F2 is now not in d2.yz
+            d1.y = min(d1.y, d1.z); // nor in  d1.z
+            d1.y = min(d1.y, d2.x); // F2 is in d1.y, we're done.notes/note40_Saturn/design.css notes/note40_Saturn/main.js notes/note40_Saturn/pass.js notes/note40_Saturn/Saturn.html notes/note40_Saturn/shader.js
+            return sqrt(d1.xy);
+        }
+
         vec3 filterBG(){
             ivec2 pix = ivec2(gl_FragCoord.xy);
             vec3 renderColor = texelFetch(renderTex, pix ,0).xyz;
@@ -148,10 +194,20 @@ const Filter = {
 
 
             vec3 color;
-            color = vec3(rand(vUv);
+            float s,t;
+            s = vUv.x * ratio + 0.0 / 10.0;
+            t = vUv.y;
+            
+            color = vec3(cellular(vec2(s,t) * 10.0).x);
+            // if(cellular(vec2(s,t) * 10.0).x > 0.2){
+            //     color = vec3(1.0,1.0,1.0);
+            // }
+            // else{color = vec3(0.0,0.0,0.0);}
             return color;
             
         }
+
+        
         void main() {
             vec3 fragColor;
             fragColor = filterBG();
