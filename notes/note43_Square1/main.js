@@ -55,12 +55,12 @@ class App {
     }
 
 	_setupControls(){ 
-        // new OrbitControls(this._camera, this._divContainer);
+        new OrbitControls(this._camera, this._divContainer);
 
         const moveEvent = e=>{
-			this.pointerX = -window.innerWidth / 2 + e.clientX ?? e.touches[0].clientX;
-			this.pointerY = window.innerHeight /2 - e.clientY ?? e.touches[0].clientY;
-			console.log(this.pointerY)
+			this.pointerX = -window.innerWidth / 2 + (e.clientX ?? e.touches[0].clientX);
+			this.pointerY = window.innerHeight /2 - (e.clientY ?? e.touches[0].clientY);
+			console.log(this.pointerX, this.pointerY)
         }
 
 
@@ -78,7 +78,7 @@ class App {
 	}
 
 	_setupCamera() {
-		const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.001, 1000);
+		const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.001, 1000);
 		
 		camera.position.set(0,0,2)
 		
@@ -110,7 +110,6 @@ class App {
 		this.pointerX = 1;
 		this.pointerY = 1;
 		Shader.uniforms.pointer.value = new THREE.Vector2(this.pointerX, this.pointerY);
-		
 		Shader.uniforms.unit.value = this.unit;
 		Shader.uniforms.damping.value = 0.01;
 		
@@ -162,7 +161,7 @@ class App {
 		
 	}
 	update() {
-		Shader.uniforms.pointer.value.set(this.pointerX, this.pointerY)
+		Shader.uniforms.pointer.value = new THREE.Vector2(this.pointerX, this.pointerY)
 		
 	}
 	

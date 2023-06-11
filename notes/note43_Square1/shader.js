@@ -54,7 +54,8 @@ const Shader = {
 
             vec2 index = floor(vUv / unit);
             vec2 squareLen = unit - index * pointer * damping / 100.0;
-            if(all(lessThan(abs(vUv - unit * (index + 0.5)), squareLen))) color = vec3(1.0,1.0,1.0);
+            if(all(lessThan(abs(vUv - unit * (index + 0.5)), squareLen / 2.0))) color = vec3(1.0,1.0,1.0);
+            else{discard;}
             
             
             
