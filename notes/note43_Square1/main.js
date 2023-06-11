@@ -56,16 +56,27 @@ class App {
 
 	_setupControls(){ 
         new OrbitControls(this._camera, this._divContainer);
-
+		const downEvent = e=>{
+			this.pointerX = -window.innerWidth / 2 + (e.clientX ?? e.touches[0].clientX);
+			this.pointerY = window.innerHeight /2 - (e.clientY ?? e.touches[0].clientY);
+			const length = Math.hypot(this.pointerX, this.pointerY);
+			
+			
+			this.square.lookAt(this.pointerX, this.pointerY, 500-length)
+		}
         const moveEvent = e=>{
 			this.pointerX = -window.innerWidth / 2 + (e.clientX ?? e.touches[0].clientX);
 			this.pointerY = window.innerHeight /2 - (e.clientY ?? e.touches[0].clientY);
-			console.log(this.pointerX, this.pointerY)
+			const length = Math.hypot(this.pointerX, this.pointerY);
+			
+			
+			this.square.lookAt(this.pointerX, this.pointerY, 500-length)
         }
 
 
 		if ('ontouchstart' in window){
 			this._divContainer.addEventListener("touchmove",moveEvent, false);
+			this._divContainer.addEventListener("touchstart",downEvent, false);
 		}
 		else{
 			this._divContainer.addEventListener("mousemove",moveEvent, false);
@@ -80,7 +91,7 @@ class App {
 	_setupCamera() {
 		const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.001, 1000);
 		
-		camera.position.set(0,0,2)
+		camera.position.set(0,0,3)
 		
 		camera.lookAt(0,0,0)
 		this._camera = camera;
@@ -111,12 +122,14 @@ class App {
 		this.pointerY = 1;
 		Shader.uniforms.pointer.value = new THREE.Vector2(this.pointerX, this.pointerY);
 		Shader.uniforms.unit.value = this.unit;
-		Shader.uniforms.damping.value = 0.01;
+		Shader.uniforms.damping.value = 0.02;
+		Shader.uniforms.segNum.value = this.segNum;
 		
 		
 		const squareGeom = new THREE.PlaneGeometry(this.len, this.len);
 		const squareMate = new THREE.ShaderMaterial(Shader);
 		const square = new THREE.Mesh(squareGeom, squareMate);
+		this.square = square;
 		this._scene.add(square);
 		
 		
