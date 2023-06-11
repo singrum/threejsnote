@@ -55,7 +55,12 @@ class App {
     }
 
 	_setupControls(){ 
-        new OrbitControls(this._camera, this._divContainer);
+        const control = new OrbitControls(this._camera, this._divContainer);
+		control.maxAzimuthAngle = Math.PI /6
+		control.minAzimuthAngle = -Math.PI/6
+		control.maxPolarAngle = Math.PI * 4 /6
+		control.minPolarAngle = Math.PI * 2 /6
+		control.enableZoom = false;
 		const downEvent = e=>{
 			this.pointerX = -window.innerWidth / 2 + (e.clientX ?? e.touches[0].clientX);
 			this.pointerY = window.innerHeight /2 - (e.clientY ?? e.touches[0].clientY);
@@ -74,14 +79,14 @@ class App {
         }
 
 
-		if ('ontouchstart' in window){
-			this._divContainer.addEventListener("touchmove",moveEvent, false);
-			this._divContainer.addEventListener("touchstart",downEvent, false);
-		}
-		else{
-			this._divContainer.addEventListener("mousemove",moveEvent, false);
+		// if ('ontouchstart' in window){
+		// 	this._divContainer.addEventListener("touchmove",moveEvent, false);
+		// 	this._divContainer.addEventListener("touchstart",downEvent, false);
+		// }
+		// else{
+		// 	this._divContainer.addEventListener("mousemove",moveEvent, false);
 			
-		}
+		// }
 
 
 
@@ -122,7 +127,7 @@ class App {
 		this.pointerY = 1;
 		Shader.uniforms.pointer.value = new THREE.Vector2(this.pointerX, this.pointerY);
 		Shader.uniforms.unit.value = this.unit;
-		Shader.uniforms.damping.value = 0.02;
+		Shader.uniforms.damping.value = 1;
 		Shader.uniforms.segNum.value = this.segNum;
 		
 		
@@ -174,8 +179,8 @@ class App {
 		
 	}
 	update() {
-		Shader.uniforms.pointer.value = new THREE.Vector2(this.pointerX, this.pointerY)
-		
+		Shader.uniforms.pointer.value = new THREE.Vector2(-this._camera.position.x, -this._camera.position.y)
+		console.log(this._camera.position)
 	}
 	
 }
