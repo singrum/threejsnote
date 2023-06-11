@@ -63,7 +63,11 @@ class App {
 		control.minPolarAngle = Math.PI * 2 /6
 		control.enableZoom = false;
 		control.enableDamping = true;
-		control.dampingFactor = 0.1;
+		control.dampingFactor = 0.01;
+
+
+
+
 		const downEvent = e=>{
 			this.pointerX = -window.innerWidth / 2 + (e.clientX ?? e.touches[0].clientX);
 			this.pointerY = window.innerHeight /2 - (e.clientY ?? e.touches[0].clientY);
@@ -167,6 +171,8 @@ class App {
 	render() {
 		this._renderer.render(this._scene, this._camera);
 		this._control.update();
+		this.square.position.x = -this._control.getAzimuthalAngle() * 0.1
+		this.square.position.y = -(this._control.getPolarAngle() - Math.PI/2) * 0.1
 		this.update();
 		this.timeUpdate();
 		this.colorUpdate();
@@ -185,7 +191,7 @@ class App {
 	}
 	update() {
 		Shader.uniforms.pointer.value = new THREE.Vector2(-this._camera.position.x, -this._camera.position.y)
-		console.log(this._camera.position)
+		
 	}
 	
 }
