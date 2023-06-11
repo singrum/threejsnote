@@ -171,8 +171,8 @@ class App {
 	render() {
 		this._renderer.render(this._scene, this._camera);
 		this._control.update();
-		this.square.position.x = -this._control.getAzimuthalAngle() * 0.1
-		this.square.position.y = -(this._control.getPolarAngle() - Math.PI/2) * 0.1
+		this.square.position.x = -this._control.getAzimuthalAngle() * 0.3
+		this.square.position.y = (this._control.getPolarAngle() - Math.PI/2) * 0.3
 		this.update();
 		this.timeUpdate();
 		this.colorUpdate();
