@@ -56,11 +56,14 @@ class App {
 
 	_setupControls(){ 
         const control = new OrbitControls(this._camera, this._divContainer);
+		this._control = control;
 		control.maxAzimuthAngle = Math.PI /6
 		control.minAzimuthAngle = -Math.PI/6
 		control.maxPolarAngle = Math.PI * 4 /6
 		control.minPolarAngle = Math.PI * 2 /6
 		control.enableZoom = false;
+		control.enableDamping = true;
+		control.dampingFactor = 0.1;
 		const downEvent = e=>{
 			this.pointerX = -window.innerWidth / 2 + (e.clientX ?? e.touches[0].clientX);
 			this.pointerY = window.innerHeight /2 - (e.clientY ?? e.touches[0].clientY);
@@ -153,6 +156,8 @@ class App {
 		const width = this._divContainer.clientWidth;
 		const height = this._divContainer.clientHeight;
 
+		
+
 		this._camera.aspect = width / height;
 		this._camera.updateProjectionMatrix();
 
@@ -161,7 +166,7 @@ class App {
 
 	render() {
 		this._renderer.render(this._scene, this._camera);
-		
+		this._control.update();
 		this.update();
 		this.timeUpdate();
 		this.colorUpdate();

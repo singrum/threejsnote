@@ -72,6 +72,7 @@ const Shader = {
                     squareLen = unit - vec2(segNum - index.x - 1.0, (segNum - index.y - 1.0)) * abs(pointer) * damping / 100.0;
                 }
             }
+            squareLen += vec2(0.001,0.001);
             if(all(lessThan(abs(vUv - unit * (index + 0.5)), squareLen / 2.0))) color = vec3(0, 1, 0.663);
             else{discard;}
             
